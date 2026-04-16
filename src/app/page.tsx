@@ -61,18 +61,18 @@ export default function Home() {
       Illustration: RICIllustration,
     },
     {
+      label: "About",
+      href: "/about",
+      desc: "The story behind the tools — a surgeon building AI for clinicians.",
+      bg: "#C6D2DC",
+      Illustration: TranslateIllustration,
+    },
+    {
       label: "Blog",
-      href: "/blog",
+      href: "https://tuyentranmd.com/blog",
       desc: "Writing on AI in research, methodology, and publishing for clinicians.",
       bg: "#E0D4C8",
       Illustration: BlogIllustration,
-    },
-    {
-      label: "Founder",
-      href: "https://tuyentranmd.com",
-      desc: "Tuyến Trần, MD — pediatric & plastic surgeon, clinical researcher.",
-      bg: "#C6D2DC",
-      Illustration: TranslateIllustration,
       external: true,
     },
   ];

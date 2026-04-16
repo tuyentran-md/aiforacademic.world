@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // ── Tab data ──────────────────────────────────────────────────────────────────
 
@@ -270,7 +270,12 @@ function AVRPanel() {
 
             <p className="mt-6 text-xs text-stone-400">
               Follow updates on the{" "}
-              <a href="/blog" className="underline underline-offset-2 hover:text-stone-600 transition-colors">
+              <a
+                href="https://tuyentranmd.com/blog"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-stone-600 transition-colors"
+              >
                 blog
               </a>
               {" "}or via{" "}
@@ -295,6 +300,14 @@ function AVRPanel() {
 
 export default function ProductTabs() {
   const [active, setActive] = useState<TabKey>("ric");
+
+  // Activate tab from URL hash (e.g. /products#avr)
+  useEffect(() => {
+    const hash = window.location.hash.replace("#", "");
+    if (hash === "avr" || hash === "med-translate" || hash === "ric") {
+      setActive(hash as TabKey);
+    }
+  }, []);
 
   return (
     <div>

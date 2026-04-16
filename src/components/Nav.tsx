@@ -5,9 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { href: "/products", label: "Products" },
-  { href: "/blog", label: "Blog" },
-  { href: "https://tuyentranmd.com", label: "Founder", external: true },
+  { href: "https://check.aiforacademic.world", label: "RIC", external: true },
+  { href: "https://translate.tuyentranmd.com", label: "MedTranslate", external: true },
+  { href: "/products#avr", label: "AVR" },
+  { href: "/about", label: "About" },
+  { href: "https://tuyentranmd.com/blog", label: "Blog", external: true },
 ];
 
 export default function Nav() {
