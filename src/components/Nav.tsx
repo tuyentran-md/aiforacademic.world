@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "https://ric.tuyentranmd.com", label: "RIC", external: true },
-  { href: "https://translate.tuyentranmd.com", label: "MedTranslate", external: true },
+  { href: "https://translate.tuyentranmd.com", label: "Translator", external: true },
   { href: "/products#avr", label: "AVR" },
   { href: "/about", label: "About" },
   { href: "https://tuyentranmd.com/blog", label: "Blog", external: true },

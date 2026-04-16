@@ -31,10 +31,10 @@ function AboutIllustration() {
 // ── Content ───────────────────────────────────────────────────────────────────
 
 const story = [
-  "AI for Academic is a small product studio by Tuyến Trần, MD — a pediatric and plastic surgeon at Vinmec International Hospital, Vietnam. It exists because clinical research in resource-limited settings is harder than it needs to be, and because AI, used carefully, can close some of that gap.",
+  "AI for Academic is a small product studio by Tuyến Trần, MD — a pediatric and plastic surgeon at Vinmec International Hospital, Vietnam. It exists because academic work in resource-limited settings is harder than it needs to be, and because AI, used carefully, can close some of that gap.",
   "I wasn't trained to do research — I was trained to operate. When I started publishing, I discovered that most of the tools and workflows in academic publishing were designed for people with support structures I didn't have: protected time, methodological mentors, institutional libraries, integrity-checking subscriptions.",
-  "I kept doing research anyway. Because the questions wouldn't leave me alone. And because I came to believe that if AI could make that process less inaccessible — not by replacing judgment, but by making it less opaque — then the patients at the end of the research chain benefit too.",
-  "So I started building tools. First for myself. Then I realized other clinicians were facing the same walls. I don't think of myself as an entrepreneur. I'm a surgeon trying to fill the gaps he can see.",
+  "I kept doing research anyway. Because the questions wouldn't leave me alone. And because I came to believe that if AI could make that process less inaccessible — not by replacing judgment, but by making it less opaque — then the work that follows benefits too.",
+  "So I started building tools. First for myself, as a clinician-researcher. Then it became clear that other researchers — especially those outside the English-speaking world — were hitting the same walls. The tools here are what came out of it.",
 ];
 
 const beliefs = [
@@ -57,16 +57,16 @@ const beliefs = [
 
 const focusAreas = [
   {
-    label: "Research integrity",
-    desc: "AI detection, citation verification, plagiarism, peer-review simulation for clinician-authors.",
+    label: "Research integrity (RIC)",
+    desc: "AI detection, citation verification, plagiarism, peer-review simulation — before you submit.",
   },
   {
-    label: "Medical translation",
-    desc: "Clinical-grade translation that preserves statistical constructs and surgical terminology.",
+    label: "Academic translation",
+    desc: "Context-aware translation across languages that preserves technical terminology, statistics, and domain vocabulary.",
   },
   {
-    label: "Variable review",
-    desc: "Systematic variable extraction and validation for observational studies and registry data (in development).",
+    label: "AI for Vietnamese Research (AVR)",
+    desc: "A research formation system for Vietnamese clinicians: idea → blueprint → validated abstract → submission gate → manuscript outline. In development.",
   },
 ];
 
@@ -94,9 +94,9 @@ export default function AboutPage() {
                   className="font-serif font-bold text-stone-900 leading-[1.05] mb-4"
                   style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
                 >
-                  AI tools built by a surgeon,
+                  AI tools for
                   <br />
-                  for clinicians who publish.
+                  academic works.
                 </h1>
                 <p className="text-[15px] text-stone-600 leading-relaxed max-w-lg">
                   AI for Academic is a product studio by{" "}

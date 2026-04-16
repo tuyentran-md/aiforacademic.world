@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 const TABS = [
   { key: "ric", label: "RIC" },
-  { key: "med-translate", label: "Med Translate" },
+  { key: "translator", label: "Translator" },
   { key: "avr", label: "AVR" },
 ] as const;
 
@@ -62,7 +62,7 @@ function RICPanel() {
                 Research Integrity Check
               </p>
               <p className="text-[15px] text-stone-600 leading-relaxed max-w-lg">
-                An AI-powered manuscript integrity checker built for clinicians who need to verify their research before journal submission. Catches AI-generated text, citation hallucinations, and plagiarism — then simulates a peer review.
+                An AI-powered manuscript integrity checker for researchers who want to verify their work before journal submission. Catches AI-generated text, citation hallucinations, and plagiarism — then simulates a peer review.
               </p>
             </div>
             <div className="flex flex-col gap-2 flex-shrink-0">
@@ -94,49 +94,39 @@ function RICPanel() {
             </div>
           ))}
         </div>
-
-        {/* Who it's for */}
-        <div className="mt-8 rounded-2xl p-6 md:p-8 no-grid" style={{ backgroundColor: "#F0EDE8" }}>
-          <p className="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-3">
-            Who it&apos;s for
-          </p>
-          <p className="text-[15px] text-stone-700 leading-relaxed">
-            Clinical researchers, residents, and surgeons in resource-limited settings who submit to indexed journals but don&apos;t have access to institutional integrity-checking tools.
-          </p>
-        </div>
       </div>
     </div>
   );
 }
 
-// ── Med Translate panel ───────────────────────────────────────────────────────
+// ── Translator panel ──────────────────────────────────────────────────────────
 
-function MedTranslatePanel() {
+function TranslatorPanel() {
   const features = [
     {
-      icon: "🩺",
-      title: "Clinical-grade vocabulary",
-      desc: "Preserves statistical constructs, drug names, ICD codes, and anatomical terminology that general-purpose translators mangle.",
+      icon: "🧠",
+      title: "Context-aware",
+      desc: "Preserves statistics, technical terminology, and domain vocabulary that general-purpose translators mangle.",
     },
     {
       icon: "📊",
-      title: "Stats-aware translation",
-      desc: "Keeps p-values, confidence intervals, odds ratios, and trial-specific jargon intact and correctly expressed in the target language.",
+      title: "Stats & data intact",
+      desc: "p-values, confidence intervals, units, and numerical data are kept unchanged and correctly expressed in the target language.",
     },
     {
-      icon: "🔬",
-      title: "Surgical terminology",
-      desc: "Trained on operative notes, surgical atlases, and peer-reviewed surgical literature for accurate technical terms.",
+      icon: "🌐",
+      title: "Any academic domain",
+      desc: "Works for medical, legal, scientific, engineering, and humanities texts — not limited to medicine.",
     },
     {
       icon: "🌏",
-      title: "Built for resource-limited settings",
-      desc: "Designed for clinicians in developing countries who need to read or translate clinical literature without institutional support.",
+      title: "Built for non-English researchers",
+      desc: "Designed for researchers who read or publish across languages without institutional translation support.",
     },
   ];
 
   return (
-    <div id="med-translate" className="py-10 md:py-14">
+    <div id="translator" className="py-10 md:py-14">
       <div className="max-w-5xl mx-auto px-6 md:px-8">
 
         {/* Hero card */}
@@ -147,7 +137,7 @@ function MedTranslatePanel() {
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-xl font-bold text-stone-900">Med Translate</span>
+                <span className="text-xl font-bold text-stone-900">Translator</span>
                 <span
                   className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full"
                   style={{ backgroundColor: "#B0CCC2", color: "#1a402f" }}
@@ -156,10 +146,10 @@ function MedTranslatePanel() {
                 </span>
               </div>
               <p className="text-base font-semibold text-stone-800 mb-2">
-                Medical Translation
+                Context-aware academic translation
               </p>
               <p className="text-[15px] text-stone-600 leading-relaxed max-w-lg">
-                Medical translation tuned specifically for clinical literature. Unlike generic translation tools, Med Translate understands what must not be paraphrased — statistical language, drug names, surgical procedures.
+                Translates any academic text across languages while preserving technical terms, statistics, and domain vocabulary. Unlike generic translation tools, Translator understands what must not be paraphrased.
               </p>
             </div>
             <div className="flex flex-col gap-2 flex-shrink-0">
@@ -170,7 +160,7 @@ function MedTranslatePanel() {
                 className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-6 py-2.5 rounded-full transition-opacity hover:opacity-85 no-grid"
                 style={{ backgroundColor: "#1a402f", color: "#e8ede4" }}
               >
-                Open Med Translate&thinsp;↗
+                Open Translator&thinsp;↗
               </a>
               <p className="text-xs text-stone-500 text-center">Beta · Pay per use (VND)</p>
             </div>
@@ -206,7 +196,7 @@ function AVRPanel() {
           className="rounded-2xl p-7 md:p-12 no-grid"
           style={{ backgroundColor: "#DDD4EC" }}
         >
-          <div className="max-w-xl">
+          <div className="max-w-2xl">
             <div className="flex items-center gap-3 mb-4">
               <span className="text-xl font-bold text-stone-900">AVR</span>
               <span
@@ -217,37 +207,50 @@ function AVRPanel() {
               </span>
             </div>
             <p className="text-base font-semibold text-stone-800 mb-3">
-              Automated Variable Reviewer
+              AI for Vietnamese Research
             </p>
             <p className="text-[15px] text-stone-600 leading-relaxed mb-4">
-              AVR is a tool for systematic variable extraction and validation from clinical datasets. It will help researchers define, audit, and document their variables — catching inconsistencies before analysis.
+              AVR is a <strong>research formation system</strong> for Vietnamese clinicians — not a writing tool, not a chatbot. It walks a researcher from a raw idea to a submission-ready manuscript outline through a single constrained pipeline.
             </p>
             <p className="text-[15px] text-stone-600 leading-relaxed mb-6">
-              Designed for observational studies, retrospective analyses, and registry data where variable definitions are often underdocumented.
+              Bilingual by design: explanations in Vietnamese, technical terms in English. Built for clinicians in Vietnam who publish without dedicated research support — protected time, methodological mentors, institutional integrity tools.
             </p>
 
-            <div className="rounded-xl p-5 no-grid" style={{ backgroundColor: "rgba(255,255,255,0.4)" }}>
-              <p className="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-2">
-                Planned features
+            <div className="rounded-xl p-5 no-grid mb-5" style={{ backgroundColor: "rgba(255,255,255,0.4)" }}>
+              <p className="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-3">
+                Pipeline
               </p>
               <ul className="space-y-2 text-sm text-stone-700">
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 text-stone-400">—</span>
-                  <span>Variable dictionary builder from clinical records</span>
+                  <span className="mt-0.5 text-stone-400 font-mono text-xs">1</span>
+                  <span><strong>Conversational idea engine</strong> — LLM-guided clarification, rule-extracted attributes</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 text-stone-400">—</span>
-                  <span>Automated consistency checks across dataset columns</span>
+                  <span className="mt-0.5 text-stone-400 font-mono text-xs">2</span>
+                  <span><strong>Research blueprint</strong> — validated study design, endpoint, feasibility</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 text-stone-400">—</span>
-                  <span>STROBE / CONSORT variable documentation export</span>
+                  <span className="mt-0.5 text-stone-400 font-mono text-xs">3</span>
+                  <span><strong>Estimated abstract</strong> — blueprint-bound, no fabricated results</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 text-stone-400">—</span>
-                  <span>Integration with R and Python analysis workflows</span>
+                  <span className="mt-0.5 text-stone-400 font-mono text-xs">4</span>
+                  <span><strong>Submission Gate</strong> — deterministic Tier 0–4 validation, reviewer simulation</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 text-stone-400 font-mono text-xs">5</span>
+                  <span><strong>Full manuscript outline</strong> — journal-specific, ready for the researcher to fill in</span>
                 </li>
               </ul>
+            </div>
+
+            <div className="rounded-xl p-5 no-grid" style={{ backgroundColor: "rgba(255,255,255,0.4)" }}>
+              <p className="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-2">
+                Planned pricing
+              </p>
+              <p className="text-sm text-stone-700 leading-relaxed">
+                Free: Phase 1 (idea → estimated abstract), 3 sessions/day. Paid (199k–299k VND/month): full pipeline, unlimited.
+              </p>
             </div>
 
             <p className="mt-6 text-xs text-stone-400">
@@ -286,7 +289,7 @@ export default function ProductTabs() {
   // Activate tab from URL hash (e.g. /products#avr)
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
-    if (hash === "avr" || hash === "med-translate" || hash === "ric") {
+    if (hash === "avr" || hash === "translator" || hash === "ric") {
       setActive(hash as TabKey);
     }
   }, []);
@@ -338,7 +341,7 @@ export default function ProductTabs() {
 
       {/* ── Panel ───────────────────────────────────────────── */}
       {active === "ric" && <RICPanel />}
-      {active === "med-translate" && <MedTranslatePanel />}
+      {active === "translator" && <TranslatorPanel />}
       {active === "avr" && <AVRPanel />}
     </div>
   );

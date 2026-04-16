@@ -13,7 +13,7 @@ export default function Home() {
           <div className="max-w-5xl mx-auto px-6 md:px-8">
             <div className="max-w-2xl">
               <p className="text-xs font-semibold uppercase tracking-[0.15em] text-stone-400 mb-4">
-                AI · Research · Medicine
+                AI · Research · Academic
               </p>
               <h1
                 className="font-serif font-bold text-stone-900 leading-[1.08] mb-5"
@@ -21,10 +21,10 @@ export default function Home() {
               >
                 AI tools for
                 <br />
-                clinicians who publish.
+                academic works.
               </h1>
               <p className="text-[16px] text-stone-600 leading-relaxed max-w-xl">
-                A small product studio by a surgeon —{" "}
+                A small product studio —{" "}
                 <Link href="/about" className="text-stone-800 underline underline-offset-3 hover:text-stone-900 transition-colors">
                   more on the About page
                 </Link>
@@ -67,7 +67,7 @@ export default function Home() {
                 </p>
               </a>
 
-              {/* Med Translate */}
+              {/* Translator */}
               <a
                 href="https://translate.tuyentranmd.com"
                 target="_blank"
@@ -76,7 +76,7 @@ export default function Home() {
                 style={{ backgroundColor: "#C6DCD2" }}
               >
                 <div className="flex items-start justify-between gap-3 mb-3">
-                  <p className="text-base font-semibold text-stone-900">Med Translate&thinsp;↗</p>
+                  <p className="text-base font-semibold text-stone-900">Translator&thinsp;↗</p>
                   <span
                     className="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0"
                     style={{ backgroundColor: "#B0CCC2", color: "#1a402f" }}
@@ -85,10 +85,10 @@ export default function Home() {
                   </span>
                 </div>
                 <p className="text-sm font-medium text-stone-700 mb-1">
-                  Medical Translation
+                  Context-aware academic translation
                 </p>
                 <p className="text-sm text-stone-600 leading-relaxed">
-                  Preserves statistical constructs and surgical terminology across languages.
+                  Translates any academic text across languages while preserving technical terms, statistics, and domain vocabulary.
                 </p>
               </a>
 
@@ -108,10 +108,10 @@ export default function Home() {
                   </span>
                 </div>
                 <p className="text-sm font-medium text-stone-700 mb-1">
-                  Automated Variable Reviewer
+                  AI for Vietnamese Research
                 </p>
                 <p className="text-sm text-stone-600 leading-relaxed">
-                  Systematic variable extraction and validation for clinical datasets.
+                  A research formation system for Vietnamese clinicians: idea → blueprint → validated abstract → submission gate → manuscript outline.
                 </p>
               </Link>
 
