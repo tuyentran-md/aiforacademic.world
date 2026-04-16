@@ -5,11 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { href: "https://ric.tuyentranmd.com", label: "RIC", external: true },
-  { href: "https://translate.tuyentranmd.com", label: "Translator", external: true },
-  { href: "/products#avr", label: "AVR" },
+  { href: "/products", label: "Tools" },
+  { href: "/resources", label: "Resources" },
+  { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
-  { href: "https://tuyentranmd.com/blog", label: "Blog", external: true },
 ];
 
 export default function Nav() {
@@ -36,20 +35,7 @@ export default function Nav() {
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => {
-            const active = !link.external && pathname?.startsWith(link.href);
-            if (link.external) {
-              return (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-stone-400 hover:text-stone-800 transition-colors"
-                >
-                  {link.label}&thinsp;↗
-                </a>
-              );
-            }
+            const active = pathname?.startsWith(link.href);
             return (
               <Link
                 key={link.href}
@@ -90,33 +76,20 @@ export default function Nav() {
           className="md:hidden border-t border-black/[0.06] px-6 py-4 no-grid"
           style={{ backgroundColor: "#F5F1EA" }}
         >
-          {navLinks.map((link) =>
-            link.external ? (
-              <a
-                key={link.href}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block py-2.5 text-sm text-stone-500"
-                onClick={() => setOpen(false)}
-              >
-                {link.label}&thinsp;↗
-              </a>
-            ) : (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`block py-2.5 text-sm ${
-                  pathname?.startsWith(link.href)
-                    ? "font-medium text-stone-900"
-                    : "text-stone-500"
-                }`}
-                onClick={() => setOpen(false)}
-              >
-                {link.label}
-              </Link>
-            )
-          )}
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`block py-2.5 text-sm ${
+                pathname?.startsWith(link.href)
+                  ? "font-medium text-stone-900"
+                  : "text-stone-500"
+              }`}
+              onClick={() => setOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
       )}
     </header>
