@@ -6,7 +6,7 @@ const footerLinks = [
   {
     section: "Products",
     links: [
-      { label: "RIC — Research Integrity Check", href: "https://check.aiforacademic.world", external: true },
+      { label: "RIC — Research Integrity Check", href: "https://ric.tuyentranmd.com", external: true },
       { label: "Med Translate", href: "/products#med-translate" },
       { label: "AVR (coming soon)", href: "/products#avr" },
       { label: "All Products", href: "/products" },
@@ -15,7 +15,8 @@ const footerLinks = [
   {
     section: "Site",
     links: [
-      { label: "Blog", href: "/blog" },
+      { label: "Blog", href: "https://tuyentranmd.com/blog", external: true },
+      { label: "About", href: "/about" },
       { label: "Founder — tuyentranmd.com", href: "https://tuyentranmd.com", external: true },
     ],
   },

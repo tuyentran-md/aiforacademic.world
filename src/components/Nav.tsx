@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { href: "https://check.aiforacademic.world", label: "RIC", external: true },
+  { href: "https://ric.tuyentranmd.com", label: "RIC", external: true },
   { href: "https://translate.tuyentranmd.com", label: "MedTranslate", external: true },
   { href: "/products#avr", label: "AVR" },
   { href: "/about", label: "About" },
@@ -34,7 +34,7 @@ export default function Nav() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6 flex-1 justify-center">
+        <nav className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => {
             const active = !link.external && pathname?.startsWith(link.href);
             if (link.external) {
@@ -65,19 +65,6 @@ export default function Nav() {
             );
           })}
         </nav>
-
-        {/* Right: try RIC CTA */}
-        <div className="hidden md:flex items-center flex-shrink-0">
-          <a
-            href="https://check.aiforacademic.world"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs font-semibold px-4 py-1.5 rounded-full transition-opacity hover:opacity-80"
-            style={{ backgroundColor: "#C4634E", color: "#fff" }}
-          >
-            Try RIC free
-          </a>
-        </div>
 
         {/* Mobile hamburger */}
         <button
@@ -130,16 +117,6 @@ export default function Nav() {
               </Link>
             )
           )}
-          <a
-            href="https://check.aiforacademic.world"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-full transition-opacity hover:opacity-80"
-            style={{ backgroundColor: "#C4634E", color: "#fff" }}
-            onClick={() => setOpen(false)}
-          >
-            Try RIC free&thinsp;↗
-          </a>
         </div>
       )}
     </header>

@@ -67,7 +67,7 @@ function RICPanel() {
             </div>
             <div className="flex flex-col gap-2 flex-shrink-0">
               <a
-                href="https://check.aiforacademic.world"
+                href="https://ric.tuyentranmd.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-6 py-2.5 rounded-full transition-opacity hover:opacity-85 no-grid"
@@ -101,25 +101,7 @@ function RICPanel() {
             Who it&apos;s for
           </p>
           <p className="text-[15px] text-stone-700 leading-relaxed">
-            Clinical researchers, residents, and surgeons in resource-limited settings who submit to indexed journals but don&apos;t have access to institutional integrity-checking tools. Previously hosted at{" "}
-            <a
-              href="https://ric.tuyentranmd.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 text-stone-800 hover:text-stone-900 transition-colors"
-            >
-              ric.tuyentranmd.com
-            </a>
-            {" "}— now at{" "}
-            <a
-              href="https://check.aiforacademic.world"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 text-stone-800 hover:text-stone-900 transition-colors"
-            >
-              check.aiforacademic.world
-            </a>
-            .
+            Clinical researchers, residents, and surgeons in resource-limited settings who submit to indexed journals but don&apos;t have access to institutional integrity-checking tools.
           </p>
         </div>
       </div>
