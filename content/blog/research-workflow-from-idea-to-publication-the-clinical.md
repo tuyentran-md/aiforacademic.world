@@ -5,24 +5,7 @@ excerpt: "A high-level view of moving an idea from shower-thought to published P
 category: "Practice"
 slug: "research-workflow-from-idea-to-publication-the-clinical"
 focusKeyword: "research workflow"
----
-
-id: 34
-type: practice
-content_role: spoke
-title: "My End-to-End Research Workflow"
-seo_title: "From Idea to Publication: The Clinical Research Lifecycle"
-slug: from-idea-to-publication-clinical-research-lifecycle
-focus_keyword: research workflow
-keywords: ["research workflow", "clinical research lifecycle", "from idea to publication"]
-pillar_url: "https://tuyentranmd.com/blog/academic-writing-system-academic-writing-workflow-a"
-status: drafted
-drafted_at: 2026-03-31
-word_count_est: 920
-
-
-
-Most research workflow advice describes an idealized version of the process — linear, orderly, each stage neatly completing before the next begins. The actual research workflow looks nothing like that. It loops back on itself, stalls, gets restarted, and occasionally produces a paper.
+---Most research workflow advice describes an idealized version of the process — linear, orderly, each stage neatly completing before the next begins. The actual research workflow looks nothing like that. It loops back on itself, stalls, gets restarted, and occasionally produces a paper.
 
 
 What's useful isn't a perfect map. It's a working map — one that tells you which stage you're in, what you should be doing, and when it's legitimate to move forward.

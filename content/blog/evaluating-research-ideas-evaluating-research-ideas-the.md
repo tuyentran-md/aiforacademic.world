@@ -5,24 +5,7 @@ excerpt: "3 questions to ask before you spend 6 months collecting data."
 category: "Practice"
 slug: "evaluating-research-ideas-evaluating-research-ideas-the"
 focusKeyword: "evaluating research ideas"
----
-
-id: 35
-type: practice
-content_role: spoke
-title: "How I Decide Whether a Research Idea Is Worth Pursuing"
-seo_title: "Evaluating Research Ideas: The 'Kill It Early' Protocol"
-slug: evaluating-research-ideas-kill-it-early-protocol
-focus_keyword: evaluating research ideas
-keywords: ["evaluating research ideas", "study feasibility", "avoiding bad research"]
-pillar_url: "https://tuyentranmd.com/blog/formulating-research-questions-how-to-formulate-a-good"
-status: drafted
-drafted_at: 2026-03-31
-word_count_est: 940
-
-
-
-Most research projects that fail do so slowly. The data collection stalls, the analysis gets stuck, the writing produces nothing usable — and months later, the conclusion is that the project was probably never viable. The idea had problems that were knowable at the start.
+---Most research projects that fail do so slowly. The data collection stalls, the analysis gets stuck, the writing produces nothing usable — and months later, the conclusion is that the project was probably never viable. The idea had problems that were knowable at the start.
 
 
 Evaluating research ideas early and honestly is one of the most underappreciated skills in academic work. Not because abandoning an idea feels good, but because the cost of a bad study is not just the time spent on it — it's the time not spent on better work.

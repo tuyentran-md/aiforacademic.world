@@ -5,24 +5,7 @@ excerpt: "Using visual citation networks to ensure you haven't missed a landmark
 category: "AI Tools"
 slug: "litmaps-tutorial-litmaps-vs-researchrabbit-visual"
 focusKeyword: "Litmaps tutorial"
----
-
-id: 36
-type: tools
-content_role: spoke
-title: "AI for Mapping Research Topics"
-seo_title: "Litmaps vs ResearchRabbit: Visual Literature Review Tools"
-slug: litmaps-vs-researchrabbit-visual-literature-review-tools
-focus_keyword: Litmaps tutorial
-keywords: ["Litmaps tutorial", "ResearchRabbit review", "citation mapping tools"]
-pillar_url: "https://tuyentranmd.com/blog/how-ai-actually-fits-in-research"
-status: drafted
-drafted_at: 2026-03-31
-word_count_est: 1480
-
-
-
-The standard approach to literature review is a keyword search in PubMed or Scopus, export everything that looks relevant, start reading. It works — until it doesn't. The problem with keyword-based search is that it finds papers you already know to look for. It systematically misses papers that are relevant but use different terminology, or papers that are central to a topic but appear in a domain you didn't think to search.
+---The standard approach to literature review is a keyword search in PubMed or Scopus, export everything that looks relevant, start reading. It works — until it doesn't. The problem with keyword-based search is that it finds papers you already know to look for. It systematically misses papers that are relevant but use different terminology, or papers that are central to a topic but appear in a domain you didn't think to search.
 
 
 This is where citation mapping tools become genuinely useful. Litmaps and ResearchRabbit both build visual networks of how papers cite each other, and both will surface papers that keyword search would have missed. They work differently, have different strengths, and are suited to different moments in a literature review.
