@@ -6,7 +6,7 @@ import type { BlogPost } from "@/lib/blog";
 
 export default function BlogFilter({ posts }: { posts: Omit<BlogPost, "content">[] }) {
   const [filter, setFilter] = useState("All");
-  const categories = ["All", "Foundation", "Practice", "Tools"];
+  const categories = ["All", "Foundations", "Practice", "AI Tools"];
   
   const displayed = filter === "All" 
     ? posts 
