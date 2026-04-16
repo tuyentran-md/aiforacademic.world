@@ -1,13 +1,7 @@
 import type { NextConfig } from "next";
 
 /**
- * aiforacademic.world — static frontend for 3 tools (RIC | MedTranslate | AVR).
- *
- * No WordPress backend. Blog links point externally to tuyentranmd.com/blog.
- * Tool CTAs link to their deployed apps:
- *   - RIC:          https://check.aiforacademic.world
- *   - MedTranslate: https://translate.tuyentranmd.com
- *   - AVR:          coming soon
+ * aiforacademic.world
  */
 const nextConfig: NextConfig = {
   images: {
@@ -18,6 +12,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      { source: '/ric', destination: 'https://researchcheck.aiforacademic.world' },
+      { source: '/ric/:path*', destination: 'https://researchcheck.aiforacademic.world/:path*' }
+    ];
+  }
 };
 
 export default nextConfig;

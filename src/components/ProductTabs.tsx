@@ -67,7 +67,7 @@ function RICPanel() {
             </div>
             <div className="flex flex-col gap-2 flex-shrink-0">
               <a
-                href="https://ric.tuyentranmd.com"
+                href="/ric"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-6 py-2.5 rounded-full transition-opacity hover:opacity-85 no-grid"

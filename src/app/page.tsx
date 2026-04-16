@@ -44,7 +44,7 @@ export default function Home() {
 
               {/* RIC */}
               <a
-                href="https://ric.tuyentranmd.com"
+                href="/ric"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block rounded-2xl p-6 hover:opacity-85 transition-opacity no-grid"

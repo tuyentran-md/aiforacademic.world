@@ -6,7 +6,7 @@ const footerLinks = [
   {
     section: "Products",
     links: [
-      { label: "RIC — Research Integrity Check", href: "https://ric.tuyentranmd.com", external: true },
+      { label: "RIC — Research Integrity Check", href: "/ric", external: true },
       { label: "Translator — Academic translation", href: "https://translate.tuyentranmd.com", external: true },
       { label: "AVR — AI for Vietnamese Research (soon)", href: "/products#avr" },
       { label: "All Products", href: "/products" },
