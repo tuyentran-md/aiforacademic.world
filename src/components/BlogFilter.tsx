@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { BlogPost } from "@/lib/blog";
 
-export default function BlogFilter({ posts }: { posts: BlogPost[] }) {
+export default function BlogFilter({ posts }: { posts: Omit<BlogPost, "content">[] }) {
   const [filter, setFilter] = useState("All");
   const categories = ["All", "Foundation", "Practice", "Tools"];
   
