@@ -67,7 +67,7 @@ export default async function BlogPostPage({
             {post.title}
           </h1>
           <div
-            className="prose prose-stone prose-sm max-w-none"
+            className="wp-content"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </div>
