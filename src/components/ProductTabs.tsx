@@ -192,89 +192,34 @@ function AVRPanel() {
   return (
     <div id="avr" className="py-10 md:py-14">
       <div className="max-w-5xl mx-auto px-6 md:px-8">
-        <div
-          className="rounded-2xl p-7 md:p-12 no-grid"
-          style={{ backgroundColor: "#DDD4EC" }}
-        >
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-xl font-bold text-stone-900">AVR</span>
-              <span
-                className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full"
-                style={{ backgroundColor: "#D0C8E0", color: "#3a2860" }}
-              >
-                Coming Soon
-              </span>
-            </div>
-            <p className="text-base font-semibold text-stone-800 mb-3">
-              AI for Vietnamese Research
-            </p>
-            <p className="text-[15px] text-stone-600 leading-relaxed mb-4">
-              AVR is a <strong>research formation system</strong> for Vietnamese clinicians — not a writing tool, not a chatbot. It walks a researcher from a raw idea to a submission-ready manuscript outline through a single constrained pipeline.
-            </p>
-            <p className="text-[15px] text-stone-600 leading-relaxed mb-6">
-              Bilingual by design: explanations in Vietnamese, technical terms in English. Built for clinicians in Vietnam who publish without dedicated research support — protected time, methodological mentors, institutional integrity tools.
-            </p>
-
-            <div className="rounded-xl p-5 no-grid mb-5" style={{ backgroundColor: "rgba(255,255,255,0.4)" }}>
-              <p className="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-3">
-                Pipeline
-              </p>
-              <ul className="space-y-2 text-sm text-stone-700">
-                <li className="flex items-start gap-2">
-                  <span className="mt-0.5 text-stone-400 font-mono text-xs">1</span>
-                  <span><strong>Conversational idea engine</strong> — LLM-guided clarification, rule-extracted attributes</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-0.5 text-stone-400 font-mono text-xs">2</span>
-                  <span><strong>Research blueprint</strong> — validated study design, endpoint, feasibility</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-0.5 text-stone-400 font-mono text-xs">3</span>
-                  <span><strong>Estimated abstract</strong> — blueprint-bound, no fabricated results</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-0.5 text-stone-400 font-mono text-xs">4</span>
-                  <span><strong>Submission Gate</strong> — deterministic Tier 0–4 validation, reviewer simulation</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-0.5 text-stone-400 font-mono text-xs">5</span>
-                  <span><strong>Full manuscript outline</strong> — journal-specific, ready for the researcher to fill in</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="rounded-xl p-5 no-grid" style={{ backgroundColor: "rgba(255,255,255,0.4)" }}>
-              <p className="text-xs font-semibold uppercase tracking-widest text-stone-400 mb-2">
-                Planned pricing
-              </p>
-              <p className="text-sm text-stone-700 leading-relaxed">
-                Free: Phase 1 (idea → estimated abstract), 3 sessions/day. Paid (199k–299k VND/month): full pipeline, unlimited.
-              </p>
-            </div>
-
-            <p className="mt-6 text-xs text-stone-400">
-              Follow updates on the{" "}
-              <a
-                href="https://tuyentranmd.com/blog"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-2 hover:text-stone-600 transition-colors"
-              >
-                blog
-              </a>
-              {" "}or via{" "}
-              <a
-                href="https://tuyentranmd.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-2 hover:text-stone-600 transition-colors"
-              >
-                tuyentranmd.com
-              </a>
-              .
-            </p>
+        <div className="max-w-2xl">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-xl font-bold text-stone-900">AVR</span>
+            <span
+              className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full"
+              style={{ backgroundColor: "#D0C8E0", color: "#3a2860" }}
+            >
+              Coming Soon
+            </span>
           </div>
+          <p className="text-base font-semibold text-stone-800 mb-3">
+            AI for Vietnamese Research
+          </p>
+          <p className="text-[15px] text-stone-600 leading-relaxed mb-4">
+            A research formation system for Vietnamese clinicians. Guides a researcher from a raw idea to a submission-ready manuscript outline.
+          </p>
+          <p className="text-xs text-stone-400">
+            Follow updates on the{" "}
+            <a
+              href="https://tuyentranmd.com/blog"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-stone-600 transition-colors"
+            >
+              blog
+            </a>
+            .
+          </p>
         </div>
       </div>
     </div>
