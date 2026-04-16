@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "AI for Academic is a product studio by Tuyến Trần, MD — a surgeon building AI tools for clinicians who publish.",
+    "AI for Academic is a product studio by Tuyến Trần, MD — a surgeon building AI tools for academic works.",
 };
 
 // ── Illustrations ─────────────────────────────────────────────────────────────

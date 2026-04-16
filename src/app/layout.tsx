@@ -21,18 +21,18 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: {
-    default: "AI for Academic — Research Tools for Clinicians",
+    default: "AI for Academic — AI tools for academic works",
     template: "%s | AI for Academic",
   },
   description:
-    "AI-powered research tools built by a surgeon for clinicians who publish. Check manuscript integrity, translate medical literature, and more.",
+    "AI tools for academic works: manuscript integrity check, context-aware academic translation, and a research formation system for Vietnamese researchers.",
   keywords: [
     "AI research tools",
     "research integrity check",
-    "medical translation",
-    "clinical research AI",
-    "academic writing AI",
+    "academic translation",
     "manuscript integrity",
+    "academic writing AI",
+    "AI for Vietnamese research",
   ],
   authors: [{ name: "Tuyến Trần" }],
   creator: "Tuyến Trần",
@@ -42,15 +42,15 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://aiforacademic.world",
     siteName: "AI for Academic",
-    title: "AI for Academic — Research Tools for Clinicians",
+    title: "AI for Academic — AI tools for academic works",
     description:
-      "AI-powered research tools built by a surgeon for clinicians who publish.",
+      "AI tools for academic works: RIC, Translator, and AVR (AI for Vietnamese Research).",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI for Academic — Research Tools for Clinicians",
+    title: "AI for Academic — AI tools for academic works",
     description:
-      "AI-powered research tools built by a surgeon for clinicians who publish.",
+      "AI tools for academic works: RIC, Translator, and AVR (AI for Vietnamese Research).",
   },
   robots: { index: true, follow: true },
 };
