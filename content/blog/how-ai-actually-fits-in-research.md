@@ -346,3 +346,7 @@ _Note: I recommend only tools I actively use. Affiliate relationships do not inf
 Stage-by-stage checklist from research idea to journal submission.
 
  $5
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf).*

@@ -270,3 +270,7 @@ A focused Discussion signals to the reviewer that the author has done the intell
 The Discussion is not where you report what you found. That already happened. The Discussion is where you demonstrate that you understand what your findings mean. And understanding, by definition, requires selection.
 
 Not everything you found deserves to be discussed. Knowing what to leave out is the skill that makes a Discussion work.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Prompt Pack: Paper Structuring](https://researchcraft.gumroad.com/l/xrjeei).*

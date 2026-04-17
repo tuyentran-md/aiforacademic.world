@@ -89,3 +89,7 @@ Before designing a study, running the analysis, or writing the first sentence of
 If the answer is “the literature now contains one more study consistent with the existing consensus,” rigor will not save the paper. If the answer is “clinicians will now have evidence for a decision they currently make without it,” rigor is what allows the contribution to be trusted.
 
 The sequence matters. Identify the contribution first. Design the methodology to support it. Execute with rigor. In that order.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

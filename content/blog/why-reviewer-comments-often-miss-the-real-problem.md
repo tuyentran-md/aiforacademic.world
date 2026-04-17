@@ -199,3 +199,7 @@ When authors learn to read reviewer comments this way, revision becomes a differ
 It is no longer about satisfying reviewers line by line. (See: [A Practical Framework for Revising a Rejected Paper](/blog/a-practical-framework-for-revising-a-rejected-paper))
 
 It is about repairing the logic of the manuscript so the next reader never asks those questions in the first place.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Rebuttal Letter Framework](https://researchcraft.gumroad.com/l/ivdrkd).*

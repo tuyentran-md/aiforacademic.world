@@ -128,3 +128,7 @@ _Note: We only recommend tools we actively use in real research workflows._
 
 *   [Claude](https://claude.ai)
 *   [ChatGPT](https://chat.openai.com)
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

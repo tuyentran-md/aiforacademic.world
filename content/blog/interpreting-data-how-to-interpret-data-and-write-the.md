@@ -90,3 +90,7 @@ That development starts with refusing to hide behind the data.
 If your drafts consistently get flagged for lacking depth or adequate contextualization, the problem is interpretation — and that is fixable. The Discussion Section Playbook gives you a 6-block structure for building interpretive arguments that survive peer review, without overreaching your evidence.
 
 ****
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

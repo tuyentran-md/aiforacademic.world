@@ -295,3 +295,7 @@ In the next series, we’ll examine how AI tools fit into academic writing and r
 **Further resources:**
 
 For templates on anticipating interpretation challenges and checking conclusion validity, see the [Research Workflow](/blog/research-workflow) section.
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

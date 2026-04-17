@@ -86,3 +86,7 @@ If you want a structured approach to building this argument, the post on [why mo
 If your Discussion regularly gets flagged for "lacking depth," the problem is almost never a shortage of data. It is the gap between what you found and what you said it means. The Discussion Section Playbook gives you a 6-block framework for closing that gap — so your next submission reads like the work of a researcher who knows exactly what their data says.
 
 ****
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

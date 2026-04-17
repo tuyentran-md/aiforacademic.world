@@ -109,3 +109,7 @@ The blank page is not the problem. The problem is arriving at the blank page wit
 
 
 **Tool I use:** [Trinka](https://www.awin1.com/cread.php?awinmid=92291&awinaffid=2810692&ued=https%3A%2F%2Fwww.trinka.ai) — AI grammar checker built for academic and medical writing.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

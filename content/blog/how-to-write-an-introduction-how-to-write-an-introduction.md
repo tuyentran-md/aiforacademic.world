@@ -114,3 +114,7 @@ Before submitting, read only the Introduction and the Conclusions. The Conclusio
 This test is fast and reliable. A paper that passes it—Introduction frames the gap, Conclusions answer the gap—has structural coherence that makes every other section easier to evaluate. A paper that fails it has a problem that cannot be fixed by revising sentences.
 
 The Introduction is the argument that the study needed to exist. Everything that follows is the evidence for that argument. Getting the Introduction right is not a writing task—it is the work of being clear about why the study was worth doing.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Prompt Pack: Paper Structuring](https://researchcraft.gumroad.com/l/xrjeei).*

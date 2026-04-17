@@ -73,3 +73,7 @@ These cases are rarer than most researchers expect. More common are findings tha
 The question to ask is not “Is this interesting?” The question is: “Does this paper earn its place in the literature?”
 
 That is a harder question. It is also the one editors are actually asking when they read your submission.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

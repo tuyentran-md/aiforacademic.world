@@ -133,3 +133,7 @@ This perspective becomes concrete in the **Practice** section:
 *   when I stop improving and submit
 
 These aren’t theories. They’re decisions made under real constraints—where generic advice fails, and workflow discipline starts to matter.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

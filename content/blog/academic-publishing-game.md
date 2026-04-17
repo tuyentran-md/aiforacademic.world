@@ -150,3 +150,7 @@ Once you do:
 *   knowing what to exclude becomes a skill.
 
 **This perspective is the missing layer between writing advice and actual practice.**
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Rebuttal Letter Framework](https://researchcraft.gumroad.com/l/ivdrkd).*

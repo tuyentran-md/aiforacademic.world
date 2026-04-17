@@ -60,3 +60,7 @@ The introduction is where that argument lives. Writing it as "here is what we di
 
 
 **Trying to sharpen how you frame your research ideas?**  — Stage-by-stage checklist from research idea to journal submission. ($5)
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

@@ -65,3 +65,7 @@ A revision letter that passes the editor’s test is one where the editor could,
 A revision letter that fails is one that requires the editor to trust the author’s characterization. Phrases like “we have thoroughly revised the manuscript” or “all reviewer concerns have been addressed” signal that the response was written to create an impression rather than to document changes.
 
 The audit trail isn’t bureaucratic. It’s how you demonstrate that the revision was real.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Rebuttal Letter Framework](https://researchcraft.gumroad.com/l/ivdrkd).*

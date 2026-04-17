@@ -99,3 +99,7 @@ Clear academic writing emerges through revision that resolves conceptual issues 
 Academic writing is cognitively complex not because scholars seek obscurity, but because the genre demands precision, accountability, and decision-making under uncertainty.
 
 When clarity is understood as a cognitive achievement rather than a linguistic technique, writing becomes more tractable. Precision remains essential, but sentences no longer bear the burden of unresolved analysis. As thinking gains structure, writing follows.
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

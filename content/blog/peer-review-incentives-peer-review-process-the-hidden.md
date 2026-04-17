@@ -73,3 +73,7 @@ Understanding reviewer behavior does not make the review process fair. Some pape
 The goal is not to make publication certain. It is to stop leaving decisions to chance that are actually within your control. Reviewer behavior follows patterns. Papers that reduce reviewer cognitive load and professional risk do better, on average, than papers that don’t.
 
 That is not a guarantee. But it is something to work with.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

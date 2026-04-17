@@ -79,3 +79,7 @@ Doing this accounting before a study is designed is uncomfortable. It sometimes 
 The alternative is to design and execute a study that was never going to contribute meaningfully, invest time in a manuscript that will circulate through rejections, and receive feedback that attributes the problem to writing quality when the real issue was the question.
 
 The contribution check is not gatekeeping. It is a practical step that saves significant effort by ensuring the study was worth doing before the work of doing it begins.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

@@ -161,3 +161,7 @@ Conflicting reviews feel like a trap. They are actually an opportunity, because 
 When you respond to conflicting reviews with clarity, structure, and editorial awareness, you signal something important: you understand how the system works. You are not just a writer defending a manuscript. You are a colleague making the editor’s decision easier.
 
 That is what moves papers from “revise” to “accept.”
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Rebuttal Letter Framework](https://researchcraft.gumroad.com/l/ivdrkd).*

@@ -96,3 +96,7 @@ Academic writing is difficult not because it demands perfect language, but becau
 The right moment to write isn’t when your research question is flawless. It’s when the question is honest enough to be tested.
 
 Clarity doesn’t emerge before writing. It emerges through it.
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

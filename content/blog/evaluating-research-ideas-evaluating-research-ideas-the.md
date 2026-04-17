@@ -70,3 +70,7 @@ A score below 8 doesn't mean the topic is wrong. It means this specific study, i
 The purpose of this kind of early evaluation isn't skepticism for its own sake. It's resource allocation.
 
 Clinical researchers almost always have more ideas than time. Running a rigorous feasibility check on every new idea is how you protect the projects that deserve full execution. [A question worth asking](/blog/formulating-research-questions-how-to-formulate-a-good) is one that has survived this kind of pressure — and that makes the work that follows feel different than starting with an untested assumption.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Prompt Pack: Paper Structuring](https://researchcraft.gumroad.com/l/xrjeei).*

@@ -167,3 +167,7 @@ Bias does not enter only during analysis. It enters through who gets included, w
 That is where many otherwise careful studies quietly go wrong.
 
 And that is where we turn next.
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

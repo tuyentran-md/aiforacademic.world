@@ -145,3 +145,7 @@ Once you internalize this, many confusing editorial decisions start to make sens
 ## What’s Next
 
 In the next article, I will break down [how I decide what actually belongs in the discussion under real constraints](/blog/why-most-discussions-fail-how-to-write-a-discussion-section), and what to deliberately leave out—because depth is as much about exclusion as it is about insight.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Rebuttal Letter Framework](https://researchcraft.gumroad.com/l/ivdrkd).*

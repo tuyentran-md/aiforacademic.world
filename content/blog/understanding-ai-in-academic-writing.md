@@ -164,3 +164,7 @@ AI is powerful, but it’s not intelligent in the way we often assume. It doesn�
 For academic work, that means AI reveals the quality of your thinking. If your thinking is sharp, AI helps sharpen it further. If your thinking is vague, AI makes that vagueness look professionally formatted.
 
 The tool is neutral. The clarity—or lack of it—comes from you.
+
+---
+
+*Tools mentioned in this article include [SciSpace](https://scispace.com/?via=tuyen).*

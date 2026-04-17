@@ -61,3 +61,7 @@ A gap-spotting Introduction traces the literature chronologically, arrives at wh
 Both structures can be competent. Only one gives reviewers a reason to care before they’ve read the methods.
 
 The research question worth asking is usually the one where not having an answer is itself a problem—not just an absence, but an active source of uncertainty or error that a study could reduce.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

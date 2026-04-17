@@ -177,3 +177,7 @@ When each paragraph has a defined role, reviewers rarely describe the discussion
 **Depth comes from [structure](/blog/research-workflow), not volume.**
 
 If you are revising a paper and reviewers say your discussion is unclear, try this framework before rewriting everything. Often, clarity improves without adding a single reference—or a single sentence.
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

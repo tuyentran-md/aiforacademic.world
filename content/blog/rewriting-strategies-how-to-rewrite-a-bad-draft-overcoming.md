@@ -61,3 +61,7 @@ Use this before rewriting any section that has survived multiple revision passes
 The teardown workflow forces that identification after the fact. It’s slower than editing. It’s also the only approach that addresses the actual problem rather than its surface symptoms.
 
 The willingness to delete a section you spent time writing is one of the harder disciplinary habits to develop in academic writing. It becomes easier once you’ve done it enough times to see that the replacement is almost always better—and that the original was preserved, not lost.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

@@ -98,3 +98,7 @@ _Use this template to build the Introduction after completing your Discussion dr
 
 
 _Review: Does each sentence belong to opening, middle, gap, or objective? Remove anything that doesn’t._
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Prompt Pack: Paper Structuring](https://researchcraft.gumroad.com/l/xrjeei).*

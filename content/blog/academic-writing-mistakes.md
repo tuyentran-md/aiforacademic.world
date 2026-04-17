@@ -174,3 +174,7 @@ Print this checklist.
 Use it on your current draft—_before_ you revise grammar.
 
 If most answers feel uncomfortable, you already know where the real problem is.
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

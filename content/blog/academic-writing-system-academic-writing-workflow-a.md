@@ -114,3 +114,7 @@ The useful question is: _What decisions am I making from scratch in every writin
 The answers to that question are the components of a writing system. Each decision that gets resolved in advance—into an outline structure, a section template, a revision protocol—is a decision that no longer slows the writing down.
 
 The writing does not become effortless. The argument still requires thinking. The evidence still requires judgment. But the mechanics—the structural scaffolding that holds the argument—become predictable. And predictable mechanics are what make consistent output possible.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

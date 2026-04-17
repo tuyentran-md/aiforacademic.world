@@ -57,3 +57,7 @@ The discipline is in choosing the right level — and being able to articulate w
 
 
 **Want a structured approach to integrating AI into your research workflow?**  — Complete guide to AI-assisted clinical research, from literature review to manuscript submission ($10)
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

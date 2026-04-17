@@ -175,3 +175,7 @@ What they often lack is permission—internal permission to claim an interpretat
 The Discussion is not a place for speculation. But it is also not a place for silence. It is the place where the author earns their contribution—by thinking, not just reporting. The blueprint above is a scaffold. The thinking is yours to supply.
 
 Understanding how to write a discussion section is crucial for effectively communicating your research findings.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Prompt Pack: Paper Structuring](https://researchcraft.gumroad.com/l/xrjeei).*

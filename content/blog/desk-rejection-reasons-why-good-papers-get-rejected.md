@@ -117,3 +117,7 @@ This is not a cynical observation. It is a practical one. Understanding the syst
 The researchers who publish consistently are not necessarily doing better work than those who struggle. They have learned to see their papers not just as scientific documents, but as submissions entering a decision system–and they write accordingly.
 
 Good studies still get rejected. But when you understand why, the rejections become information rather than verdicts.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Rebuttal Letter Framework](https://researchcraft.gumroad.com/l/ivdrkd).*

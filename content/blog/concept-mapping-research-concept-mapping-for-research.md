@@ -90,3 +90,7 @@ The map is also a record. If a reviewer asks "why did you not control for X?" yo
 Building a concept map before writing will change the quality of your Introduction and Discussion. For the systematic reading process that feeds the map, see [the snowballing literature search strategy](/blog/how-to-do-literature-review-systematic-snowballing-strategy). For a full toolkit covering this workflow and more, the AI Field Manual for Clinicians covers literature exploration, synthesis, and writing in an integrated system.
 
 ****
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

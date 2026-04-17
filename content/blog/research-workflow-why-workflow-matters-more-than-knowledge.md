@@ -100,3 +100,7 @@ Research becomes manageable not when you know everything, but when you understan
 ## Final point
 
 Everything I share is based on my own experience. Your journey may differ, and I’d love to hear about it—please [reach out](/blog/about) if you have insights to share.
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

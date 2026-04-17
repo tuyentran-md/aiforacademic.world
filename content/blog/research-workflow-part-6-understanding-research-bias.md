@@ -159,3 +159,7 @@ Even when design, measurement, and bias are handled thoughtfully, one final stag
 This is where careful work can be undone by a few sentences—where technically correct results turn into misleading conclusions.
 
 That is where we turn next.
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

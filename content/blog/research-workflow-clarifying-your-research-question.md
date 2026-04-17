@@ -230,3 +230,7 @@ Progress emerges not from reading more, but from reading **with intent**.
 
 
 Till now, we could imagine the flow more clearly. Next section, how could we decide a question and step in writing?
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

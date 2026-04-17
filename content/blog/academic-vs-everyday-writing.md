@@ -152,3 +152,7 @@ This is why you can write perfect grammatical English and still sound unclear in
 Before learning how to write better sentences, you need to learn how academic vs everyday writing actually works.
 
 Which is what we’ll unpack next.
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

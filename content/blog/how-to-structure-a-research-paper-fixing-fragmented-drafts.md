@@ -133,3 +133,7 @@ The Golden Thread is not a stylistic preference. It is the structural foundation
 
 **Related reading:**  
 – [Why Most Discussions Fail](/blog/why-most-discussions-fail)
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

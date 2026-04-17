@@ -107,3 +107,7 @@ If you can’t complete it, stop and think before writing.
 
 
 _Total: ~60 minutes for first draft. Revise once for flow._
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

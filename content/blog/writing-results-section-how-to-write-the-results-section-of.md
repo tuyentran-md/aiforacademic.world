@@ -160,3 +160,7 @@ Read only the topic sentences, in order. Do they tell a coherent story that arri
 
 
 _The Results section works when the topic sentences alone answer the research question._
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*

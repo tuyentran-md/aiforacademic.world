@@ -142,3 +142,7 @@ That is when the work of making it worth asking begins.
 Complete guide to integrating AI into clinical research — from literature review to manuscript submission.
 
  $10
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [AI for Medical Research — Field Manual for Clinicians](https://researchcraft.gumroad.com/l/cxdrfs).*

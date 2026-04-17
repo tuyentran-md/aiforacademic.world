@@ -135,3 +135,7 @@ _What exactly am I measuring—and what am I blind to because of that choice?_
 This is where many studies that look solid on paper begin to weaken in practice.
 
 And that is where we turn next.
+
+---
+
+*If you are currently drafting your manuscript, you might find my [Checklist: Idea to Submission](https://researchcraft.gumroad.com/l/bbpabf) helpful.*

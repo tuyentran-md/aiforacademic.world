@@ -63,3 +63,7 @@ A small study that accurately represents what it can establish contributes somet
 A small study that claims more than its design supports contaminates the literature. It gives meta-analysts data they can’t trust and gives practitioners conclusions that may not hold.
 
 Recognizing early—ideally before data collection—that a study is too small to answer the question it’s asking is not a failure. It’s the first step toward designing one that can.
+
+---
+
+*If you found this helpful for your manuscript, you might want to check out my [Discussion Section Playbook](https://researchcraft.gumroad.com/l/jlgyae).*
