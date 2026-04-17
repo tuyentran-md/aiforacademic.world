@@ -1,7 +1,7 @@
 ---
 title: "How to Use AI for Systematic Reviews Without Compromising Rigor"
 date: "2026-04-17"
-description: "AI is great for mapping and screening but dangerous for extraction if not supervised. Here is a safe workflow for AI systematic reviews."
+excerpt: "AI is great for mapping and screening but dangerous for extraction if not supervised. Here is a safe workflow for AI systematic reviews."
 category: "Practice"
 ---
 
