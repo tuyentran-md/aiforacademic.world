@@ -53,6 +53,9 @@ export const metadata: Metadata = {
       "AI tools for academic works: RIC, Translator, and AVR (AI for Vietnamese Research).",
   },
   robots: { index: true, follow: true },
+  verification: {
+    google: "p0fDei59SUBJ1KPPLJWzWUzjk5wRI6zpOkQRMZx0sEY",
+  },
 };
 
 export default async function RootLayout({
