@@ -12,10 +12,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async redirects() {
+  async rewrites() {
     return [
-      { source: '/ric', destination: 'https://ric.aiforacademic.world', permanent: false },
-      { source: '/ric/:path*', destination: 'https://ric.aiforacademic.world/:path*', permanent: false }
+      { source: '/ric', destination: 'https://researchcheck.vercel.app/ric' },
+      { source: '/ric/:path*', destination: 'https://researchcheck.vercel.app/ric/:path*' },
     ];
   }
 };
