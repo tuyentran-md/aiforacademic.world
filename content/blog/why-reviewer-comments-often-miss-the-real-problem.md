@@ -14,7 +14,7 @@ When researchers receive peer review comments, the instinctive response is to tr
 
 The authors then begin responding line by line. They add the requested references, run the alternative analysis, and revise the paragraph. After several days—or weeks—the revised manuscript is submitted again.
 
-Sometimes the paper is accepted. Often, it comes back with another round of comments that feel strangely similar to the first. (See: [Why Good Studies Still Get Rejected](/blog/why-good-studies-still-get-rejected)) The reason is simple: many reviewer comments address **symptoms**, not the underlying problem.
+Sometimes the paper is accepted. Often, it comes back with another round of comments that feel strangely similar to the first. (See: [Why Good Studies Still Get Rejected](/blog/desk-rejection-reasons-why-good-papers-get-rejected)) The reason is simple: many reviewer comments address **symptoms**, not the underlying problem.
 
 And reviewers themselves often cannot see the real issue clearly.
 
@@ -174,7 +174,7 @@ A successful revision is not one that answers every reviewer comment individuall
 
 It is one that clarifies the central argument of the paper so effectively that many of those comments become irrelevant.
 
-When the research question is clearly defined, the logic of the analysis is transparent, and the Discussion interprets the findings convincingly, reviewers have less reason to search for problems elsewhere. (See: [Why Most Discussions Fail](/blog/why-most-discussions-fail))
+When the research question is clearly defined, the logic of the analysis is transparent, and the Discussion interprets the findings convincingly, reviewers have less reason to search for problems elsewhere. (See: [Why Most Discussions Fail](/blog/why-most-discussions-fail-how-to-write-a-discussion-section))
 
 The comments become shorter. The revisions become smaller.
 
@@ -196,7 +196,7 @@ Those moments matter more than the individual requests that follow.
 
 When authors learn to read reviewer comments this way, revision becomes a different task.
 
-It is no longer about satisfying reviewers line by line. (See: [A Practical Framework for Revising a Rejected Paper](/blog/a-practical-framework-for-revising-a-rejected-paper))
+It is no longer about satisfying reviewers line by line. (See: [A Practical Framework for Revising a Rejected Paper](/blog/paper-rejection-how-to-handle-a-paper-rejection-rr-strategy))
 
 It is about repairing the logic of the manuscript so the next reader never asks those questions in the first place.
 

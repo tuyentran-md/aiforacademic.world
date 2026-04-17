@@ -7,7 +7,6 @@ slug: "data-interpretation-results-vs-discussion-interpreting"
 focusKeyword: "data interpretation"
 ---
 
-title: "The Difference Between Findings and Insight" slug: results-vs-discussion-interpreting-clinical-findings date: 2026-04-12 focus\_keyword: data interpretation type: spoke status: draft
 
 
 

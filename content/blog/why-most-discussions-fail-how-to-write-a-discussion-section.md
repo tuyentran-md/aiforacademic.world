@@ -156,7 +156,7 @@ The Discussion is an analytical space. It is where you examine what the findings
 
 The Conclusion is a summary space. It restates the principal findings and their main implications in condensed form. It should add no new reasoning.
 
-When these two sections blur—when the Discussion reads like an extended Conclusion, or the Conclusion introduces new analysis—reviewers notice. (See: [Why Reviewer Comments Sometimes Miss the Point](/blog/why-reviewer-comments-miss-the-point)) The paper feels structurally confused, even if no individual sentence is wrong.
+When these two sections blur—when the Discussion reads like an extended Conclusion, or the Conclusion introduces new analysis—reviewers notice. (See: [Why Reviewer Comments Sometimes Miss the Point](/blog/why-reviewer-comments-often-miss-the-real-problem)) The paper feels structurally confused, even if no individual sentence is wrong.
 
 The test is simple: if you can delete the Discussion and still understand the paper’s main claims from the Conclusion alone, the Discussion did not do its job. It added words but not thinking.
 
@@ -166,7 +166,7 @@ A Discussion that interprets rather than summarizes sends a clear signal to edit
 
 It demonstrates that the author knows what questions are open, where the evidence is conflicting, and how their findings move the conversation forward—even modestly.
 
-This is the signal that separates a “descriptive” paper from an “insightful” one. (Related: [Why Good Studies Still Get Rejected](/blog/why-good-studies-still-get-rejected)) The data can be identical. The interpretation is what creates the difference.
+This is the signal that separates a “descriptive” paper from an “insightful” one. (Related: [Why Good Studies Still Get Rejected](/blog/desk-rejection-reasons-why-good-papers-get-rejected)) The data can be identical. The interpretation is what creates the difference.
 
 Most researchers have the knowledge to write this kind of Discussion. They know their field. They know the gaps. They know what their findings suggest.
 

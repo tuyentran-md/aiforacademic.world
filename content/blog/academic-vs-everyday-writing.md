@@ -62,7 +62,7 @@ The gap between everyday and academic writing runs deeper than vocabulary or ton
 **Purpose**  
 Everyday writing shares experiences. Academic writing proves claims.
 
-When [I write “research is hard](/blog/research-workflow),” that’s fine for a personal post—readers nod along. But in a paper, “conducting qualitative research in low-resource settings presents methodological challenges” is not a claim. It’s decoration. The real claim is: which challenges, why they matter, what I learned.
+When [I write “research is hard](/blog/research-workflow-from-idea-to-publication-the-clinical),” that’s fine for a personal post—readers nod along. But in a paper, “conducting qualitative research in low-resource settings presents methodological challenges” is not a claim. It’s decoration. The real claim is: which challenges, why they matter, what I learned.
 
 **Reader**  
 Everyday writing assumes a friendly reader. Academic writing assumes a skeptical one.

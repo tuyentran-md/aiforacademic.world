@@ -286,7 +286,7 @@ And in the end, honesty is what allows research to be trusted—and built upon.
 
 **Next steps:**
 
-The workflow principles covered in this series apply regardless of tools. Next, we face the difficulties in academic writing, especially for non-natives. I will analyze and solve this in the [next series](/blog/academic-writing), as well as introduce [tools](/blog/ai-tools) can support better workflow—if chosen and used appropriately.
+The workflow principles covered in this series apply regardless of tools. Next, we face the difficulties in academic writing, especially for non-natives. I will analyze and solve this in the [next series](/blog/academic-writing-mistakes), as well as introduce [tools](/blog/ai-literature-review-tools-scispace-vs-consensus-vs-elicit) can support better workflow—if chosen and used appropriately.
 
 In the next series, we’ll examine how AI tools fit into academic writing and research processes: not as replacements for thinking, but as instruments that amplify careful workflow when used with judgment.
 
@@ -294,7 +294,7 @@ In the next series, we’ll examine how AI tools fit into academic writing and r
 
 **Further resources:**
 
-For templates on anticipating interpretation challenges and checking conclusion validity, see the [Research Workflow](/blog/research-workflow) section.
+For templates on anticipating interpretation challenges and checking conclusion validity, see the [Research Workflow](/blog/research-workflow-from-idea-to-publication-the-clinical) section.
 
 ---
 

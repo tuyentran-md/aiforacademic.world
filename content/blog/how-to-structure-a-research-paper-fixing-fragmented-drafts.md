@@ -96,7 +96,7 @@ A paper about diabetes management can have perfect topic unity and still feel fr
 
 ## What Fragmentation Costs You
 
-Fragmented papers do not always get rejected. But they consistently underperform. (Related: [Why Good Studies Still Get Rejected](/blog/why-good-studies-still-get-rejected))
+Fragmented papers do not always get rejected. But they consistently underperform. (Related: [Why Good Studies Still Get Rejected](/blog/desk-rejection-reasons-why-good-papers-get-rejected))
 
 Reviewers describe them as “descriptive” or “unfocused.” They request major revisions that are difficult to address because the problem is structural, not incremental. They suggest splitting the paper into two manuscripts–which is sometimes the right advice, but is often a symptom of the reviewer sensing multiple unresolved threads.
 
@@ -132,7 +132,7 @@ This is why the most experienced researchers I know do not start writing with th
 The Golden Thread is not a stylistic preference. It is the structural foundation that separates a paper that communicates from a paper that merely reports.
 
 **Related reading:**  
-– [Why Most Discussions Fail](/blog/why-most-discussions-fail)
+– [Why Most Discussions Fail](/blog/why-most-discussions-fail-how-to-write-a-discussion-section)
 
 ---
 

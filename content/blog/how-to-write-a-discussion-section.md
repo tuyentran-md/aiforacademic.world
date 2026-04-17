@@ -174,7 +174,7 @@ It is about knowing:
 
 When each paragraph has a defined role, reviewers rarely describe the discussion as weak—even when they disagree with the interpretation.
 
-**Depth comes from [structure](/blog/research-workflow), not volume.**
+**Depth comes from [structure](/blog/research-workflow-from-idea-to-publication-the-clinical), not volume.**
 
 If you are revising a paper and reviewers say your discussion is unclear, try this framework before rewriting everything. Often, clarity improves without adding a single reference—or a single sentence.
 

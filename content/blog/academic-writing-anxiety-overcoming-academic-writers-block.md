@@ -103,8 +103,8 @@ Until that gap is addressed, writing will continue to feel harder than it should
 The blank page is not the problem. The problem is arriving at the blank page without knowing what you want to say.
 
 **Related reading:**  
-– [How I Decide What Goes Into the Discussion](/blog/structuring-research-findings-what-to-include-in-the)  
-– [The Real Reason Papers Feel Fragmented](/blog/the-real-reason-papers-feel-fragmented)
+– [How I Decide What Goes Into the Discussion](/blog/structuring-research-findings-discussion-section-structure)  
+– [The Real Reason Papers Feel Fragmented](/blog/how-to-structure-a-research-paper-fixing-fragmented-drafts)
 
 
 

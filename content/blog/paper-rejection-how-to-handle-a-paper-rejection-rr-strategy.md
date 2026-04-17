@@ -221,7 +221,7 @@ The researchers who publish consistently are not the ones who never get rejected
 
 **Related reading:**  
 – [Why Reviewer Comments Often Miss the Real Problem](/blog/why-reviewer-comments-often-miss-the-real-problem)  
-– [Why Most Discussions Fail](/blog/why-most-discussions-fail)
+– [Why Most Discussions Fail](/blog/why-most-discussions-fail-how-to-write-a-discussion-section)
 
 ---
 

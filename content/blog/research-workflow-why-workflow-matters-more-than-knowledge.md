@@ -99,7 +99,7 @@ Research becomes manageable not when you know everything, but when you understan
 
 ## Final point
 
-Everything I share is based on my own experience. Your journey may differ, and I’d love to hear about it—please [reach out](/blog/about) if you have insights to share.
+Everything I share is based on my own experience. Your journey may differ, and I’d love to hear about it—please [reach out](/about) if you have insights to share.
 
 ---
 

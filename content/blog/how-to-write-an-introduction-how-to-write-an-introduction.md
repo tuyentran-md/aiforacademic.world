@@ -93,7 +93,7 @@ An Introduction written before the analysis is complete is written for a study t
 
 Writing the Introduction last—after the Results and Discussion are drafted—allows the author to build Move 2 around the gap that the study actually filled, not the gap the author expected to fill. It allows Move 1 to be trimmed to exactly the background the reader needs to understand the Discussion’s interpretation. And it ensures that Move 3 matches the study that was run, not the study that was planned.
 
-[The workflow for drafting an Introduction](/blog/writing-the-introduction-reverse-outlining) using reverse outlining—starting from the Discussion and working backward—is the practical implementation of this principle.
+[The workflow for drafting an Introduction](/blog/writing-the-introduction-reverse-outlining-how-to-draft-an) using reverse outlining—starting from the Discussion and working backward—is the practical implementation of this principle.
 
 ## Common Structural Failures
 

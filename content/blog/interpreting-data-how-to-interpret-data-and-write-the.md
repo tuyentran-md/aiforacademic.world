@@ -7,7 +7,6 @@ slug: "interpreting-data-how-to-interpret-data-and-write-the"
 focusKeyword: "interpreting data"
 ---
 
-title: "Why Interpretation Is the Hardest Step" slug: how-to-interpret-data-write-discussion-section date: 2026-04-12 focus\_keyword: interpreting data type: spoke status: draft
 
 
 

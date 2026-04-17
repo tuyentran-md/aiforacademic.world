@@ -6,7 +6,7 @@ category: "Foundations"
 slug: "desk-rejection-reasons-why-good-papers-get-rejected"
 ---
 
-There is a particular kind of rejection that stays with you. Not the one where the reviewer dismantles your statistics or questions your sample size. That rejection, while painful, is at least legible. You can trace the problem, fix it, resubmit. (See: [A Practical Framework for Revising a Rejected Paper](/blog/a-practical-framework-for-revising-a-rejected-paper))
+There is a particular kind of rejection that stays with you. Not the one where the reviewer dismantles your statistics or questions your sample size. That rejection, while painful, is at least legible. You can trace the problem, fix it, resubmit. (See: [A Practical Framework for Revising a Rejected Paper](/blog/paper-rejection-how-to-handle-a-paper-rejection-rr-strategy))
 
 The rejection that lingers is the one where everything was technically sound. The data held up. The methods were appropriate. The writing was clean. And the paper still came back with a vague editorial note about “fit” or “priority” or “insufficient contribution to the field.”
 
@@ -62,7 +62,7 @@ A mismatch between your paper’s framing and the journal’s current publishing
 
 ### Failure 3: Burying the Contribution
 
-Some papers read like a mystery novel. The Introduction sets up context. The Methods describe procedures. The Results present findings. And somewhere deep in the Discussion, almost as an afterthought, the actual contribution emerges. (See: [Why Most Discussions Fail](/blog/why-most-discussions-fail))
+Some papers read like a mystery novel. The Introduction sets up context. The Methods describe procedures. The Results present findings. And somewhere deep in the Discussion, almost as an afterthought, the actual contribution emerges. (See: [Why Most Discussions Fail](/blog/why-most-discussions-fail-how-to-write-a-discussion-section))
 
 This structure works in detective fiction. It does not work in academic publishing.
 
@@ -100,7 +100,7 @@ Editors notice this. In a stack of submissions where most cover letters are boil
 
 When a paper is rejected, the instinct is to look inward: what is wrong with the data, the analysis, the writing?
 
-Sometimes the answer is there. But often, the more useful question is external: did this paper land in the right place, at the right time, framed for the right audience? (Related: [Why Reviewer Comments Often Miss the Real Problem](/blog/why-reviewer-comments-miss-the-point))
+Sometimes the answer is there. But often, the more useful question is external: did this paper land in the right place, at the right time, framed for the right audience? (Related: [Why Reviewer Comments Often Miss the Real Problem](/blog/why-reviewer-comments-often-miss-the-real-problem))
 
 Rejection from one journal and acceptance at another–with minimal revision–is not uncommon. The paper did not improve between submissions. The positioning changed.
 

@@ -6,7 +6,7 @@ category: "Foundations"
 slug: "structuring-research-findings-discussion-section-structure"
 ---
 
-The Discussion section is where most papers lose their reviewers. Not because the writing deteriorates. Not because the science weakens. But because the author, having presented clean results, suddenly faces an open field with no guardrails. The Results told you what to report. The Methods told you what to describe. The Discussion section structure tells you nothing. It just asks: now what? (See also: [Why Most Discussions Fail](/blog/why-most-discussions-fail))
+The Discussion section is where most papers lose their reviewers. Not because the writing deteriorates. Not because the science weakens. But because the author, having presented clean results, suddenly faces an open field with no guardrails. The Results told you what to report. The Methods told you what to describe. The Discussion section structure tells you nothing. It just asks: now what? (See also: [Why Most Discussions Fail](/blog/why-most-discussions-fail-how-to-write-a-discussion-section))
 
 The default response is to discuss everything. Every finding gets a paragraph. Every comparison to previous literature gets a mention. Every limitation gets acknowledged. The result is a Discussion that reads like a second Results section with citations attached–comprehensive, dutiful, and flat.
 
@@ -20,7 +20,7 @@ This is a problem because reviewers are looking for a hierarchy of importance. T
 
 A Discussion that covers eight findings in eight paragraphs, each with the same depth and the same structure (restate finding, compare to literature, offer tentative interpretation), is not thorough. It is undifferentiated. And undifferentiated discussions invite the most damaging reviewer comment: “The Discussion lacks depth.”
 
-The irony is that depth comes not from covering more, but from covering less with more precision. (Related: [The Real Reason Your Papers Feel Fragmented](/blog/the-real-reason-papers-feel-fragmented))
+The irony is that depth comes not from covering more, but from covering less with more precision. (Related: [The Real Reason Your Papers Feel Fragmented](/blog/how-to-structure-a-research-paper-fixing-fragmented-drafts))
 
 ## The Filtering Principle
 
@@ -253,7 +253,7 @@ Researchers who over-cite in the Discussion are often compensating for weak inte
 
 This matrix is a starting framework, not a rigid protocol. There are legitimate reasons to discuss a finding that scores zero on all three criteria:
 
-*   A reviewer specifically asked about it in a prior round. (See: [Why Reviewer Comments Sometimes Miss the Point](/blog/why-reviewer-comments-miss-the-point))
+*   A reviewer specifically asked about it in a prior round. (See: [Why Reviewer Comments Sometimes Miss the Point](/blog/why-reviewer-comments-often-miss-the-real-problem))
 *   The finding has methodological implications that affect interpretation of the primary results.
 *   The absence of an expected finding is itself informative.
 
@@ -265,7 +265,7 @@ Before I used this system, my Discussions ran 1500 to 2000 words and received co
 
 The word count went down. The perceived quality went up. This is not a coincidence.
 
-A focused Discussion signals to the reviewer that the author has done the intellectual work of distinguishing what matters from what merely exists. That signal, more than any individual insight, is what separates a Discussion that satisfies from one that frustrates. (See also: [Why Good Studies Still Get Rejected](/blog/why-good-studies-still-get-rejected))
+A focused Discussion signals to the reviewer that the author has done the intellectual work of distinguishing what matters from what merely exists. That signal, more than any individual insight, is what separates a Discussion that satisfies from one that frustrates. (See also: [Why Good Studies Still Get Rejected](/blog/desk-rejection-reasons-why-good-papers-get-rejected))
 
 The Discussion is not where you report what you found. That already happened. The Discussion is where you demonstrate that you understand what your findings mean. And understanding, by definition, requires selection.
 

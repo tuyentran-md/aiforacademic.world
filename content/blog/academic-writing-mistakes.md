@@ -142,7 +142,7 @@ The structure needs attention first.
 
 
 
-## What [Writing Tools](/blog/ai-tools) Can—and Cannot—Fix
+## What [Writing Tools](/blog/ai-literature-review-tools-scispace-vs-consensus-vs-elicit) Can—and Cannot—Fix
 
 Tools like Grammarly can help catch surface-level issues—typos, consistency problems, or overuse of passive voice. They are useful for final polishing, especially for non-native writers.
 

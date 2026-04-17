@@ -7,7 +7,6 @@ slug: "concept-mapping-research-concept-mapping-for-research"
 focusKeyword: "concept mapping research"
 ---
 
-title: "How I Build a Conceptual Map of a Topic" slug: concept-mapping-research-visualizing-literature-synthesis date: 2026-04-12 focus\_keyword: concept mapping research type: spoke status: draft
 
 
 
@@ -65,7 +64,7 @@ For quick maps, I use pen and paper. Speed matters during synthesis — the phys
 
 For maps I want to share or iterate on, I use Miro (free tier) or Obsidian's graph view if the concepts are already captured in notes. The tool matters less than the act of making relationships explicit.
 
-For literature-level mapping — visualizing how papers cite each other rather than how concepts relate — Litmaps and ResearchRabbit are better suited. See the workflow in [my literature exploration strategy](/blog/how-to-do-literature-review-systematic-snowballing-strategy) for how these tools fit into the broader reading process.
+For literature-level mapping — visualizing how papers cite each other rather than how concepts relate — Litmaps and ResearchRabbit are better suited. See the workflow in [my literature exploration strategy](/blog/literature-review-strategy-problem-formulation-vs-gap) for how these tools fit into the broader reading process.
 
 ## Using the Map in Your Paper
 
@@ -87,7 +86,7 @@ The map is also a record. If a reviewer asks "why did you not control for X?" yo
 
 
 
-Building a concept map before writing will change the quality of your Introduction and Discussion. For the systematic reading process that feeds the map, see [the snowballing literature search strategy](/blog/how-to-do-literature-review-systematic-snowballing-strategy). For a full toolkit covering this workflow and more, the AI Field Manual for Clinicians covers literature exploration, synthesis, and writing in an integrated system.
+Building a concept map before writing will change the quality of your Introduction and Discussion. For the systematic reading process that feeds the map, see [the snowballing literature search strategy](/blog/literature-review-strategy-problem-formulation-vs-gap). For a full toolkit covering this workflow and more, the AI Field Manual for Clinicians covers literature exploration, synthesis, and writing in an integrated system.
 
 ****
 
