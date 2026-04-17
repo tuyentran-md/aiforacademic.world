@@ -52,12 +52,6 @@ export default function Home() {
               >
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <p className="text-base font-semibold text-stone-900">RIC&thinsp;↗</p>
-                  <span
-                    className="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: "#B0C2CC", color: "#1a3040" }}
-                  >
-                    Live · Free
-                  </span>
                 </div>
                 <p className="text-sm font-medium text-stone-700 mb-1">
                   Research Integrity Check
@@ -69,20 +63,12 @@ export default function Home() {
 
               {/* Translator */}
               <a
-                href="https://translate.tuyentranmd.com"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/trans"
                 className="block rounded-2xl p-6 hover:opacity-85 transition-opacity no-grid"
                 style={{ backgroundColor: "#C6DCD2" }}
               >
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <p className="text-base font-semibold text-stone-900">Translator&thinsp;↗</p>
-                  <span
-                    className="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: "#B0CCC2", color: "#1a402f" }}
-                  >
-                    Beta
-                  </span>
                 </div>
                 <p className="text-sm font-medium text-stone-700 mb-1">
                   Context-aware academic translation

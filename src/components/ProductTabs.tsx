@@ -51,12 +51,6 @@ function RICPanel() {
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-xl font-bold text-stone-900">RIC</span>
-                <span
-                  className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full"
-                  style={{ backgroundColor: "#B0C2CC", color: "#1a3040" }}
-                >
-                  Live · Free tier
-                </span>
               </div>
               <p className="text-base font-semibold text-stone-800 mb-2">
                 Research Integrity Check
@@ -75,7 +69,6 @@ function RICPanel() {
               >
                 Open RIC&thinsp;↗
               </a>
-              <p className="text-xs text-stone-500 text-center">Free to use · No sign-up required</p>
             </div>
           </div>
         </div>
@@ -138,12 +131,6 @@ function TranslatorPanel() {
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-xl font-bold text-stone-900">Translator</span>
-                <span
-                  className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full"
-                  style={{ backgroundColor: "#B0CCC2", color: "#1a402f" }}
-                >
-                  Beta
-                </span>
               </div>
               <p className="text-base font-semibold text-stone-800 mb-2">
                 Context-aware academic translation
@@ -154,15 +141,12 @@ function TranslatorPanel() {
             </div>
             <div className="flex flex-col gap-2 flex-shrink-0">
               <a
-                href="https://translate.tuyentranmd.com"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/trans"
                 className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-6 py-2.5 rounded-full transition-opacity hover:opacity-85 no-grid"
                 style={{ backgroundColor: "#1a402f", color: "#e8ede4" }}
               >
                 Open Translator&thinsp;↗
               </a>
-              <p className="text-xs text-stone-500 text-center">Beta · Pay per use (VND)</p>
             </div>
           </div>
         </div>
