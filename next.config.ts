@@ -18,8 +18,9 @@ const nextConfig: NextConfig = {
       { source: '/ric', destination: 'https://researchcheck.vercel.app/ric' },
       { source: '/ric/:path*', destination: 'https://researchcheck.vercel.app/ric/:path*' },
       // Trans — med-translator (Next.js on Vercel, basePath=/trans)
-      { source: '/trans', destination: 'https://med-translator.vercel.app/trans' },
-      { source: '/trans/:path*', destination: 'https://med-translator.vercel.app/trans/:path*' },
+      // Use med-translator-swart.vercel.app as the public alias (project default).
+      { source: '/trans', destination: 'https://med-translator-swart.vercel.app/trans' },
+      { source: '/trans/:path*', destination: 'https://med-translator-swart.vercel.app/trans/:path*' },
     ];
   }
 };
