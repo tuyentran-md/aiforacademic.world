@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import EmailCapture from "@/components/EmailCapture";
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
@@ -104,6 +105,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* ─── LEAD MAGNET ─────────────────────────────── */}
+        <EmailCapture />
 
         <Footer />
       </div>
