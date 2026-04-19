@@ -1,130 +1,673 @@
 "use client";
-import React from 'react';
 
-export default function CanvasPanel({ activeView }: { activeView: string }) {
+import React, { useState } from "react";
+import type { CanvasHistoryEntry, CanvasState } from "@/hooks/useCanvas";
+import type { IntegrityFlag, IntegrityReport, PipelineStatus, Reference } from "@/lib/pipeline/types";
+import { parseManuscriptSections, getParagraphSeverity } from "./pipeline-utils";
+
+// ── Props ────────────────────────────────────────────────────────────────────
+interface CanvasPanelProps {
+  canvasState: CanvasState;
+  canvasHistory: CanvasHistoryEntry[];
+  references: Reference[];
+  selectedReferenceIds: string[];
+  manuscript: string;
+  integrityReport: IntegrityReport | null;
+  isRunning: boolean;
+  status: PipelineStatus;
+  language: "EN" | "VI";
+  onSelectTab: (state: CanvasState) => void;
+  onToggleReference: (id: string) => void;
+  onUpdateManuscript: (text: string) => void;
+  onDismissFlag: (id: string) => void;
+  onSendMessage: (text: string) => void;
+  onStartRIC: (text?: string) => void;
+}
+
+// ── Tabs visible order (deduplicated by state type, keep last label) ──────────
+function getUniqueTabs(history: CanvasHistoryEntry[]): CanvasHistoryEntry[] {
+  const seen = new Map<CanvasState, CanvasHistoryEntry>();
+  for (const entry of history) {
+    seen.set(entry.state, entry);
+  }
+  return Array.from(seen.values());
+}
+
+// ── Inline highlight renderer ─────────────────────────────────────────────────
+function renderWithHighlights(
+  text: string,
+  flags: IntegrityFlag[],
+  onFlagClick: (id: string) => void,
+): React.ReactNode {
+  if (flags.length === 0) return text;
+
+  const positioned = flags
+    .map((f) => ({ flag: f, idx: text.indexOf(f.location.textSnippet) }))
+    .filter((f) => f.idx >= 0)
+    .sort((a, b) => a.idx - b.idx);
+
+  if (positioned.length === 0) return text;
+
+  const nodes: React.ReactNode[] = [];
+  let cursor = 0;
+
+  for (const { flag, idx } of positioned) {
+    if (idx > cursor) nodes.push(text.slice(cursor, idx));
+
+    const isError = flag.severity === "error";
+    nodes.push(
+      <mark
+        key={flag.id}
+        data-flag-id={flag.id}
+        onClick={() => onFlagClick(flag.id)}
+        title={flag.message}
+        className={`cursor-pointer rounded-sm px-0.5 border-b-2 transition-colors ${
+          isError
+            ? "bg-red-50 border-red-400 text-red-900 hover:bg-red-100"
+            : "bg-yellow-50 border-yellow-400 text-yellow-900 hover:bg-yellow-100"
+        }`}
+      >
+        {flag.location.textSnippet}
+      </mark>,
+    );
+    cursor = idx + flag.location.textSnippet.length;
+  }
+
+  if (cursor < text.length) nodes.push(text.slice(cursor));
+  return nodes;
+}
+
+// ── Reference skeleton ────────────────────────────────────────────────────────
+function ReferenceSkeleton() {
   return (
-    <div className="flex-1 p-6 lg:p-10 overflow-y-auto bg-slate-50/50">
-      {activeView === 'idle' && (
-        <div className="flex flex-col items-center justify-center h-full text-slate-400 space-y-4">
-          <div className="w-16 h-16 bg-white border border-slate-200 rounded-full flex items-center justify-center mb-2 shadow-sm">
-            <svg className="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-          </div>
-          <p className="text-lg font-medium text-slate-500">Workspace đã sẵn sàng</p>
-          <p className="text-sm">Hãy nhập yêu cầu vào ô chat bên trái để AI bắt đầu làm việc.</p>
+    <div className="animate-pulse rounded-xl border border-black/[0.06] bg-white p-5 space-y-3">
+      <div className="h-4 bg-stone-100 rounded w-3/4" />
+      <div className="h-3 bg-stone-100 rounded w-1/2" />
+      <div className="h-3 bg-stone-100 rounded w-full" />
+      <div className="h-3 bg-stone-100 rounded w-5/6" />
+    </div>
+  );
+}
+
+// ── Reference card ────────────────────────────────────────────────────────────
+function ReferenceCard({
+  reference,
+  selected,
+  onToggle,
+}: {
+  reference: Reference;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [showTranslated, setShowTranslated] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const abstract = showTranslated && reference.abstractTranslated
+    ? reference.abstractTranslated
+    : reference.abstract;
+
+  const snippetLength = 200;
+  const isLong = abstract.length > snippetLength;
+  const displayAbstract = expanded || !isLong ? abstract : abstract.slice(0, snippetLength) + "...";
+
+  async function handleCopy() {
+    const text = `${reference.title}\n${reference.authors.join(", ")} · ${reference.journal} · ${reference.year}\n\n${reference.abstract}`;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <div
+      className={`rounded-xl border bg-white shadow-sm transition-all ${
+        selected
+          ? "border-[#C4634E]/30 ring-1 ring-[#C4634E]/20"
+          : "border-black/[0.07] hover:border-black/[0.12]"
+      }`}
+    >
+      <div className="p-5">
+        {/* Title + checkbox */}
+        <div className="flex items-start gap-3 mb-2">
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={onToggle}
+            className="mt-0.5 flex-shrink-0 w-4 h-4 rounded border-stone-300 text-[#C4634E] focus:ring-[#C4634E] cursor-pointer"
+          />
+          <h3
+            className="font-semibold text-stone-900 text-sm leading-snug cursor-pointer hover:text-[#C4634E] transition-colors"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {reference.title}
+          </h3>
         </div>
-      )}
 
-      {activeView === 'references' && (
-        <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-300">
-          <div className="flex items-center justify-between border-b pb-4">
-            <h2 className="text-2xl font-bold text-slate-800">Tài liệu tìm được</h2>
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded font-semibold">2 kết quả</span>
-          </div>
-          
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-semibold text-blue-700 text-lg">[ref-001] Outcomes of cleft palate repair: a systematic review</h3>
-              <input type="checkbox" defaultChecked className="w-5 h-5 rounded text-blue-600 border-slate-300 focus:ring-blue-500" />
-            </div>
-            <p className="text-sm text-slate-500 mb-3">Smith J, et al. · Journal of Plastic Surgery · 2023 · Cited: 45</p>
-            <div className="bg-slate-50/50 p-3 rounded text-sm text-slate-700 border border-slate-100 leading-relaxed">
-              <span className="font-semibold text-slate-900">Abstract:</span> Background: Cleft palate repair remains one of the most common craniofacial surgical procedures. This study aims to evaluate the long-term outcomes...
-            </div>
-          </div>
+        {/* Meta */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-stone-500 mb-3 ml-7">
+          <span>{reference.authors.slice(0, 3).join(", ")}{reference.authors.length > 3 ? " et al." : ""}</span>
+          <span className="text-stone-300">·</span>
+          <span className="italic">{reference.journal}</span>
+          <span className="text-stone-300">·</span>
+          <span>{reference.year}</span>
+          {reference.citationCount != null && (
+            <>
+              <span className="text-stone-300">·</span>
+              <span>Cited: {reference.citationCount}</span>
+            </>
+          )}
+        </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-semibold text-blue-700 text-lg">[ref-002] Microsurgical free flap reconstruction in pediatric patients</h3>
-              <input type="checkbox" defaultChecked className="w-5 h-5 rounded text-blue-600 border-slate-300 focus:ring-blue-500" />
-            </div>
-            <p className="text-sm text-slate-500 mb-3">Nguyen A, et al. · Microsurgery · 2024 · Cited: 12</p>
-            <div className="bg-slate-50/50 p-3 rounded text-sm text-slate-700 border border-slate-100 leading-relaxed">
-              <span className="font-semibold text-slate-900">Abstract:</span> Free tissue transfer in the pediatric population presents unique challenges. We reviewed 50 consecutive cases...
-            </div>
-          </div>
-
-          <div className="pt-4 flex justify-end">
-            <button className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium shadow-sm hover:bg-blue-700 flex items-center space-x-2 transition-colors">
-              <span>✍️ Gợi ý: Viết Bản thảo từ tài liệu này</span>
+        {/* Abstract */}
+        <div className="ml-7 rounded-lg bg-stone-50 border border-stone-100 px-3 py-2.5 text-sm text-stone-700 leading-relaxed mb-3">
+          <p>{displayAbstract}</p>
+          {isLong && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="mt-1 text-xs text-stone-400 hover:text-stone-600 transition-colors"
+            >
+              {expanded ? "Thu gọn ↑" : "Xem thêm ↓"}
             </button>
-          </div>
+          )}
         </div>
-      )}
 
-      {activeView === 'editor' && (
-        <div className="max-w-4xl mx-auto h-full flex flex-col animate-in fade-in duration-300">
-          <div className="flex items-center justify-between border-b pb-4 mb-6">
-            <h2 className="text-2xl font-bold text-slate-800">Bản thảo (Manuscript Draft)</h2>
-            <button className="text-sm bg-purple-100 text-purple-700 px-3 py-1.5 rounded-lg font-semibold hover:bg-purple-200 transition-colors flex items-center shadow-sm">
-              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              Chạy kiểm tra RIC
+        {/* Action buttons */}
+        <div className="ml-7 flex flex-wrap items-center gap-1.5">
+          {/* Translate */}
+          <button
+            onClick={() => setShowTranslated(!showTranslated)}
+            disabled={!reference.abstractTranslated}
+            title={
+              reference.abstractTranslated
+                ? showTranslated ? "Xem bản gốc" : "Xem bản dịch TV"
+                : "Tìm ở chế độ VI để có bản dịch"
+            }
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+              reference.abstractTranslated
+                ? showTranslated
+                  ? "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  : "border-stone-200 text-stone-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                : "border-stone-100 text-stone-300 cursor-not-allowed"
+            }`}
+          >
+            🌐 {showTranslated ? "Bản gốc" : "Dịch"}
+          </button>
+
+          {/* Copy */}
+          <button
+            onClick={handleCopy}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 transition-colors"
+          >
+            {copied ? "✓ Đã copy" : "📋 Copy"}
+          </button>
+
+          {/* Link */}
+          {reference.url && (
+            <a
+              href={reference.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 transition-colors"
+            >
+              🔗 Link
+            </a>
+          )}
+
+          {/* Source badge */}
+          <span
+            className={`ml-auto px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${
+              reference.source === "pubmed"
+                ? "bg-blue-50 text-blue-600"
+                : "bg-violet-50 text-violet-600"
+            }`}
+          >
+            {reference.source}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main CanvasPanel ──────────────────────────────────────────────────────────
+export default function CanvasPanel({
+  canvasState,
+  canvasHistory,
+  references,
+  selectedReferenceIds,
+  manuscript,
+  integrityReport,
+  isRunning,
+  status,
+  onSelectTab,
+  onToggleReference,
+  onUpdateManuscript,
+  onDismissFlag,
+  onSendMessage,
+  onStartRIC,
+}: CanvasPanelProps) {
+  const uniqueTabs = getUniqueTabs(canvasHistory);
+  const [activeFlagId, setActiveFlagId] = useState<string | null>(null);
+
+  function scrollToFlag(flagId: string) {
+    setActiveFlagId(flagId);
+    const el = document.querySelector(`[data-flag-id="${flagId}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  const tabLabels: Record<CanvasState, string> = {
+    idle: "Workspace",
+    reference: "🔍 References",
+    editor: "✍️ Draft",
+    integrity: "🔬 RIC Report",
+  };
+
+  return (
+    <div className="flex flex-col h-full min-h-0">
+
+      {/* ── Canvas Tab Bar ────────────────────────────────────────────── */}
+      {uniqueTabs.length > 0 && (
+        <div className="flex-shrink-0 flex items-center gap-1 px-4 py-2.5 border-b border-black/[0.06] bg-white/60 overflow-x-auto">
+          {uniqueTabs.map((entry) => (
+            <button
+              key={entry.state}
+              onClick={() => onSelectTab(entry.state)}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                canvasState === entry.state
+                  ? "bg-stone-900 text-white shadow-sm"
+                  : "text-stone-500 hover:bg-stone-100 hover:text-stone-700"
+              }`}
+            >
+              {tabLabels[entry.state]}
             </button>
-          </div>
-          <div className="flex-1 bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm font-serif text-lg leading-relaxed text-slate-800 overflow-y-auto outline-none" contentEditable suppressContentEditableWarning>
-            <h1 className="text-3xl font-bold mb-6 font-sans text-slate-900">Đánh giá kết quả phẫu thuật tạo hình vòm miệng</h1>
-            <h2 className="text-xl font-bold mt-8 mb-4 font-sans text-slate-700">1. Đặt vấn đề</h2>
-            <p className="mb-4 text-justify">
-              Khe hở vòm miệng là một trong những dị tật bẩm sinh vùng hàm mặt phổ biến nhất, ảnh hưởng đến khoảng 1 trên 700 trẻ sơ sinh trên toàn thế giới <span className="text-blue-600 font-sans cursor-pointer text-base bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 hover:bg-blue-100 transition-colors inline-block select-none">[ref-001]</span>. 
-              Mục tiêu chính của phẫu thuật tạo hình vòm miệng là phục hồi chức năng phát âm bình thường, đồng thời giảm thiểu tác động đến sự phát triển của xương hàm trên.
-            </p>
-            <h2 className="text-xl font-bold mt-8 mb-4 font-sans text-slate-700">2. Phương pháp</h2>
-            <p className="mb-4 text-slate-400 italic font-sans text-base flex items-center">
-              (AI đang tiếp tục sinh nội dung phần này...)
-              <span className="inline-block w-1.5 h-4 ml-2 bg-slate-400 animate-pulse rounded-sm"></span>
-            </p>
-          </div>
+          ))}
         </div>
       )}
 
-      {activeView === 'integrity' && (
-        <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-300">
-          <div className="flex items-center justify-between border-b pb-4">
-            <h2 className="text-2xl font-bold text-slate-800">Báo cáo Kiểm chứng (RIC Integrity)</h2>
-            <div className="flex space-x-2">
-              <span className="bg-red-50 text-red-700 text-sm px-3 py-1.5 rounded-full font-bold shadow-sm border border-red-200 flex items-center">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                Điểm: 78/100
-              </span>
+      {/* ── Canvas content ────────────────────────────────────────────── */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+
+        {/* ── IDLE ──────────────────────────────────────────────────── */}
+        {canvasState === "idle" && (
+          <div className="flex flex-col items-center justify-center h-full px-8 py-16 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-white border border-black/[0.08] shadow-sm flex items-center justify-center mb-6">
+              <span className="text-3xl">🔬</span>
+            </div>
+            <h2 className="font-serif font-bold text-2xl text-stone-900 mb-2">
+              AFA Workspace
+            </h2>
+            <p className="text-stone-500 text-sm max-w-xs leading-relaxed mb-8">
+              Tìm tài liệu, lên dàn ý, kiểm tra toàn vẹn học thuật — tất cả trong một nơi.
+            </p>
+
+            {/* Entry point chips */}
+            <div className="flex flex-col gap-2.5 w-full max-w-xs">
+              {[
+                {
+                  emoji: "🔍",
+                  label: "Tìm tài liệu",
+                  action: () => onSendMessage("Tìm tài liệu về: "),
+                },
+                {
+                  emoji: "✍️",
+                  label: "Viết bản thảo (AVR)",
+                  action: () => onSendMessage("Viết bản thảo về: "),
+                },
+                {
+                  emoji: "🔬",
+                  label: "Check bài viết (RIC)",
+                  action: () => onSelectTab("editor"),
+                },
+              ].map(({ emoji, label, action }) => (
+                <button
+                  key={label}
+                  onClick={action}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-black/[0.07] shadow-sm hover:border-black/[0.15] hover:shadow-md transition-all text-left"
+                >
+                  <span className="text-xl">{emoji}</span>
+                  <span className="text-sm font-medium text-stone-700">{label}</span>
+                  <span className="ml-auto text-stone-300">→</span>
+                </button>
+              ))}
             </div>
           </div>
-          
-          <div className="bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm font-serif text-lg leading-relaxed text-slate-800">
-            <h1 className="text-3xl font-bold mb-6 font-sans text-slate-900">Đánh giá kết quả phẫu thuật tạo hình vòm miệng</h1>
-            <h2 className="text-xl font-bold mt-8 mb-4 font-sans text-slate-700">1. Đặt vấn đề</h2>
-            <p className="mb-4 text-justify">
-              Khe hở vòm miệng là một trong những dị tật bẩm sinh vùng hàm mặt phổ biến nhất, ảnh hưởng đến khoảng 
-              <span className="bg-red-50 border-b-2 border-red-400 mx-1 pb-0.5 inline-block relative group cursor-pointer text-red-900 font-medium">
-                1 trên 700
-                <span className="absolute top-full left-0 mt-2 w-72 p-4 bg-white border border-red-200 shadow-xl rounded-xl text-sm font-sans text-slate-700 z-10 hidden group-hover:block transition-all">
-                  <strong className="text-red-700 flex items-center mb-2 text-base">
-                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01"></path></svg>
-                    Lỗi trích dẫn (Statistic)
-                  </strong>
-                  Tài liệu [ref-001] ghi nhận tỷ lệ là &quot;1 trên 600-800 tuỳ thuộc vào chủng tộc&quot;. Con số 1/700 không hoàn toàn chính xác theo source.
-                  <div className="mt-3 flex gap-2">
-                    <button className="bg-red-50 text-red-700 px-2.5 py-1 rounded border border-red-200 font-medium hover:bg-red-100 transition-colors">Sửa tự động</button>
-                    <button className="bg-slate-50 text-slate-600 px-2.5 py-1 rounded border border-slate-200 font-medium hover:bg-slate-100 transition-colors">Bỏ qua</button>
-                  </div>
+        )}
+
+        {/* ── REFERENCE_VIEW ────────────────────────────────────────── */}
+        {canvasState === "reference" && (
+          <div className="px-5 py-5 space-y-3">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-semibold text-stone-900">Tài liệu tìm được</h2>
+                <p className="text-xs text-stone-400 mt-0.5">
+                  {references.length > 0
+                    ? `${selectedReferenceIds.length}/${references.length} đang được chọn`
+                    : isRunning ? "Đang tìm kiếm..." : "Chưa có kết quả"}
+                </p>
+              </div>
+              {references.length > 0 && (
+                <span className="px-2.5 py-1 rounded-full bg-[#C4634E]/10 text-[#C4634E] text-xs font-semibold">
+                  {references.length} kết quả
                 </span>
-              </span> 
-              trẻ sơ sinh trên toàn thế giới <span className="text-blue-600 font-sans cursor-pointer text-base bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 hover:bg-blue-100 inline-block select-none">[ref-001]</span>. 
-            </p>
-            <p className="mb-4 text-justify">
-              Tỷ lệ thành công của các phương pháp phẫu thuật hiện đại đạt 
-              <span className="bg-yellow-50 border-b-2 border-yellow-400 mx-1 pb-0.5 inline-block relative group cursor-pointer text-yellow-900 font-medium">
-                hơn 95%
-                <span className="absolute top-full left-0 mt-2 w-72 p-4 bg-white border border-yellow-200 shadow-xl rounded-xl text-sm font-sans text-slate-700 z-10 hidden group-hover:block transition-all">
-                  <strong className="text-yellow-700 flex items-center mb-2 text-base">
-                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Cảnh báo (Overclaiming)
-                  </strong>
-                  Không có tài liệu nào trong danh sách hỗ trợ con số &quot;hơn 95%&quot;. Cần bổ sung nguồn hoặc điều chỉnh lại câu văn.
-                </span>
-              </span>.
-            </p>
+              )}
+            </div>
+
+            {/* Streaming skeletons */}
+            {isRunning && (status === "searching" || status === "translating") && (
+              <div className="space-y-3">
+                {references.length === 0 && <ReferenceSkeleton />}
+                {references.length === 0 && <ReferenceSkeleton />}
+                {references.length === 0 && <ReferenceSkeleton />}
+              </div>
+            )}
+
+            {/* Reference cards */}
+            {references.map((ref) => (
+              <ReferenceCard
+                key={ref.id}
+                reference={ref}
+                selected={selectedReferenceIds.includes(ref.id)}
+                onToggle={() => onToggleReference(ref.id)}
+              />
+            ))}
+
+            {/* Loading more indicator */}
+            {isRunning && references.length > 0 && (
+              <div className="flex items-center gap-2 py-3 text-stone-400 text-sm">
+                <div className="flex gap-1">
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full bg-stone-300 animate-bounce"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
+                  ))}
+                </div>
+                Đang tải thêm...
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!isRunning && references.length === 0 && (
+              <div className="text-center py-16 text-stone-400">
+                <p className="text-4xl mb-3">📭</p>
+                <p className="text-sm">Không tìm thấy tài liệu nào. Thử từ khoá khác nhé.</p>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* ── EDITOR_VIEW ───────────────────────────────────────────── */}
+        {canvasState === "editor" && (
+          <div className="flex flex-col h-full px-5 py-5">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-semibold text-stone-900">✍️ Draft Editor</h2>
+                <p className="text-xs text-stone-400 mt-0.5">
+                  Paste hoặc nhập nội dung bản thảo để dùng với RIC
+                </p>
+              </div>
+              {manuscript && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => navigator.clipboard.writeText(manuscript)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors"
+                  >
+                    💾 Copy
+                  </button>
+                  <button
+                    onClick={() => onStartRIC()}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#C4634E] text-white hover:bg-[#b45743] transition-colors"
+                  >
+                    🔬 Chạy RIC
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* AVR coming soon banner */}
+            <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-xl bg-violet-50 border border-violet-100">
+              <span className="text-lg">🚧</span>
+              <div>
+                <p className="text-sm font-medium text-violet-800">AVR đang được hoàn thiện</p>
+                <p className="text-xs text-violet-600 mt-0.5">
+                  Tính năng AI viết tự động sẽ có sớm. Hiện tại sếp có thể paste bản thảo vào đây để RIC quét.
+                </p>
+              </div>
+            </div>
+
+            {/* Textarea */}
+            <textarea
+              value={manuscript}
+              onChange={(e) => onUpdateManuscript(e.target.value)}
+              placeholder="Paste nội dung bản thảo vào đây...&#10;&#10;Sau khi có nội dung, bấm 🔬 Chạy RIC để kiểm tra toàn vẹn học thuật."
+              className="flex-1 min-h-[300px] w-full rounded-xl border border-black/[0.08] bg-white px-5 py-4 text-sm text-stone-800 leading-relaxed font-serif resize-none outline-none focus:border-stone-300 focus:ring-1 focus:ring-stone-200 transition-all placeholder-stone-300"
+            />
+
+            {manuscript && (
+              <p className="mt-2 text-xs text-stone-400 text-right">
+                {manuscript.split(/\s+/).filter(Boolean).length} từ
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* ── INTEGRITY_OVERLAY ─────────────────────────────────────── */}
+        {canvasState === "integrity" && (
+          <div className="px-5 py-5 space-y-5">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-semibold text-stone-900">🔬 RIC Integrity Report</h2>
+                <p className="text-xs text-stone-400 mt-0.5">
+                  {isRunning ? "Đang quét..." : "Click vào text được highlight để xem chi tiết"}
+                </p>
+              </div>
+              {integrityReport && (
+                <div
+                  className={`px-3 py-1.5 rounded-full text-sm font-bold ${
+                    integrityReport.overallScore >= 80
+                      ? "bg-green-50 text-green-700 border border-green-200"
+                      : integrityReport.overallScore >= 60
+                      ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                      : "bg-red-50 text-red-700 border border-red-200"
+                  }`}
+                >
+                  {integrityReport.overallScore}/100
+                </div>
+              )}
+            </div>
+
+            {/* Summary */}
+            {integrityReport?.summary && (
+              <div className="px-4 py-3 rounded-xl bg-stone-50 border border-stone-100 text-sm text-stone-700 leading-relaxed">
+                {integrityReport.summary}
+              </div>
+            )}
+
+            {/* Flag counts */}
+            {integrityReport && integrityReport.flags.length > 0 && (
+              <div className="flex gap-3">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 border border-red-100">
+                  <span className="w-2 h-2 rounded-full bg-red-400" />
+                  <span className="text-xs font-semibold text-red-700">
+                    {integrityReport.flags.filter((f) => f.severity === "error").length} critical
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-100">
+                  <span className="w-2 h-2 rounded-full bg-yellow-400" />
+                  <span className="text-xs font-semibold text-yellow-700">
+                    {integrityReport.flags.filter((f) => f.severity === "warning").length} warnings
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Manuscript with highlights */}
+            {manuscript && (
+              <div className="rounded-xl border border-black/[0.07] bg-white shadow-sm">
+                <div className="px-6 py-5 font-serif text-base text-stone-800 leading-relaxed">
+                  {(() => {
+                    const sections = parseManuscriptSections(manuscript);
+                    if (sections.length === 0) {
+                      // Plain text fallback
+                      const paragraphs = manuscript.split(/\n\n+/).filter(Boolean);
+                      return paragraphs.map((para, pIdx) => {
+                        const paraFlags =
+                          integrityReport?.flags.filter(
+                            (f) => f.location.paragraphIndex === pIdx,
+                          ) ?? [];
+                        const severity = getParagraphSeverity(paraFlags);
+                        return (
+                          <p
+                            key={pIdx}
+                            id={`para-${pIdx}`}
+                            className={`mb-4 text-justify last:mb-0 rounded px-1 -mx-1 transition-colors ${
+                              severity === "error"
+                                ? "bg-red-50/50"
+                                : severity === "warning"
+                                ? "bg-yellow-50/50"
+                                : ""
+                            } ${
+                              activeFlagId &&
+                              paraFlags.some((f) => f.id === activeFlagId)
+                                ? "ring-2 ring-offset-1 ring-yellow-300"
+                                : ""
+                            }`}
+                          >
+                            {renderWithHighlights(para, paraFlags, scrollToFlag)}
+                          </p>
+                        );
+                      });
+                    }
+
+                    // Use sIdx * 1000 + pIdx as stable unique key — avoids mutable counter in JSX
+                    return sections.map((section, sIdx) => (
+                      <div key={sIdx}>
+                        {section.heading && (
+                          <h3 className="font-sans font-bold text-lg text-stone-900 mt-6 mb-3 first:mt-0">
+                            {section.heading}
+                          </h3>
+                        )}
+                        {section.paragraphs.map((para, pIdx) => {
+                          const paraFlags =
+                            integrityReport?.flags.filter(
+                              (f) =>
+                                f.location.sectionHeading === section.heading &&
+                                f.location.paragraphIndex === pIdx,
+                            ) ?? [];
+                          const severity = getParagraphSeverity(paraFlags);
+                          const paraKey = sIdx * 1000 + pIdx;
+                          return (
+                            <p
+                              key={paraKey}
+                              id={`para-${paraKey}`}
+                              className={`mb-4 text-justify last:mb-0 rounded px-1 -mx-1 transition-colors ${
+                                severity === "error"
+                                  ? "bg-red-50/50"
+                                  : severity === "warning"
+                                  ? "bg-yellow-50/50"
+                                  : ""
+                              } ${
+                                activeFlagId &&
+                                paraFlags.some((f) => f.id === activeFlagId)
+                                  ? "ring-2 ring-offset-1 ring-yellow-300"
+                                  : ""
+                              }`}
+                            >
+                              {renderWithHighlights(para, paraFlags, scrollToFlag)}
+                            </p>
+                          );
+                        })}
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* Issue list */}
+            {integrityReport && integrityReport.flags.length > 0 && (
+              <div className="rounded-xl border border-black/[0.07] bg-white shadow-sm overflow-hidden">
+                <div className="px-4 py-3 border-b border-black/[0.06] bg-stone-50/80">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-stone-500">
+                    Issue List
+                  </p>
+                </div>
+                <div className="divide-y divide-black/[0.05]">
+                  {integrityReport.flags.map((flag) => (
+                    <div
+                      key={flag.id}
+                      className={`px-4 py-3 hover:bg-stone-50 transition-colors cursor-pointer ${
+                        activeFlagId === flag.id ? "bg-yellow-50/50" : ""
+                      }`}
+                      onClick={() => scrollToFlag(flag.id)}
+                    >
+                      <div className="flex items-start gap-3">
+                        <span
+                          className={`flex-shrink-0 mt-0.5 w-2 h-2 rounded-full ${
+                            flag.severity === "error" ? "bg-red-400" : "bg-yellow-400"
+                          }`}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-stone-700 mb-0.5">
+                            {flag.message}
+                          </p>
+                          <p className="text-[11px] text-stone-400 truncate">
+                            &ldquo;{flag.location.textSnippet}&rdquo;
+                          </p>
+                          {flag.suggestion && (
+                            <p className="text-[11px] text-stone-500 mt-1 italic">
+                              💡 {flag.suggestion}
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDismissFlag(flag.id);
+                          }}
+                          className="flex-shrink-0 text-stone-300 hover:text-stone-500 transition-colors text-sm"
+                          title="Dismiss"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Loading state */}
+            {isRunning && (
+              <div className="flex items-center gap-2 py-2 text-stone-400 text-sm">
+                <div className="flex gap-1">
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full bg-stone-300 animate-bounce"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
+                  ))}
+                </div>
+                Đang phân tích bài viết...
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!isRunning && !integrityReport && !manuscript && (
+              <div className="text-center py-16 text-stone-400">
+                <p className="text-4xl mb-3">📄</p>
+                <p className="text-sm">Chưa có nội dung để kiểm tra.</p>
+                <p className="text-xs mt-1">Paste bản thảo vào Editor rồi chạy RIC nhé.</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
