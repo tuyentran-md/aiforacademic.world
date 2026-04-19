@@ -43,6 +43,8 @@ export function ReferenceList({
   }, [deferredReferences, sortKey]);
 
   const selectedCount = selectedReferenceIds.length;
+  const pubMedCount = references.filter((reference) => reference.source === "pubmed").length;
+  const openAlexCount = references.filter((reference) => reference.source === "openalex").length;
 
   return (
     <div className="rounded-[32px] border border-black/8 bg-white/88 p-5 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
@@ -52,10 +54,10 @@ export function ReferenceList({
             Step 1 workspace
           </p>
           <h2 className="mt-2 font-serif text-3xl font-bold text-stone-900">
-            References ({references.length} found)
+            Study shortlist ({references.length} found)
           </h2>
           <p className="mt-2 text-sm text-stone-500">
-            Review and trim the evidence set before sending it to AVR.
+            Keep the papers you want to cite in the draft. Uncheck weak matches before moving on.
           </p>
         </div>
 
@@ -75,14 +77,20 @@ export function ReferenceList({
             disabled={disabled || selectedCount === 0}
             className="inline-flex items-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Continue to AVR
+            Build first draft
           </button>
         </div>
       </div>
 
-      <p className="mb-4 text-sm text-stone-500">
-        {selectedCount} reference(s) selected for drafting.
-      </p>
+      <div className="mb-4 flex flex-wrap gap-2 text-sm">
+        <span className="rounded-full bg-stone-100 px-3 py-1 text-stone-700">
+          {selectedCount} selected
+        </span>
+        <span className="rounded-full bg-sky-50 px-3 py-1 text-sky-700">{pubMedCount} PubMed</span>
+        <span className="rounded-full bg-orange-50 px-3 py-1 text-orange-700">
+          {openAlexCount} OpenAlex
+        </span>
+      </div>
 
       <div className="space-y-4">
         {sortedReferences.map((reference) => (

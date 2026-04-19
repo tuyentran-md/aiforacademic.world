@@ -16,6 +16,15 @@ interface SearchAttemptResult {
   references: Reference[];
 }
 
+const SEARCH_PREAMBLE_PATTERNS = [
+  /^\s*(tim|tìm)\s+(tai lieu|tài liệu|nghien cuu|nghiên cứu|bai bao|bài báo)\s+(ve|về)\s+/i,
+  /^\s*(tim|tìm)\s+/i,
+  /^\s*(find|search for|look for|show me)\s+(papers?|studies?|literature|articles?)\s+(about|on|for)\s+/i,
+  /^\s*(papers?|studies?|literature)\s+(about|on|for)\s+/i,
+];
+const VIETNAMESE_QUERY_HINT =
+  /[ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i;
+
 function now(): string {
   return new Date().toISOString();
 }
@@ -34,6 +43,19 @@ function getQueryTerms(query: string): string[] {
     .split(/\s+/)
     .map(normaliseTerm)
     .filter((term) => term.length > 2 && !stopWords.has(term));
+}
+
+function cleanSearchQuestion(query: string): string {
+  let cleaned = query.trim();
+
+  for (const pattern of SEARCH_PREAMBLE_PATTERNS) {
+    if (pattern.test(cleaned)) {
+      cleaned = cleaned.replace(pattern, "").trim();
+      break;
+    }
+  }
+
+  return cleaned.replace(/[?.!]+$/g, "").trim() || query.trim();
 }
 
 function stripOuterDelimiters(value: string): string {
@@ -70,6 +92,31 @@ function arePairsBalanced(value: string, open: string, close: string): boolean {
 
 function isBalancedDoubleQuotes(value: string): boolean {
   return (value.match(/"/g) || []).length % 2 === 0;
+}
+
+function sanitiseEnglishSearchQuestion(candidate: string, fallback: string): string {
+  const cleaned = stripOuterDelimiters(candidate)
+    .replace(/^english\s*(query|translation)?\s*:\s*/i, "")
+    .split("\n")
+    .map((line) => line.trim())
+    .find(Boolean);
+
+  if (
+    !cleaned ||
+    /\b(json|requested|please provide|input|output|question:|answer:)\b/i.test(cleaned)
+  ) {
+    return fallback;
+  }
+
+  return cleanSearchQuestion(cleaned);
+}
+
+function shouldTranslateQuery(query: string, language: SearchRequest["language"]): boolean {
+  if (language === "VI") {
+    return true;
+  }
+
+  return VIETNAMESE_QUERY_HINT.test(query);
 }
 
 function sanitisePubMedQuery(candidate: string, originalQuery: string): string {
@@ -110,6 +157,47 @@ function sanitisePubMedQuery(candidate: string, originalQuery: string): string {
   }
 
   return refined;
+}
+
+async function translateSearchQuestionToEnglish(query: string): Promise<string> {
+  if (!hasLLMConfiguration()) {
+    return query;
+  }
+
+  try {
+    const translated = await callLLM({
+      messages: [
+        {
+          role: "system",
+          content:
+            "Translate the user's literature-search request into a concise English biomedical search phrase. Keep every important medical noun phrase. Do not omit the procedure, postoperative context, device or intervention, population, comparator, or outcome. Return only the English search phrase, not JSON and not an explanation.",
+        },
+        {
+          role: "user",
+          content: query,
+        },
+      ],
+      temperature: 0.1,
+      maxTokens: 120,
+    });
+
+    return sanitiseEnglishSearchQuestion(translated, query);
+  } catch {
+    return query;
+  }
+}
+
+async function buildWorkingQuery(
+  query: string,
+  language: SearchRequest["language"],
+): Promise<string> {
+  const cleaned = cleanSearchQuestion(query);
+
+  if (!shouldTranslateQuery(cleaned, language)) {
+    return cleaned;
+  }
+
+  return translateSearchQuestionToEnglish(cleaned);
 }
 
 async function refineQuery(query: string): Promise<string> {
@@ -251,12 +339,32 @@ export async function runSearch(
     type: "log",
     data: {
       tool: "System",
-      message: "Refining search query...",
+      message: "Interpreting research question...",
       timestamp: now(),
     },
   });
-  const refinedQuery = await refineQuery(request.query);
-  const openAlexQuery = request.query.trim();
+  const workingQuery = await buildWorkingQuery(request.query, request.language);
+  if (workingQuery !== request.query.trim()) {
+    emit({
+      type: "log",
+      data: {
+        tool: "System",
+        message: `Using search question: "${workingQuery}"`,
+        timestamp: now(),
+      },
+    });
+  }
+
+  emit({
+    type: "log",
+    data: {
+      tool: "System",
+      message: "Refining PubMed query...",
+      timestamp: now(),
+    },
+  });
+  const refinedQuery = await refineQuery(workingQuery);
+  const openAlexQuery = workingQuery;
 
   emit({
     type: "log",
@@ -277,13 +385,32 @@ export async function runSearch(
 
   const maxResults = request.maxResults || 10;
   const [pubmedResult, openAlexResult] = await Promise.allSettled([
-    searchPubMedWithFallback(refinedQuery, request.query, maxResults, emit),
+    searchPubMedWithFallback(refinedQuery, workingQuery, maxResults, emit),
     searchOpenAlex(openAlexQuery, maxResults),
   ]);
 
   const pubmedReferences =
     pubmedResult.status === "fulfilled" ? pubmedResult.value.references : [];
   const openAlexReferences = openAlexResult.status === "fulfilled" ? openAlexResult.value : [];
+
+  emit({
+    type: "log",
+    data: {
+      tool: "PubMed",
+      message: `${pubmedReferences.length} result(s) returned`,
+      timestamp: now(),
+      status: "done",
+    },
+  });
+  emit({
+    type: "log",
+    data: {
+      tool: "OpenAlex",
+      message: `${openAlexReferences.length} result(s) returned`,
+      timestamp: now(),
+      status: "done",
+    },
+  });
 
   if (pubmedResult.status === "rejected") {
     emit({
@@ -328,12 +455,33 @@ export async function runSearch(
     },
   });
 
-  const rankedReferences = await rankReferences(allReferences, request.query);
+  const rankedReferences = await rankReferences(allReferences, workingQuery);
+  if (rankedReferences.length === 0) {
+    emit({
+      type: "status",
+      data: {
+        status: "completed",
+        message: "No references found",
+      },
+    });
+    emit({
+      type: "log",
+      data: {
+        tool: "System",
+        message:
+          "No matching papers found. Try a broader topic, fewer details, or a more standard clinical term.",
+        timestamp: now(),
+        status: "error",
+      },
+    });
+    return [];
+  }
+
   for (const reference of rankedReferences) {
     emit({ type: "reference", data: reference });
   }
 
-  if (request.language === "VI") {
+  if (request.language === "VI" && rankedReferences.some((reference) => reference.abstract.trim())) {
     emit({
       type: "status",
       data: {
@@ -366,6 +514,17 @@ export async function runSearch(
     });
     emit({ type: "done", data: { step: 1 } });
     return translated;
+  }
+
+  if (request.language === "VI") {
+    emit({
+      type: "log",
+      data: {
+        tool: "Translator",
+        message: "No abstract text available to translate, so references are shown in the source language.",
+        timestamp: now(),
+      },
+    });
   }
 
   emit({

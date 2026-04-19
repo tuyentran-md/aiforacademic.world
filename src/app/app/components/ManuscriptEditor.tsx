@@ -44,8 +44,12 @@ export function ManuscriptEditor({
             Step 2 workspace
           </p>
           <h2 className="mt-2 font-serif text-3xl font-bold text-stone-900">
-            Blueprint {blueprint ? `· ${blueprint.articleType.replaceAll("_", " ")}` : ""}
+            Build the first draft {blueprint ? `· ${blueprint.articleType.replaceAll("_", " ")}` : ""}
           </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600">
+            This is where the selected studies become a manuscript scaffold. You can preview the
+            generated text, switch to edit mode, and then send the draft to the integrity audit.
+          </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {blueprint?.sections.map((section) => (
               <span
@@ -81,7 +85,7 @@ export function ManuscriptEditor({
             disabled={isStreaming || !manuscript.trim()}
             className="inline-flex items-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Run RIC Check
+            Audit this draft
           </button>
         </div>
       </div>
@@ -136,7 +140,8 @@ export function ManuscriptEditor({
               },
             }}
           >
-            {previewMarkdown || "Draft output will appear here once AVR starts writing."}
+            {previewMarkdown ||
+              "Your manuscript scaffold will appear here once Step 2 starts. After that, you can edit it or send it straight to the audit step."}
           </ReactMarkdown>
           {isStreaming ? <div className="mt-4 h-6 w-1 animate-pulse rounded-full bg-violet-500" /> : null}
         </div>

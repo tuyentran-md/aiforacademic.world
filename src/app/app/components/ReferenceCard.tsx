@@ -75,6 +75,14 @@ export function ReferenceCard({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">Abstract</p>
           <div className="flex flex-wrap gap-2 text-xs">
+            <a
+              href={reference.url}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full border border-black/10 px-3 py-1 text-stone-600 transition hover:bg-white"
+            >
+              Open source
+            </a>
             {language === "VI" && reference.abstractTranslated ? (
               <button
                 type="button"
@@ -93,7 +101,7 @@ export function ReferenceCard({
             </button>
           </div>
         </div>
-        <p className={`mt-3 text-sm leading-relaxed text-stone-600 ${expanded ? "" : "line-clamp-4"}`}>
+        <p className={`mt-3 text-sm leading-relaxed text-stone-600 ${expanded ? "" : "line-clamp-6"}`}>
           {abstract || "No abstract available."}
         </p>
       </div>

@@ -60,10 +60,11 @@ export function IntegrityOverlay({
             Step 3 workspace
           </p>
           <h2 className="mt-2 font-serif text-3xl font-bold text-stone-900">
-            Integrity score {report ? `${report.overallScore}/100` : "pending"}
+            Audit the draft {report ? `· ${report.overallScore}/100` : "· pending"}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600">
-            {report?.summary || "RIC findings will appear here after the audit starts."}
+            {report?.summary ||
+              "Once Step 3 runs, this panel will highlight weak claims, missing citations, and paragraphs that need more careful wording."}
           </p>
         </div>
         <div className="flex flex-wrap gap-3">

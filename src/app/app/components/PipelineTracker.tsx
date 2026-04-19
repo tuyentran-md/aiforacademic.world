@@ -46,21 +46,67 @@ function getStepState(
 }
 
 const STEP_COPY = [
-  { step: 1 as const, title: "Search & Translate", accent: "bg-sky-500" },
-  { step: 2 as const, title: "AVR Blueprint", accent: "bg-violet-500" },
-  { step: 3 as const, title: "RIC Integrity", accent: "bg-rose-500" },
+  {
+    step: 1 as const,
+    title: "Find evidence",
+    subtitle: "Search PubMed/OpenAlex and review the shortlist.",
+    accent: "bg-sky-500",
+  },
+  {
+    step: 2 as const,
+    title: "Build first draft",
+    subtitle: "Turn selected papers into a manuscript scaffold.",
+    accent: "bg-violet-500",
+  },
+  {
+    step: 3 as const,
+    title: "Audit claims",
+    subtitle: "Flag overclaims, missing citations, and weak support.",
+    accent: "bg-rose-500",
+  },
 ];
 
 export function PipelineTracker(props: PipelineTrackerProps) {
   return (
     <div className="rounded-[28px] border border-black/8 bg-white/85 p-4 shadow-[0_18px_40px_rgba(17,17,16,0.05)] backdrop-blur">
+      <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
+            Workflow
+          </p>
+          <h2 className="mt-2 font-serif text-2xl font-bold text-stone-900">
+            3 steps from evidence to audit
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-stone-500">
+            You can jump back to earlier steps at any time. Later steps unlock once the previous
+            material exists.
+          </p>
+        </div>
+      </div>
       <div className="grid gap-3 md:grid-cols-3">
         {STEP_COPY.map((stepConfig) => {
           const stepState = getStepState(stepConfig.step, props);
           const selectable =
             stepConfig.step === 1 ||
-            (stepConfig.step === 2 && props.hasManuscript) ||
-            (stepConfig.step === 3 && Boolean(props.integrityReport));
+            (stepConfig.step === 2 && props.referencesCount > 0) ||
+            (stepConfig.step === 3 && props.hasManuscript);
+
+          const helperText =
+            stepConfig.step === 1
+              ? props.referencesCount > 0
+                ? `${props.referencesCount} study${props.referencesCount === 1 ? "" : "ies"} ready`
+                : "Start by entering a research question"
+              : stepConfig.step === 2
+                ? props.hasManuscript
+                  ? "Draft ready to review"
+                  : props.referencesCount > 0
+                    ? "Ready to generate draft"
+                    : "Unlocks after you keep at least 1 study"
+                : props.integrityReport
+                  ? "Audit report ready"
+                  : props.hasManuscript
+                    ? "Ready to audit the draft"
+                    : "Unlocks after a draft exists";
 
           return (
             <button
@@ -68,7 +114,7 @@ export function PipelineTracker(props: PipelineTrackerProps) {
               type="button"
               onClick={() => selectable && props.onSelectStep(stepConfig.step)}
               disabled={!selectable}
-              className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition ${
+              className={`flex h-full items-start gap-3 rounded-2xl border px-4 py-4 text-left transition ${
                 props.activeView === stepConfig.step
                   ? "border-stone-900 bg-stone-900 text-white"
                   : "border-black/8 bg-stone-50 text-stone-700"
@@ -90,6 +136,8 @@ export function PipelineTracker(props: PipelineTrackerProps) {
               <div>
                 <p className="text-xs uppercase tracking-[0.14em] opacity-60">Step {stepConfig.step}</p>
                 <p className="text-sm font-semibold">{stepConfig.title}</p>
+                <p className="mt-1 text-sm leading-relaxed opacity-75">{stepConfig.subtitle}</p>
+                <p className="mt-2 text-xs font-medium opacity-65">{helperText}</p>
               </div>
             </button>
           );

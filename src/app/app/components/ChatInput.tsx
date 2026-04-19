@@ -34,6 +34,15 @@ export function ChatInput({
 
   return (
     <div className="rounded-[28px] border border-black/10 bg-white/90 p-3 shadow-[0_20px_40px_rgba(17,17,16,0.06)] backdrop-blur">
+      <div className="mb-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
+          Step 1 input
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-stone-600">
+          Write the research need in English or Vietnamese. Include the population, procedure,
+          intervention, or outcome if you know them.
+        </p>
+      </div>
       <textarea
         value={value}
         onChange={(event) => setValue(event.target.value)}
@@ -43,8 +52,12 @@ export function ChatInput({
             void handleSubmit();
           }
         }}
-        rows={4}
-        placeholder={disabled ? "Pipeline running..." : "Ask a research question or describe the paper you want to draft"}
+        rows={5}
+        placeholder={
+          disabled
+            ? "Search is running..."
+            : "Example: pressure dressing after pediatric circumcision\nor: tìm tài liệu về băng ép sau mổ cắt da quy đầu ở trẻ em"
+        }
         className="min-h-[112px] w-full resize-none rounded-2xl border border-black/8 bg-stone-50 px-4 py-3 text-sm text-stone-800 outline-none transition focus:border-stone-300"
         disabled={disabled}
       />
@@ -70,7 +83,7 @@ export function ChatInput({
           disabled={disabled}
           className="inline-flex items-center rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Send
+          {disabled ? "Searching..." : "Find studies"}
         </button>
       </div>
     </div>

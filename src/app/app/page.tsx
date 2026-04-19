@@ -7,23 +7,28 @@ import { usePipeline } from "@/hooks/usePipeline";
 
 export default function PipelinePage() {
   const pipeline = usePipeline();
-  const [mobilePanel, setMobilePanel] = useState<"chat" | "workspace">("workspace");
+  const [mobilePanel, setMobilePanel] = useState<"brief" | "workspace">("workspace");
 
   return (
     <div className="min-h-[calc(100vh-56px)] bg-[radial-gradient(circle_at_top_left,rgba(196,99,78,0.09),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(26,46,68,0.08),transparent_32%)]">
       <div className="mx-auto max-w-[1600px] px-4 py-4 md:px-6 lg:px-8">
         <div className="mb-4 flex items-center justify-between lg:hidden">
           <div className="inline-flex rounded-full border border-black/10 bg-white/80 p-1 shadow-sm">
-            {(["chat", "workspace"] as const).map((panel) => (
+            {(
+              [
+                { id: "brief" as const, label: "Brief" },
+                { id: "workspace" as const, label: "Workspace" },
+              ] satisfies ReadonlyArray<{ id: "brief" | "workspace"; label: string }>
+            ).map((panel) => (
               <button
-                key={panel}
+                key={panel.id}
                 type="button"
-                onClick={() => setMobilePanel(panel)}
+                onClick={() => setMobilePanel(panel.id)}
                 className={`rounded-full px-4 py-2 text-sm font-medium capitalize transition ${
-                  mobilePanel === panel ? "bg-stone-900 text-white" : "text-stone-600"
+                  mobilePanel === panel.id ? "bg-stone-900 text-white" : "text-stone-600"
                 }`}
               >
-                {panel}
+                {panel.label}
               </button>
             ))}
           </div>
@@ -48,17 +53,20 @@ export default function PipelinePage() {
             />
           </div>
 
-          <div className={`${mobilePanel === "chat" ? "hidden lg:block" : "block"} xl:block`}>
+          <div className={`${mobilePanel === "brief" ? "hidden lg:block" : "block"} xl:block`}>
             <RightPanel
               status={pipeline.status}
               currentStep={pipeline.currentStep}
               activeView={pipeline.activeView}
               language={pipeline.language}
+              query={pipeline.query}
               references={pipeline.references}
               selectedReferenceIds={pipeline.selectedReferenceIds}
               manuscript={pipeline.manuscript}
               blueprint={pipeline.blueprint}
               integrityReport={pipeline.integrityReport}
+              logs={pipeline.logs}
+              errorMessage={pipeline.errorMessage}
               onSelectStep={pipeline.setActiveView}
               onToggleReference={pipeline.toggleReference}
               onRemoveReference={pipeline.removeReference}

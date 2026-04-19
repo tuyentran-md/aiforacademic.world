@@ -39,8 +39,12 @@ export function LeftPanel({
             AFA Pipeline
           </p>
           <h1 className="mt-2 font-serif text-2xl font-bold text-stone-900">
-            Research drafting workspace
+            From question to first draft
           </h1>
+          <p className="mt-2 max-w-sm text-sm leading-relaxed text-stone-600">
+            Describe the topic you want to write about, review the papers we find, then let the
+            app build and audit a first manuscript scaffold.
+          </p>
         </div>
         <button
           type="button"
@@ -51,28 +55,39 @@ export function LeftPanel({
         </button>
       </div>
 
-      <div className="mb-4 inline-flex w-fit rounded-full border border-black/10 bg-stone-100 p-1 text-xs font-medium text-stone-700">
-        <span className="rounded-full bg-white px-3 py-1 shadow-sm">Pipeline</span>
-        <Link href="/srma" className="rounded-full px-3 py-1 opacity-70 transition hover:opacity-100">
-          SRMA
+      <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-medium text-stone-700">
+        <span className="rounded-full bg-stone-900 px-3 py-1 text-white shadow-sm">
+          Drafting flow
+        </span>
+        <Link
+          href="/srma"
+          className="rounded-full border border-black/10 bg-white/80 px-3 py-1 opacity-80 transition hover:opacity-100"
+        >
+          Open SRMA tool
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto rounded-[28px] border border-black/8 bg-white/70 p-3">
-        <div className="space-y-3">
-          {logs.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-black/10 bg-stone-50 px-4 py-5 text-sm leading-relaxed text-stone-500">
-              Agent logs will appear here while the pipeline runs. Search, drafting, translation,
-              and audit events stream into this panel in real time.
+      <div className="mb-4 rounded-[28px] border border-black/8 bg-white/80 p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
+          How this works
+        </p>
+        <div className="mt-3 space-y-3">
+          {[
+            "1. Describe the evidence you need in English or Vietnamese.",
+            "2. Review the paper shortlist and keep the useful ones.",
+            "3. Generate a first draft, then run the integrity audit.",
+          ].map((item) => (
+            <div
+              key={item}
+              className="rounded-2xl border border-black/6 bg-stone-50 px-4 py-3 text-sm leading-relaxed text-stone-600"
+            >
+              {item}
             </div>
-          ) : (
-            logs.map((entry) => <LogEntry key={entry.id} entry={entry} />)
-          )}
-          <div ref={logAnchorRef} />
+          ))}
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mb-4">
         <ChatInput
           disabled={isRunning}
           defaultQuery={query}
@@ -80,6 +95,33 @@ export function LeftPanel({
           onLanguageChange={onLanguageChange}
           onSubmit={onSearch}
         />
+      </div>
+
+      <div className="flex-1 overflow-y-auto rounded-[28px] border border-black/8 bg-white/70 p-3">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
+              Live activity
+            </p>
+            <p className="mt-1 text-sm text-stone-500">
+              Search, translation, drafting, and audit events stream here as the workflow runs.
+            </p>
+          </div>
+          <span className="rounded-full bg-stone-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+            {isRunning ? "Running" : logs.length > 0 ? "Latest run" : "Idle"}
+          </span>
+        </div>
+        <div className="space-y-3">
+          {logs.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-black/10 bg-stone-50 px-4 py-5 text-sm leading-relaxed text-stone-500">
+              Start by describing your topic above. Once the workflow begins, each search,
+              translation, drafting, and audit event will appear here in order.
+            </div>
+          ) : (
+            logs.map((entry) => <LogEntry key={entry.id} entry={entry} />)
+          )}
+          <div ref={logAnchorRef} />
+        </div>
       </div>
     </aside>
   );
