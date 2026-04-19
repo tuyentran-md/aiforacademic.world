@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-04-13T06:04:55.437462",
+  "domain": "aiforacademic.world",
+  "owner": "Bi",
+  "note": "ID 43 exists as draft imrad-format-mistakes... in content/blog/ — pillar_url mismatch (originally tuyentranmd). Keep here since file lives here.",
+  "drafted_waiting": [
+    {
+      "id": 43,
+      "type": "foundation",
+      "title": "Why Most Papers Have Structural Problems",
+      "file": "content/blog/imrad-format-mistakes-chronological-vs-logical-order.md"
+    }
+  ],
+  "next_to_write": [
+    {
+      "id": 49,
+      "type": "practice",
+      "content_role": "spoke",
+      "title": "How to Use AI for Systematic Reviews Without Compromising Rigor",
+      "seo_title": "AI in Systematic Reviews: A Safe Workflow",
+      "core_idea": "AI is great for mapping and screening but dangerous for extraction if not supervised.",
+      "keywords": [
+        "AI systematic review",
+        "literature mapping",
+        "clinical research AI"
+      ],
+      "target_length": "medium_1500_words",
+      "artifact": "AI Screening Checklist",
+      "internal_link_target": 21,
+      "pillar_url": "https://aiforacademic.world/blog/ai-literature-review-tools-scispace-vs-consensus-vs-elicit"
+    },
+    {
+      "id": 50,
+      "type": "tools",
+      "content_role": "spoke",
+      "title": "Red-Teaming Your Study Design with Claude 3",
+      "seo_title": "Clinical Trial Design AI: How to Red-Team Your Protocol",
+      "core_idea": "Use Claude to find the holes in your protocol before the IRB or reviewers do.",
+      "keywords": [
+        "clinical trial design AI",
+        "Claude 3 for researchers",
+        "protocol development"
+      ],
+      "target_length": "short_1000_words",
+      "artifact": null,
+      "internal_link_target": 16,
+      "pillar_url": "https://aiforacademic.world/blog/claude-vs-chatgpt-for-research-claude-35-vs-chatgpt-for"
+    }
+  ]
+}
