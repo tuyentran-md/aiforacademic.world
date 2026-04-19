@@ -254,27 +254,30 @@ export default function ProductTabs() {
     <div>
       {/* ── Tab bar ─────────────────────────────────────────── */}
       <div
-        className="sticky top-14 z-20 border-b no-grid"
+        className="border-y no-grid"
         style={{
-          backgroundColor: "rgba(245,241,234,0.95)",
-          backdropFilter: "blur(12px)",
+          backgroundColor: "#F5F1EA",
           borderColor: "rgba(0,0,0,0.06)",
         }}
       >
         <div className="max-w-5xl mx-auto px-6 md:px-8">
-          <nav className="flex justify-center gap-2 py-2">
+          <nav className="flex justify-center gap-4 py-3">
             {TABS.map((tab) => {
               const isActive = active === tab.key;
               return (
                 <button
                   key={tab.key}
                   onClick={() => setActive(tab.key)}
-                  className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap hover:opacity-90"
+                  className={`flex items-center gap-2.5 px-6 py-2.5 rounded-full text-sm font-semibold uppercase tracking-wider transition-all
+                    ${isActive ? "opacity-100" : "opacity-50 hover:opacity-75"}
+                  `}
                   style={{
-                    backgroundColor: isActive
-                      ? tab.colors.activeBg
-                      : tab.colors.bg,
-                    color: isActive ? tab.colors.activeText : tab.colors.text,
+                    backgroundColor: tab.colors.activeBg,
+                    color: tab.colors.activeText,
+                    // Use box-shadow for a subtle active indicator instead of changing colors
+                    boxShadow: isActive
+                      ? `0 0 0 2px rgba(255,255,255,0.5), 0 2px 8px rgba(0,0,0,0.2)`
+                      : "0 1px 2px rgba(0,0,0,0.05)",
                   }}
                 >
                   {tab.label}
@@ -282,12 +285,8 @@ export default function ProductTabs() {
                     <span
                       className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
                       style={{
-                        backgroundColor: isActive
-                          ? "rgba(255,255,255,0.2)"
-                          : "rgba(0,0,0,0.08)",
-                        color: isActive
-                          ? "rgba(255,255,255,0.8)"
-                          : tab.colors.text,
+                        backgroundColor: "rgba(255,255,255,0.2)",
+                        color: "rgba(255,255,255,0.8)",
                       }}
                     >
                       Soon
