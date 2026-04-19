@@ -231,7 +231,13 @@ export function useCanvas() {
       case "error":
         setStatus("error");
         setErrorMessage(event.data.message);
-        appendMessage({ role: "agent", text: `❌ Lỗi: ${event.data.message}` });
+        appendMessage({
+          role: "agent",
+          text:
+            languageRef.current === "EN"
+              ? `❌ Error: ${event.data.message}`
+              : `❌ Lỗi: ${event.data.message}`,
+        });
         return;
 
       case "done":
@@ -243,27 +249,34 @@ export function useCanvas() {
           setSelectedReferenceIds(ids);
           const count = referencesRef.current.length;
 
+          const isEN = languageRef.current === "EN";
           appendMessage({
             role: "agent",
             text:
               count > 0
-                ? `Tìm được **${count} tài liệu** sát chủ đề. Sếp xem danh sách bên Canvas nhé.`
-                : "Không tìm thấy tài liệu nào. Sếp thử đổi từ khoá hoặc ngôn ngữ khác nhé.",
+                ? isEN
+                  ? `Found **${count} references**. Please check the Canvas list.`
+                  : `Đã tìm thấy **${count} tài liệu**. Vui lòng xem danh sách tại Canvas.`
+                : isEN
+                ? "No references found. Please try different keywords or language."
+                : "Không tìm thấy tài liệu. Vui lòng thử từ khoá hoặc ngôn ngữ khác.",
             suggestedActions:
               count > 0
                 ? [
                     {
                       id: "draft",
-                      label: "✍️ Viết bản thảo từ tài liệu này",
+                      label: isEN ? "✍️ Draft from these references" : "✍️ Viết bản thảo từ tài liệu này",
                       trigger: () => void startAVR(),
                     },
                     {
                       id: "ric",
-                      label: "🔬 Check paper của tôi theo nguồn này",
+                      label: isEN ? "🔬 Check my paper against these sources" : "🔬 Kiểm tra bài viết theo nguồn này",
                       trigger: () =>
                         appendMessage({
                           role: "agent",
-                          text: 'Sếp paste nội dung bài vào chat rồi gõ "check bài này" để RIC quét nhé.',
+                          text: isEN
+                            ? "Please paste your manuscript into the chat and write 'check this paper' to proceed."
+                            : "Vui lòng dán nội dung bài vào chat và gõ 'kiểm tra bài này' để RIC phân tích.",
                         }),
                     },
                   ]
@@ -272,22 +285,27 @@ export function useCanvas() {
         }
 
         if (event.data.step === 2) {
+          const isEN = languageRef.current === "EN";
           appendMessage({
             role: "agent",
-            text: "Bản thảo đã được tạo. Sếp chỉnh sửa trực tiếp bên Canvas nhé.",
+            text: isEN
+              ? "Draft created. You can edit it directly in the Canvas."
+              : "Bản thảo đã được tạo. Bạn có thể chỉnh sửa trực tiếp tại Canvas.",
             suggestedActions: [
               {
                 id: "check",
-                label: "🔬 Check bản thảo với RIC",
+                label: isEN ? "🔬 Check draft with RIC" : "🔬 Kiểm tra bản thảo bằng RIC",
                 trigger: () => void startRIC(),
               },
               {
                 id: "more-refs",
-                label: "🔍 Tìm thêm tài liệu",
+                label: isEN ? "🔍 Search more references" : "🔍 Tìm thêm tài liệu",
                 trigger: () =>
                   appendMessage({
                     role: "agent",
-                    text: "Sếp gõ từ khoá cần tìm thêm vào đây nhé.",
+                    text: isEN
+                      ? "Please type the keywords you want to search for."
+                      : "Vui lòng nhập từ khoá bạn muốn tìm thêm.",
                   }),
               },
             ],
@@ -295,22 +313,27 @@ export function useCanvas() {
         }
 
         if (event.data.step === 3) {
+          const isEN = languageRef.current === "EN";
           appendMessage({
             role: "agent",
-            text: "Kiểm tra xong! Các lỗi đã được highlight trên Canvas, sếp click từng mục để xem chi tiết nhé.",
+            text: isEN
+              ? "Check complete! Policy flags are highlighted on the Canvas. Click each item to view details."
+              : "Hoàn tất kiểm tra! Các cảnh báo đã được highlight tại Canvas. Click vào từng mục để xem chi tiết.",
             suggestedActions: [
               {
                 id: "fix",
-                label: "✍️ Fix các phần bị flag",
+                label: isEN ? "✍️ Fix flagged items" : "✍️ Sửa các lỗi cảnh báo",
                 trigger: () => void startAVR(),
               },
               {
                 id: "find-refs",
-                label: "🔍 Tìm citation cho yellow flags",
+                label: isEN ? "🔍 Find citations for flags" : "🔍 Tìm trích dẫn cho cảnh báo",
                 trigger: () =>
                   appendMessage({
                     role: "agent",
-                    text: "Sếp gõ từ khoá cần tìm citation vào đây nhé.",
+                    text: isEN
+                      ? "Please type keywords to find relevant citations."
+                      : "Vui lòng nhập từ khoá để tìm trích dẫn.",
                   }),
               },
             ],
@@ -337,7 +360,10 @@ export function useCanvas() {
     setLogs([]);
 
     pushCanvas("reference", "References");
-    appendMessage({ role: "agent", text: "Đang tìm kiếm trên PubMed và OpenAlex..." });
+    appendMessage({
+      role: "agent",
+      text: useLang === "EN" ? "Searching PubMed and OpenAlex..." : "Đang tìm kiếm trên PubMed và OpenAlex...",
+    });
 
     try {
       await consumeSSE(
@@ -349,7 +375,10 @@ export function useCanvas() {
       setStatus("error");
       const msg = error instanceof Error ? error.message : "Search failed";
       setErrorMessage(msg);
-      appendMessage({ role: "agent", text: `❌ Lỗi tìm kiếm: ${msg}` });
+      appendMessage({
+        role: "agent",
+        text: useLang === "EN" ? `❌ Search error: ${msg}` : `❌ Lỗi tìm kiếm: ${msg}`,
+      });
     }
   }
 
@@ -360,7 +389,10 @@ export function useCanvas() {
     if (!text.trim()) {
       appendMessage({
         role: "agent",
-        text: "Sếp cần paste nội dung bài vào Editor bên Canvas (hoặc kèm theo trong chat) trước khi chạy RIC nhé.",
+        text:
+          languageRef.current === "EN"
+            ? "Please paste your manuscript into the Canvas Editor (or include it in chat) before running RIC."
+            : "Vui lòng dán nội dung bản thảo vào Editor tại Canvas (hoặc gửi kèm trong chat) trước khi chạy RIC.",
       });
       return;
     }
@@ -377,7 +409,13 @@ export function useCanvas() {
     setErrorMessage(null);
 
     pushCanvas("integrity", "RIC Report");
-    appendMessage({ role: "agent", text: "Đang quét bài viết qua RIC Audit..." });
+    appendMessage({
+      role: "agent",
+      text:
+        languageRef.current === "EN"
+          ? "Scanning manuscript with RIC Audit..."
+          : "Đang phân tích bản thảo qua RIC Audit...",
+    });
 
     try {
       await consumeSSE(
@@ -389,7 +427,10 @@ export function useCanvas() {
       setStatus("error");
       const msg = error instanceof Error ? error.message : "RIC failed";
       setErrorMessage(msg);
-      appendMessage({ role: "agent", text: `❌ Lỗi RIC: ${msg}` });
+      appendMessage({
+        role: "agent",
+        text: languageRef.current === "EN" ? `❌ RIC error: ${msg}` : `❌ Lỗi RIC: ${msg}`,
+      });
     }
   }
 
@@ -398,7 +439,10 @@ export function useCanvas() {
     pushCanvas("editor", "Draft");
     appendMessage({
       role: "agent",
-      text: "✍️ AVR đang được hoàn thiện và sẽ merge vào sớm! Trong lúc chờ, sếp có thể paste bản thảo vào Editor bên Canvas để dùng RIC ngay.",
+      text:
+        languageRef.current === "EN"
+          ? "✍️ AVR (AI Drafting) is coming soon. For now, you can paste your draft in the Editor and check it with RIC."
+          : "✍️ Tính năng AVR (Viết AI) đang được hoàn thiện. Trong lúc chờ, bạn có thể dán bản thảo vào Editor để sử dụng RIC.",
     });
   }
 
@@ -441,7 +485,10 @@ export function useCanvas() {
     // Fallback
     appendMessage({
       role: "agent",
-      text: "I'm not sure what you need. Try:\n• **Search**: \"Find papers on [topic]\"\n• **Write / Draft**: \"Draft a manuscript about [topic]\"\n• **Check**: \"Check this paper:\" then paste your text",
+      text:
+        languageRef.current === "EN"
+          ? "I couldn't catch that. Do you want to:\n• **Search**: 'Find papers on [topic]'\n• **Write / Draft**: 'Draft a manuscript about [topic]'\n• **Check**: 'Check this paper:' then paste your text"
+          : "Hệ thống chưa hiểu rõ yêu cầu. Bạn muốn:\n• **Tìm tài liệu**: gõ 'Tìm tài liệu về...'\n• **Viết bài**: gõ 'Viết bản thảo về...'\n• **Kiểm tra**: gõ 'Kiểm tra bài này:' kèm theo nội dung",
     });
   }
 
@@ -492,10 +539,13 @@ export function useCanvas() {
       {
         id: "welcome",
         role: "agent",
-        text: "Hi! I'm AFA Assistant. I can help you **search literature**, **draft a manuscript** (AVR), or **check research integrity** (RIC). What would you like to do?",
+        text:
+          languageRef.current === "EN"
+            ? "Hi! I'm AFA Assistant. I can help you **search literature**, **draft a manuscript** (AVR), or **check research integrity** (RIC). What would you like to do?"
+            : "Xin chào! Đây là trợ lý AFA. Tôi có thể hỗ trợ **tìm tài liệu**, **viết bản thảo** (AVR), hoặc **kiểm tra toàn vẹn học thuật** (RIC). Bạn muốn bắt đầu với chức năng nào?",
       },
     ]);
-    setLanguage("EN");
+    setLanguage(languageRef.current);
     setReferences([]);
     setSelectedReferenceIds([]);
     setManuscript("");
