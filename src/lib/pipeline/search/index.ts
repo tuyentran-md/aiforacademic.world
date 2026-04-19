@@ -339,7 +339,7 @@ export async function runSearch(
     type: "log",
     data: {
       tool: "System",
-      message: "Interpreting research question...",
+      message: "Preparing your search...",
       timestamp: now(),
     },
   });
@@ -355,14 +355,6 @@ export async function runSearch(
     });
   }
 
-  emit({
-    type: "log",
-    data: {
-      tool: "System",
-      message: "Refining PubMed query...",
-      timestamp: now(),
-    },
-  });
   const refinedQuery = await refineQuery(workingQuery);
   const openAlexQuery = workingQuery;
 
@@ -370,7 +362,7 @@ export async function runSearch(
     type: "log",
     data: {
       tool: "PubMed",
-      message: `Searching: "${refinedQuery}"...`,
+      message: "Searching medical databases...",
       timestamp: now(),
     },
   });
@@ -378,7 +370,7 @@ export async function runSearch(
     type: "log",
     data: {
       tool: "OpenAlex",
-      message: `Searching: "${openAlexQuery}"...`,
+      message: "Searching academic databases...",
       timestamp: now(),
     },
   });
@@ -450,7 +442,16 @@ export async function runSearch(
     type: "log",
     data: {
       tool: "System",
-      message: `${allReferences.length} unique references after dedup`,
+      message: `Found ${allReferences.length} relevant papers`,
+      timestamp: now(),
+    },
+  });
+
+  emit({
+    type: "log",
+    data: {
+      tool: "System",
+      message: "Ranking papers by relevance...",
       timestamp: now(),
     },
   });
@@ -504,6 +505,14 @@ export async function runSearch(
         emit({ type: "reference", data: reference });
       }
     }
+    emit({
+      type: "log",
+      data: {
+        tool: "Translator",
+        message: "Translation complete",
+        timestamp: now(),
+      },
+    });
 
     emit({
       type: "status",

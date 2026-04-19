@@ -26,14 +26,14 @@ export function ReferenceCard({
       : reference.abstract;
 
   return (
-    <article className="rounded-[24px] border border-black/8 bg-white p-4 shadow-[0_12px_32px_rgba(17,17,16,0.05)]">
+    <article className="rounded-xl border border-black/8 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <label className="flex items-start gap-3">
           <input
             type="checkbox"
             checked={selected}
             onChange={() => onToggle(reference.id)}
-            className="mt-1 h-4 w-4 rounded border-black/20 text-stone-900 focus:ring-stone-400"
+            className="mt-1 h-4 w-4 rounded border-black/20 text-[#C4634E] focus:ring-[#C4634E]/30"
           />
           <div>
             <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -50,7 +50,7 @@ export function ReferenceCard({
                 {reference.source}
               </span>
             </div>
-            <h3 className="text-[1.03rem] font-semibold leading-snug text-stone-900">{reference.title}</h3>
+            <h3 className="text-base font-semibold leading-snug text-stone-900">{reference.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-stone-600">
               {reference.authors.slice(0, 4).join(", ") || "Unknown authors"} · {reference.journal} ·{" "}
               {reference.year}
@@ -65,13 +65,13 @@ export function ReferenceCard({
         <button
           type="button"
           onClick={() => onRemove(reference.id)}
-          className="rounded-full border border-black/10 px-3 py-1 text-xs font-medium text-stone-500 transition hover:bg-stone-100"
+          className="rounded-lg border border-black/10 px-3 py-1.5 text-xs font-medium text-stone-500 transition hover:bg-stone-100"
         >
           Remove
         </button>
       </div>
 
-      <div className="mt-4 rounded-2xl bg-stone-50 p-4">
+      <div className="mt-4 rounded-lg bg-stone-50 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">Abstract</p>
           <div className="flex flex-wrap gap-2 text-xs">

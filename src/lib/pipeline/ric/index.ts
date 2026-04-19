@@ -339,7 +339,7 @@ export async function runRIC(
     type: "status",
     data: {
       status: "auditing",
-      message: "Checking manuscript integrity...",
+      message: "Reviewing manuscript for issues...",
     },
   });
 
@@ -352,7 +352,7 @@ export async function runRIC(
       type: "log",
       data: {
         tool: "RIC",
-        message: `Analyzing: ${section.heading}...`,
+        message: `Checking: ${section.heading}...`,
         timestamp: now(),
       },
     });

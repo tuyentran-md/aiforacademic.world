@@ -228,7 +228,7 @@ export const avrMock: AVRModule = {
       type: "status",
       data: {
         status: "drafting",
-        message: "Analyzing references...",
+        message: "Preparing manuscript structure...",
       },
     });
 
@@ -243,7 +243,7 @@ export const avrMock: AVRModule = {
         type: "log",
         data: {
           tool: "AVR",
-          message: `Writing section: ${section.heading}...`,
+          message: `Writing: ${section.heading}...`,
           timestamp: new Date().toISOString(),
         },
       });

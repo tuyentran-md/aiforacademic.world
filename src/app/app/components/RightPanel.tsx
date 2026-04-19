@@ -16,6 +16,7 @@ interface RightPanelProps {
   status: PipelineStatus;
   currentStep: 1 | 2 | 3;
   activeView: 1 | 2 | 3;
+  autoChain: boolean;
   language: "EN" | "VI";
   query: string;
   references: Reference[];
@@ -26,6 +27,7 @@ interface RightPanelProps {
   logs: LogEntry[];
   errorMessage: string | null;
   onSelectStep: (step: 1 | 2 | 3) => void;
+  onAutoChainChange: (nextAutoChain: boolean) => void;
   onToggleReference: (referenceId: string) => void;
   onRemoveReference: (referenceId: string) => void;
   onContinueToAVR: () => Promise<void>;
@@ -55,15 +57,15 @@ function ArtifactShell({
           : "border-black/8 bg-stone-50/80";
 
   return (
-    <div className={`rounded-[28px] border p-6 shadow-[0_14px_34px_rgba(17,17,16,0.04)] ${toneClassName}`}>
-      <h3 className="font-serif text-[2rem] font-bold leading-tight text-stone-900">{title}</h3>
-      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600">{body}</p>
+    <div className={`rounded-xl border p-6 shadow-sm ${toneClassName}`}>
+      <h3 className="text-xl font-semibold leading-tight text-stone-900">{title}</h3>
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-600">{body}</p>
 
       {cards?.length ? (
         <div className="mt-6 grid gap-3 xl:grid-cols-3">
           {cards.map((card) => (
-            <div key={card.title} className="rounded-[24px] border border-black/8 bg-white/86 px-4 py-4">
-              <p className="text-sm font-semibold text-stone-900">{card.title}</p>
+            <div key={card.title} className="rounded-xl border border-black/8 bg-white/86 px-4 py-4">
+              <p className="text-base font-semibold text-stone-900">{card.title}</p>
               <p className="mt-2 text-sm leading-relaxed text-stone-600">{card.body}</p>
             </div>
           ))}
@@ -73,30 +75,49 @@ function ArtifactShell({
   );
 }
 
-function getArtifactLabel(activeView: 1 | 2 | 3): string {
-  if (activeView === 1) {
-    return "Papers";
+function getContextualStatus({
+  status,
+  activeView,
+  references,
+  manuscript,
+  integrityReport,
+  errorMessage,
+}: Pick<
+  RightPanelProps,
+  "status" | "activeView" | "references" | "manuscript" | "integrityReport" | "errorMessage"
+>): string {
+  if (status === "error" && errorMessage) {
+    return errorMessage;
   }
-  if (activeView === 2) {
-    return "Draft";
-  }
-  return "Review";
-}
 
-function getArtifactSummary(activeView: 1 | 2 | 3): string {
   if (activeView === 1) {
-    return "Relevant papers from PubMed and OpenAlex.";
+    if (status === "searching" || status === "translating") {
+      return "Searching papers...";
+    }
+
+    return references.length > 0 ? `${references.length} papers found` : "Run a search to see papers";
   }
+
   if (activeView === 2) {
-    return "A draft scaffold built from the selected papers.";
+    if (status === "drafting") {
+      return "Draft in progress...";
+    }
+
+    return manuscript.trim() ? "Draft ready" : "Ready to create a draft";
   }
-  return "Integrity flags on the draft.";
+
+  if (status === "auditing") {
+    return "Review in progress...";
+  }
+
+  return integrityReport ? `Score: ${integrityReport.overallScore}/100` : "Ready to run review";
 }
 
 export function RightPanel({
   status,
   currentStep,
   activeView,
+  autoChain,
   language,
   query,
   references,
@@ -107,6 +128,7 @@ export function RightPanel({
   logs,
   errorMessage,
   onSelectStep,
+  onAutoChainChange,
   onToggleReference,
   onRemoveReference,
   onContinueToAVR,
@@ -116,21 +138,19 @@ export function RightPanel({
 }: RightPanelProps) {
   const isSearching = status === "searching" || status === "translating";
   const lastLog = logs.at(-1)?.message;
+  const contextualStatus = getContextualStatus({
+    status,
+    activeView,
+    references,
+    manuscript,
+    integrityReport,
+    errorMessage,
+  });
 
   return (
-    <section className="flex h-full min-h-[420px] flex-col overflow-hidden rounded-[32px] border border-black/8 bg-white/90 shadow-[0_22px_50px_rgba(17,17,16,0.06)]">
+    <section className="flex h-full min-h-[420px] flex-col overflow-hidden rounded-2xl border border-black/8 bg-white/90 shadow-lg">
       <div className="border-b border-black/6 px-4 py-4">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
-              Artifact
-            </p>
-            <h2 className="mt-2 font-serif text-[1.9rem] font-bold leading-tight text-stone-900">
-              {getArtifactLabel(activeView)}
-            </h2>
-            <p className="mt-1 text-sm text-stone-600">{getArtifactSummary(activeView)}</p>
-          </div>
-
+        <div className="flex flex-col gap-3">
           <PipelineTracker
             status={status}
             currentStep={currentStep}
@@ -140,6 +160,21 @@ export function RightPanel({
             integrityReport={integrityReport}
             onSelectStep={onSelectStep}
           />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-stone-600">{contextualStatus}</p>
+            <button
+              type="button"
+              aria-pressed={autoChain}
+              onClick={() => onAutoChainChange(!autoChain)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                autoChain
+                  ? "border-[#C4634E]/30 bg-[#C4634E]/10 text-[#C4634E]"
+                  : "border-black/10 bg-white text-stone-500 hover:bg-stone-50"
+              }`}
+            >
+              {autoChain ? "Auto on" : "Auto off"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -158,7 +193,7 @@ export function RightPanel({
           ) : isSearching ? (
             <ArtifactShell
               title="Finding papers"
-              body={lastLog || "AFA is checking PubMed and OpenAlex for relevant studies."}
+              body={lastLog || "Searching medical and academic databases..."}
               tone="active"
             />
           ) : status === "error" ? (
@@ -178,20 +213,20 @@ export function RightPanel({
             />
           ) : (
             <ArtifactShell
-              title="Your results will appear here"
-              body="This pane keeps the outputs from the pipeline while the chat on the left handles the request."
+              title="Your output will appear here"
+              body="Search to unlock papers, drafting, and review."
               cards={[
                 {
                   title: "Papers",
-                  body: "A shortlist of relevant studies that you can keep or remove.",
+                  body: "Keep the papers you want to use.",
                 },
                 {
                   title: "Draft",
-                  body: "A first manuscript scaffold based on the papers you selected.",
+                  body: "A draft appears after paper selection.",
                 },
                 {
                   title: "Review",
-                  body: "An integrity pass that flags weak claims, missing support, and other issues.",
+                  body: "Review flags appear after the draft.",
                 },
               ]}
             />

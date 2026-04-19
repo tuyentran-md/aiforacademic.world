@@ -16,7 +16,7 @@ export function FlagCard({
   onDismiss: (flagId: string) => void;
 }) {
   return (
-    <div className={`rounded-2xl border px-4 py-3 text-sm ${FLAG_STYLE[flag.severity]}`}>
+    <div className={`rounded-xl border px-4 py-3 text-sm ${FLAG_STYLE[flag.severity]}`}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] opacity-70">
@@ -30,7 +30,7 @@ export function FlagCard({
         <button
           type="button"
           onClick={() => onDismiss(flag.id)}
-          className="rounded-full border border-current/15 px-3 py-1 text-xs font-medium opacity-80"
+          className="rounded-lg border border-current/15 px-3 py-1.5 text-xs font-medium opacity-80"
         >
           Dismiss
         </button>

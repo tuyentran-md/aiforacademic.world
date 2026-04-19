@@ -53,18 +53,20 @@ export function IntegrityOverlay({
   }
 
   return (
-    <div className="rounded-[28px] border border-black/8 bg-stone-50/80 p-4 shadow-[0_14px_34px_rgba(17,17,16,0.04)]">
+    <div className="rounded-xl border border-black/8 bg-stone-50/80 p-4 shadow-sm">
       <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
             Review
           </p>
-          <h2 className="mt-2 font-serif text-[2rem] font-bold text-stone-900">
-            {report ? `Integrity score ${report.overallScore}/100` : "Integrity review"}
+          <h2 className="mt-2 text-xl font-semibold text-stone-900">
+            {report ? `Score: ${report.overallScore}/100` : "Integrity review"}
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600">
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-600">
             {report?.summary ||
-              "AFA will flag weak claims, missing support, and citation issues here."}
+              (isRunning
+                ? "Checking claims, citations, and evidence strength."
+                : "Review results will appear here.")}
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -72,7 +74,7 @@ export function IntegrityOverlay({
             type="button"
             onClick={handleCopy}
             disabled={!manuscript.trim()}
-            className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-50 disabled:opacity-40"
+            className="rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-40"
           >
             Copy
           </button>
@@ -80,7 +82,7 @@ export function IntegrityOverlay({
             type="button"
             onClick={handleExport}
             disabled={!manuscript.trim()}
-            className="rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
+            className="rounded-lg border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-50 disabled:opacity-40"
           >
             Download Markdown
           </button>
@@ -95,8 +97,8 @@ export function IntegrityOverlay({
 
       <div className="space-y-6">
         {sections.map((section) => (
-          <section key={section.heading} className="rounded-[28px] bg-stone-50 p-5">
-            <h3 className="font-serif text-2xl font-bold text-stone-900">{section.heading}</h3>
+          <section key={section.heading} className="rounded-lg bg-stone-50 p-5">
+            <h3 className="text-xl font-semibold text-stone-900">{section.heading}</h3>
             <div className="mt-4 space-y-4">
               {section.paragraphs.map((paragraph, paragraphIndex) => {
                 const paragraphFlags = flags.filter(
@@ -109,7 +111,7 @@ export function IntegrityOverlay({
                 return (
                   <div key={`${section.heading}-${paragraphIndex}`}>
                     <div
-                      className={`rounded-2xl border-l-4 px-4 py-4 text-sm leading-7 text-stone-700 ${severityClassName(
+                      className={`rounded-lg border-l-4 px-4 py-4 text-sm leading-7 text-stone-700 ${severityClassName(
                         severity,
                       )}`}
                     >
@@ -130,7 +132,7 @@ export function IntegrityOverlay({
         ))}
 
         {isRunning ? (
-          <div className="rounded-2xl border border-dashed border-black/10 bg-stone-50 px-4 py-5 text-sm text-stone-500">
+          <div className="rounded-lg border border-dashed border-black/10 bg-stone-50 px-4 py-5 text-sm text-stone-500">
             AFA is still reading the manuscript and streaming integrity flags.
           </div>
         ) : null}

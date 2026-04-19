@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LeftPanel } from "./components/LeftPanel";
 import { RightPanel } from "./components/RightPanel";
 import { usePipeline } from "@/hooks/usePipeline";
 
 export default function PipelinePage() {
   const pipeline = usePipeline();
-  const [mobilePanel, setMobilePanel] = useState<"ask" | "results">("results");
+  const [mobilePanel, setMobilePanel] = useState<"chat" | "output">("chat");
+
+  useEffect(() => {
+    if (pipeline.isRunning) {
+      setMobilePanel("output");
+    }
+  }, [pipeline.isRunning]);
 
   return (
     <div className="min-h-[calc(100vh-56px)] bg-[radial-gradient(circle_at_top_left,rgba(196,99,78,0.07),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(26,46,68,0.06),transparent_32%)] text-[15px]">
@@ -16,9 +22,9 @@ export default function PipelinePage() {
           <div className="inline-flex rounded-full border border-black/10 bg-white/80 p-1 shadow-sm">
             {(
               [
-                { id: "ask" as const, label: "Ask" },
-                { id: "results" as const, label: "Results" },
-              ] satisfies ReadonlyArray<{ id: "ask" | "results"; label: string }>
+                { id: "chat" as const, label: "Chat" },
+                { id: "output" as const, label: "Output" },
+              ] satisfies ReadonlyArray<{ id: "chat" | "output"; label: string }>
             ).map((panel) => (
               <button
                 key={panel.id}
@@ -37,22 +43,24 @@ export default function PipelinePage() {
           ) : null}
         </div>
 
-        <div className="mb-3 flex items-end justify-between gap-4 rounded-[24px] border border-black/8 bg-white/72 px-4 py-3 shadow-[0_14px_32px_rgba(17,17,16,0.04)] backdrop-blur">
+        <div className="mb-3 flex items-end justify-between gap-4 rounded-xl border border-black/8 border-l-4 border-l-[#C4634E] bg-white/72 px-4 py-3 shadow-sm backdrop-blur">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
               Pipeline
             </p>
-            <p className="mt-1 text-sm text-stone-600">
-              One chat on the left. One artifact on the right.
-            </p>
+            <h1 className="mt-1 text-2xl font-semibold text-stone-900">Search, draft, review</h1>
           </div>
           <p className="hidden text-sm text-stone-500 xl:block">
-            Ask once. AFA returns papers, a draft scaffold, and an integrity review.
+            {pipeline.isRunning
+              ? "Pipeline running..."
+              : pipeline.query
+                ? "Output ready to review."
+                : "Start with a research question."}
           </p>
         </div>
 
         <div className="grid min-h-[calc(100vh-164px)] gap-3 xl:grid-cols-[340px_minmax(0,1fr)]">
-          <div className={`${mobilePanel === "results" ? "hidden lg:block" : "block"} xl:block`}>
+          <div className={`${mobilePanel === "output" ? "hidden lg:block" : "block"} xl:block`}>
             <LeftPanel
               logs={pipeline.logs}
               language={pipeline.language}
@@ -60,14 +68,14 @@ export default function PipelinePage() {
               isRunning={pipeline.isRunning}
               onLanguageChange={pipeline.setLanguage}
               onSearch={async (query) => {
-                setMobilePanel("results");
+                setMobilePanel("output");
                 await pipeline.startSearch(query, pipeline.language);
               }}
               onReset={pipeline.reset}
             />
           </div>
 
-          <div className={`${mobilePanel === "ask" ? "hidden lg:block" : "block"} xl:block`}>
+          <div className={`${mobilePanel === "chat" ? "hidden lg:block" : "block"} xl:block`}>
             <RightPanel
               status={pipeline.status}
               currentStep={pipeline.currentStep}
@@ -81,16 +89,18 @@ export default function PipelinePage() {
               integrityReport={pipeline.integrityReport}
               logs={pipeline.logs}
               errorMessage={pipeline.errorMessage}
-              onSelectStep={pipeline.setActiveView}
+              autoChain={pipeline.autoChain}
+              onSelectStep={pipeline.selectView}
               onToggleReference={pipeline.toggleReference}
               onRemoveReference={pipeline.removeReference}
               onContinueToAVR={pipeline.startAVR}
               onManuscriptChange={pipeline.updateManuscript}
               onContinueToRIC={pipeline.startRIC}
               onDismissFlag={pipeline.dismissFlag}
+              onAutoChainChange={pipeline.setAutoChain}
             />
             {pipeline.errorMessage ? (
-              <p className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <p className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {pipeline.errorMessage}
               </p>
             ) : null}

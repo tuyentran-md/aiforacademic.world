@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import type { IntegrityReport } from "@/lib/pipeline/types";
 
 type StepState = "pending" | "active" | "completed" | "error";
@@ -46,66 +47,90 @@ function getStepState(
 }
 
 const OUTPUT_TABS = [
-  { step: 1 as const, label: "Papers" },
-  { step: 2 as const, label: "Draft" },
-  { step: 3 as const, label: "Review" },
+  { step: 1 as const, label: "Papers", number: "1" },
+  { step: 2 as const, label: "Draft", number: "2" },
+  { step: 3 as const, label: "Review", number: "3" },
 ];
 
 function getBadgeLabel(step: 1 | 2 | 3, props: Omit<PipelineTrackerProps, "onSelectStep">): string {
   if (step === 1) {
-    return props.referencesCount > 0 ? String(props.referencesCount) : "Empty";
+    if (props.status === "searching" || props.status === "translating") {
+      return "Searching...";
+    }
+
+    return props.referencesCount > 0 ? `${props.referencesCount} papers` : "";
   }
   if (step === 2) {
-    return props.hasManuscript ? "Ready" : "Locked";
+    if (props.status === "drafting") {
+      return "Writing...";
+    }
+
+    return props.hasManuscript ? "Ready" : "";
   }
 
-  return props.integrityReport ? `${props.integrityReport.overallScore}` : "Locked";
+  if (props.status === "auditing") {
+    return "Checking...";
+  }
+
+  return props.integrityReport ? `${props.integrityReport.overallScore}/100` : "";
 }
 
 export function PipelineTracker(props: PipelineTrackerProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {OUTPUT_TABS.map((tab) => {
+    <div className="flex w-full items-start gap-0">
+      {OUTPUT_TABS.map((tab, index) => {
         const stepState = getStepState(tab.step, props);
         const selectable =
           tab.step === 1 ||
           (tab.step === 2 && props.referencesCount > 0) ||
           (tab.step === 3 && props.hasManuscript);
+        const badge = getBadgeLabel(tab.step, props);
+        const nextStep = OUTPUT_TABS[index + 1];
+        const nextCompleted = nextStep
+          ? getStepState(nextStep.step, props) === "completed"
+          : false;
 
         return (
-          <button
-            key={tab.step}
-            type="button"
-            onClick={() => selectable && props.onSelectStep(tab.step)}
-            disabled={!selectable}
-            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
-              props.activeView === tab.step
-                ? "border-stone-900 bg-stone-900 text-white"
-                : "border-black/8 bg-white text-stone-600 hover:bg-stone-50"
-            } ${!selectable ? "cursor-not-allowed opacity-55" : ""}`}
-          >
-            <span
-              className={`h-2 w-2 rounded-full ${
-                stepState === "completed"
-                  ? "bg-emerald-400"
-                  : stepState === "active"
-                    ? "bg-sky-400"
-                    : stepState === "error"
-                      ? "bg-rose-400"
-                      : "bg-stone-300"
-              }`}
-            />
-            <span className="font-medium">{tab.label}</span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                props.activeView === tab.step
-                  ? "bg-white/12 text-white"
-                  : "bg-stone-100 text-stone-500"
+          <Fragment key={tab.step}>
+            <button
+              type="button"
+              onClick={() => selectable && props.onSelectStep(tab.step)}
+              disabled={!selectable}
+              className={`flex min-w-[72px] flex-col items-center gap-1 text-center transition ${
+                !selectable ? "cursor-not-allowed opacity-45" : ""
               }`}
             >
-              {getBadgeLabel(tab.step, props)}
-            </span>
-          </button>
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
+                  stepState === "completed"
+                    ? "bg-emerald-500 text-white"
+                    : stepState === "active"
+                      ? "animate-pulse bg-[#C4634E] text-white"
+                      : stepState === "error"
+                        ? "bg-rose-500 text-white"
+                        : "bg-stone-200 text-stone-500"
+                } ${props.activeView === tab.step ? "ring-2 ring-black/8 ring-offset-2 ring-offset-white" : ""}`}
+              >
+                {stepState === "completed" ? "✓" : tab.number}
+              </div>
+              <span
+                className={`text-xs font-medium ${
+                  props.activeView === tab.step ? "text-stone-900" : "text-stone-600"
+                }`}
+              >
+                {tab.label}
+              </span>
+              <span className="min-h-[14px] text-[10px] text-stone-400">{badge}</span>
+            </button>
+
+            {index < OUTPUT_TABS.length - 1 ? (
+              <div
+                className={`mx-1 mt-4 h-0.5 flex-1 ${
+                  nextCompleted ? "bg-emerald-400" : "bg-stone-200"
+                }`}
+              />
+            ) : null}
+          </Fragment>
         );
       })}
     </div>

@@ -37,18 +37,15 @@ export function ManuscriptEditor({
   const previewMarkdown = linkifyReferenceCitations(manuscript);
 
   return (
-    <div className="rounded-[28px] border border-black/8 bg-stone-50/80 p-4 shadow-[0_14px_34px_rgba(17,17,16,0.04)]">
+    <div className="rounded-xl border border-black/8 bg-stone-50/80 p-4 shadow-sm">
       <div className="mb-4 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
             Draft
           </p>
-          <h2 className="mt-2 font-serif text-[2rem] font-bold text-stone-900">
+          <h2 className="mt-2 text-xl font-semibold text-stone-900">
             {blueprint ? blueprint.title : "Draft scaffold"}
           </h2>
-          <p className="mt-2 text-sm text-stone-600">
-            AFA turns your selected papers into a first manuscript structure here.
-          </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {blueprint?.sections.map((section) => (
               <span
@@ -82,7 +79,7 @@ export function ManuscriptEditor({
             type="button"
             onClick={() => void onContinue()}
             disabled={isStreaming || !manuscript.trim()}
-            className="inline-flex items-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center rounded-lg bg-[#C4634E] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#b45743] disabled:cursor-not-allowed disabled:opacity-40"
           >
             Run review
           </button>
@@ -90,7 +87,7 @@ export function ManuscriptEditor({
       </div>
 
       {activeReference ? (
-        <div className="mb-4 rounded-2xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-900">
+        <div className="mb-4 rounded-lg border border-violet-200 bg-violet-50 p-4 text-sm text-violet-900">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] opacity-60">
@@ -104,7 +101,7 @@ export function ManuscriptEditor({
             <button
               type="button"
               onClick={() => setActiveReferenceId(null)}
-              className="rounded-full border border-violet-200 px-3 py-1 text-xs font-medium text-violet-700"
+              className="rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-medium text-violet-700"
             >
               Close
             </button>
@@ -113,7 +110,7 @@ export function ManuscriptEditor({
       ) : null}
 
       {isStreaming || mode === "preview" ? (
-        <div className="prose prose-stone max-w-none rounded-[28px] bg-stone-50 px-5 py-6 prose-headings:font-serif prose-headings:text-stone-900 prose-p:text-stone-700">
+        <div className="prose prose-stone max-w-none rounded-lg bg-stone-50 px-5 py-6 prose-headings:font-serif prose-headings:text-stone-900 prose-p:text-stone-700">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
@@ -142,13 +139,13 @@ export function ManuscriptEditor({
             {previewMarkdown ||
               "Your draft scaffold will appear here once you create it from the selected papers."}
           </ReactMarkdown>
-          {isStreaming ? <div className="mt-4 h-6 w-1 animate-pulse rounded-full bg-violet-500" /> : null}
+          {isStreaming ? <div className="mt-4 h-6 w-1 animate-pulse rounded-full bg-[#C4634E]" /> : null}
         </div>
       ) : (
         <textarea
           value={manuscript}
           onChange={(event) => onChange(event.target.value)}
-          className="min-h-[480px] w-full resize-y rounded-[28px] border border-black/10 bg-stone-50 px-5 py-6 font-mono text-sm leading-7 text-stone-800 outline-none transition focus:border-stone-300"
+          className="min-h-[480px] w-full resize-y rounded-lg border border-black/10 bg-stone-50 px-5 py-6 font-mono text-sm leading-7 text-stone-800 outline-none transition focus:border-stone-300"
         />
       )}
     </div>

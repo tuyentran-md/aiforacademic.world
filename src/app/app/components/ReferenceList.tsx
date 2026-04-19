@@ -47,23 +47,20 @@ export function ReferenceList({
   const openAlexCount = references.filter((reference) => reference.source === "openalex").length;
 
   return (
-    <div className="rounded-[28px] border border-black/8 bg-stone-50/80 p-4 shadow-[0_14px_34px_rgba(17,17,16,0.04)]">
+    <div className="rounded-xl border border-black/8 bg-stone-50/80 p-4 shadow-sm">
       <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
             Papers
           </p>
-          <h2 className="mt-2 font-serif text-[2rem] font-bold text-stone-900">
-            {references.length} papers found
-          </h2>
-          <p className="mt-2 text-sm text-stone-600">Keep the papers you want to use for the draft.</p>
+          <h2 className="mt-2 text-xl font-semibold text-stone-900">{references.length} papers found</h2>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <select
             value={sortKey}
             onChange={(event) => setSortKey(event.target.value as SortKey)}
-            className="rounded-full border border-black/10 bg-stone-50 px-4 py-2 text-sm text-stone-700 outline-none"
+            className="rounded-lg border border-black/10 bg-stone-50 px-4 py-2 text-sm text-stone-700 outline-none"
           >
             <option value="relevance">Sort by relevance</option>
             <option value="year">Sort by year</option>
@@ -73,7 +70,7 @@ export function ReferenceList({
             type="button"
             onClick={() => void onContinue()}
             disabled={disabled || selectedCount === 0}
-            className="inline-flex items-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center rounded-lg bg-[#C4634E] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#b45743] disabled:cursor-not-allowed disabled:opacity-40"
           >
             Create draft
           </button>
