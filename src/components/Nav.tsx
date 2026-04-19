@@ -27,7 +27,7 @@ export default function Nav() {
       <div className="max-w-5xl mx-auto px-6 md:px-8 h-14 flex items-center justify-between gap-8">
 
         {/* Logo */}
-        <Link href="/" className="flex-shrink-0" onClick={() => setOpen(false)}>
+        <Link href="/app" className="flex-shrink-0" onClick={() => setOpen(false)}>
           <span className="text-sm font-semibold text-stone-900 tracking-tight">
             AI for Academic
           </span>

@@ -37,19 +37,15 @@ export function ManuscriptEditor({
   const previewMarkdown = linkifyReferenceCitations(manuscript);
 
   return (
-    <div className="rounded-[32px] border border-black/8 bg-white/88 p-5 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
-      <div className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+    <div className="rounded-[28px] border border-black/8 bg-white/88 p-4 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
+      <div className="mb-4 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
-            Step 2 workspace
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+            Draft
           </p>
-          <h2 className="mt-2 font-serif text-3xl font-bold text-stone-900">
-            Build the first draft {blueprint ? `· ${blueprint.articleType.replaceAll("_", " ")}` : ""}
+          <h2 className="mt-2 font-serif text-[2rem] font-bold text-stone-900">
+            {blueprint ? blueprint.title : "Draft output"}
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600">
-            This is where the selected studies become a manuscript scaffold. You can preview the
-            generated text, switch to edit mode, and then send the draft to the integrity audit.
-          </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {blueprint?.sections.map((section) => (
               <span
@@ -85,7 +81,7 @@ export function ManuscriptEditor({
             disabled={isStreaming || !manuscript.trim()}
             className="inline-flex items-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Audit this draft
+            Run check
           </button>
         </div>
       </div>
@@ -141,7 +137,7 @@ export function ManuscriptEditor({
             }}
           >
             {previewMarkdown ||
-              "Your manuscript scaffold will appear here once Step 2 starts. After that, you can edit it or send it straight to the audit step."}
+              "Your draft will appear here once generation starts."}
           </ReactMarkdown>
           {isStreaming ? <div className="mt-4 h-6 w-1 animate-pulse rounded-full bg-violet-500" /> : null}
         </div>
@@ -149,7 +145,7 @@ export function ManuscriptEditor({
         <textarea
           value={manuscript}
           onChange={(event) => onChange(event.target.value)}
-          className="min-h-[560px] w-full resize-y rounded-[28px] border border-black/10 bg-stone-50 px-5 py-6 font-mono text-sm leading-7 text-stone-800 outline-none transition focus:border-stone-300"
+          className="min-h-[480px] w-full resize-y rounded-[28px] border border-black/10 bg-stone-50 px-5 py-6 font-mono text-sm leading-7 text-stone-800 outline-none transition focus:border-stone-300"
         />
       )}
     </div>

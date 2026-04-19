@@ -47,18 +47,15 @@ export function ReferenceList({
   const openAlexCount = references.filter((reference) => reference.source === "openalex").length;
 
   return (
-    <div className="rounded-[32px] border border-black/8 bg-white/88 p-5 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
-      <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="rounded-[28px] border border-black/8 bg-white/88 p-4 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
+      <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
-            Step 1 workspace
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+            Sources
           </p>
-          <h2 className="mt-2 font-serif text-3xl font-bold text-stone-900">
-            Study shortlist ({references.length} found)
+          <h2 className="mt-2 font-serif text-[2rem] font-bold text-stone-900">
+            {references.length} studies found
           </h2>
-          <p className="mt-2 text-sm text-stone-500">
-            Keep the papers you want to cite in the draft. Uncheck weak matches before moving on.
-          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -77,7 +74,7 @@ export function ReferenceList({
             disabled={disabled || selectedCount === 0}
             className="inline-flex items-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Build first draft
+            Draft from selection
           </button>
         </div>
       </div>

@@ -26,7 +26,7 @@ export function ReferenceCard({
       : reference.abstract;
 
   return (
-    <article className="rounded-[28px] border border-black/8 bg-white p-5 shadow-[0_12px_32px_rgba(17,17,16,0.05)]">
+    <article className="rounded-[24px] border border-black/8 bg-white p-4 shadow-[0_12px_32px_rgba(17,17,16,0.05)]">
       <div className="flex items-start justify-between gap-4">
         <label className="flex items-start gap-3">
           <input
@@ -50,7 +50,7 @@ export function ReferenceCard({
                 {reference.source}
               </span>
             </div>
-            <h3 className="text-lg font-semibold leading-snug text-stone-900">{reference.title}</h3>
+            <h3 className="text-[1.03rem] font-semibold leading-snug text-stone-900">{reference.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-stone-600">
               {reference.authors.slice(0, 4).join(", ") || "Unknown authors"} · {reference.journal} ·{" "}
               {reference.year}
@@ -73,7 +73,7 @@ export function ReferenceCard({
 
       <div className="mt-4 rounded-2xl bg-stone-50 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">Abstract</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">Abstract</p>
           <div className="flex flex-wrap gap-2 text-xs">
             <a
               href={reference.url}

@@ -33,36 +33,12 @@ export function ChatInput({
   }
 
   return (
-    <div className="rounded-[28px] border border-black/10 bg-white/90 p-3 shadow-[0_20px_40px_rgba(17,17,16,0.06)] backdrop-blur">
-      <div className="mb-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
-          Step 1 input
+    <div className="rounded-[24px] border border-black/10 bg-white/90 p-3 shadow-[0_16px_36px_rgba(17,17,16,0.06)] backdrop-blur">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+          Input
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-stone-600">
-          Write the research need in English or Vietnamese. Include the population, procedure,
-          intervention, or outcome if you know them.
-        </p>
-      </div>
-      <textarea
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
-            void handleSubmit();
-          }
-        }}
-        rows={5}
-        placeholder={
-          disabled
-            ? "Search is running..."
-            : "Example: pressure dressing after pediatric circumcision\nor: tìm tài liệu về băng ép sau mổ cắt da quy đầu ở trẻ em"
-        }
-        className="min-h-[112px] w-full resize-none rounded-2xl border border-black/8 bg-stone-50 px-4 py-3 text-sm text-stone-800 outline-none transition focus:border-stone-300"
-        disabled={disabled}
-      />
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <div className="inline-flex rounded-full border border-black/10 bg-stone-100 p-1 text-xs font-medium text-stone-600">
+        <div className="inline-flex rounded-full border border-black/10 bg-stone-100 p-1 text-[11px] font-medium text-stone-600">
           {(["EN", "VI"] as const).map((option) => (
             <button
               key={option}
@@ -76,14 +52,36 @@ export function ChatInput({
             </button>
           ))}
         </div>
+      </div>
 
+      <textarea
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            void handleSubmit();
+          }
+        }}
+        rows={5}
+        placeholder={
+          disabled
+            ? "AFA is searching..."
+            : "Example: pressure dressing after pediatric circumcision\nor: tìm tài liệu về băng ép sau mổ cắt da quy đầu ở trẻ em"
+        }
+        className="min-h-[132px] w-full resize-none rounded-[20px] border border-black/8 bg-stone-50 px-4 py-3 text-sm leading-relaxed text-stone-800 outline-none transition focus:border-stone-300"
+        disabled={disabled}
+      />
+
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <p className="text-xs text-stone-500">Describe the topic. Press Enter to run.</p>
         <button
           type="button"
           onClick={() => void handleSubmit()}
           disabled={disabled}
           className="inline-flex items-center rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {disabled ? "Searching..." : "Find studies"}
+          {disabled ? "Working..." : "Run"}
         </button>
       </div>
     </div>

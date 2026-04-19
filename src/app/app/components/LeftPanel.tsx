@@ -16,6 +16,13 @@ interface LeftPanelProps {
   onReset: () => void;
 }
 
+const TOOL_LINKS = [
+  { href: "/app", label: "Pipeline", active: true },
+  { href: "/ric", label: "RIC" },
+  { href: "/trans", label: "Translator" },
+  { href: "/srma", label: "SRMA" },
+];
+
 export function LeftPanel({
   logs,
   language,
@@ -32,62 +39,50 @@ export function LeftPanel({
   }, [logs]);
 
   return (
-    <aside className="flex h-full min-h-[420px] flex-col rounded-[32px] border border-black/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(247,243,236,0.96))] p-4 shadow-[0_24px_60px_rgba(17,17,16,0.08)]">
-      <div className="mb-4 flex items-start justify-between gap-3">
+    <aside className="flex h-full min-h-[420px] flex-col rounded-[28px] border border-black/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(247,243,236,0.96))] p-3 shadow-[0_20px_48px_rgba(17,17,16,0.08)]">
+      <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">
-            AFA Pipeline
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+            AFA Workspace
           </p>
-          <h1 className="mt-2 font-serif text-2xl font-bold text-stone-900">
-            From question to first draft
+          <h1 className="mt-2 font-serif text-[1.7rem] font-bold leading-tight text-stone-900">
+            Research pipeline
           </h1>
-          <p className="mt-2 max-w-sm text-sm leading-relaxed text-stone-600">
-            Describe the topic you want to write about, review the papers we find, then let the
-            app build and audit a first manuscript scaffold.
+          <p className="mt-1 text-sm text-stone-600">
+            One prompt in, three outputs out.
           </p>
         </div>
         <button
           type="button"
           onClick={onReset}
-          className="rounded-full border border-black/10 px-3 py-1 text-xs font-medium text-stone-600 transition hover:bg-white"
+          className="rounded-full border border-black/10 px-3 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-white"
         >
           Reset
         </button>
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-medium text-stone-700">
-        <span className="rounded-full bg-stone-900 px-3 py-1 text-white shadow-sm">
-          Drafting flow
-        </span>
-        <Link
-          href="/srma"
-          className="rounded-full border border-black/10 bg-white/80 px-3 py-1 opacity-80 transition hover:opacity-100"
-        >
-          Open SRMA tool
-        </Link>
-      </div>
-
-      <div className="mb-4 rounded-[28px] border border-black/8 bg-white/80 p-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
-          How this works
+      <div className="mb-3 rounded-[24px] border border-black/8 bg-white/84 p-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+          Tools
         </p>
-        <div className="mt-3 space-y-3">
-          {[
-            "1. Describe the evidence you need in English or Vietnamese.",
-            "2. Review the paper shortlist and keep the useful ones.",
-            "3. Generate a first draft, then run the integrity audit.",
-          ].map((item) => (
-            <div
-              key={item}
-              className="rounded-2xl border border-black/6 bg-stone-50 px-4 py-3 text-sm leading-relaxed text-stone-600"
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {TOOL_LINKS.map((tool) => (
+            <Link
+              key={tool.label}
+              href={tool.href}
+              className={`rounded-2xl border px-3 py-2 text-sm font-medium transition ${
+                tool.active
+                  ? "border-stone-900 bg-stone-900 text-white"
+                  : "border-black/10 bg-stone-50 text-stone-600 hover:bg-white"
+              }`}
             >
-              {item}
-            </div>
+              {tool.label}
+            </Link>
           ))}
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-3">
         <ChatInput
           disabled={isRunning}
           defaultQuery={query}
@@ -97,30 +92,32 @@ export function LeftPanel({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto rounded-[28px] border border-black/8 bg-white/70 p-3">
-        <div className="mb-3 flex items-start justify-between gap-3">
+      <div className="flex min-h-0 flex-1 flex-col rounded-[24px] border border-black/8 bg-white/76 p-3">
+        <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
-              Live activity
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+              Activity
             </p>
-            <p className="mt-1 text-sm text-stone-500">
-              Search, translation, drafting, and audit events stream here as the workflow runs.
+            <p className="mt-1 text-xs text-stone-500">
+              {isRunning ? "AFA is working..." : logs.length > 0 ? "Latest run" : "Waiting"}
             </p>
           </div>
-          <span className="rounded-full bg-stone-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">
-            {isRunning ? "Running" : logs.length > 0 ? "Latest run" : "Idle"}
+          <span className="rounded-full bg-stone-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+            {isRunning ? "Live" : "Idle"}
           </span>
         </div>
-        <div className="space-y-3">
-          {logs.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-black/10 bg-stone-50 px-4 py-5 text-sm leading-relaxed text-stone-500">
-              Start by describing your topic above. Once the workflow begins, each search,
-              translation, drafting, and audit event will appear here in order.
-            </div>
-          ) : (
-            logs.map((entry) => <LogEntry key={entry.id} entry={entry} />)
-          )}
-          <div ref={logAnchorRef} />
+
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="space-y-2.5">
+            {logs.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-black/10 bg-stone-50 px-4 py-4 text-sm leading-relaxed text-stone-500">
+                Ask a question above. Search, draft, and check events will stream here.
+              </div>
+            ) : (
+              logs.map((entry) => <LogEntry key={entry.id} entry={entry} />)
+            )}
+            <div ref={logAnchorRef} />
+          </div>
         </div>
       </div>
     </aside>

@@ -53,18 +53,18 @@ export function IntegrityOverlay({
   }
 
   return (
-    <div className="rounded-[32px] border border-black/8 bg-white/88 p-5 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
-      <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div className="rounded-[28px] border border-black/8 bg-white/88 p-4 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
+      <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
-            Step 3 workspace
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+            Check
           </p>
-          <h2 className="mt-2 font-serif text-3xl font-bold text-stone-900">
-            Audit the draft {report ? `· ${report.overallScore}/100` : "· pending"}
+          <h2 className="mt-2 font-serif text-[2rem] font-bold text-stone-900">
+            Integrity score {report ? `${report.overallScore}/100` : "pending"}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600">
             {report?.summary ||
-              "Once Step 3 runs, this panel will highlight weak claims, missing citations, and paragraphs that need more careful wording."}
+              "Flags and score will appear here once the check runs."}
           </p>
         </div>
         <div className="flex flex-wrap gap-3">

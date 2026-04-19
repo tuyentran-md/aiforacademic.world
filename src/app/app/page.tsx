@@ -10,8 +10,8 @@ export default function PipelinePage() {
   const [mobilePanel, setMobilePanel] = useState<"brief" | "workspace">("workspace");
 
   return (
-    <div className="min-h-[calc(100vh-56px)] bg-[radial-gradient(circle_at_top_left,rgba(196,99,78,0.09),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(26,46,68,0.08),transparent_32%)]">
-      <div className="mx-auto max-w-[1600px] px-4 py-4 md:px-6 lg:px-8">
+    <div className="min-h-[calc(100vh-56px)] bg-[radial-gradient(circle_at_top_left,rgba(196,99,78,0.07),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(26,46,68,0.06),transparent_32%)] text-[15px]">
+      <div className="mx-auto max-w-[1760px] px-3 py-3 md:px-5 lg:px-6">
         <div className="mb-4 flex items-center justify-between lg:hidden">
           <div className="inline-flex rounded-full border border-black/10 bg-white/80 p-1 shadow-sm">
             {(
@@ -37,7 +37,26 @@ export default function PipelinePage() {
           ) : null}
         </div>
 
-        <div className="grid min-h-[calc(100vh-96px)] gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <div className="mb-3 flex items-center justify-between gap-4 rounded-[24px] border border-black/8 bg-white/78 px-4 py-3 shadow-[0_14px_32px_rgba(17,17,16,0.04)] backdrop-blur">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+              AI for Academic
+            </p>
+            <p className="mt-1 text-sm text-stone-600">
+              Search papers, draft a scaffold, then run a quick integrity check.
+            </p>
+          </div>
+          <div className="hidden items-center gap-2 xl:flex">
+            <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
+              Input on the left
+            </span>
+            <span className="rounded-full bg-stone-900 px-3 py-1 text-xs font-medium text-white">
+              Output on the right
+            </span>
+          </div>
+        </div>
+
+        <div className="grid min-h-[calc(100vh-132px)] gap-3 xl:grid-cols-[300px_minmax(0,1fr)]">
           <div className={`${mobilePanel === "workspace" ? "hidden lg:block" : "block"} xl:block`}>
             <LeftPanel
               logs={pipeline.logs}

@@ -34,45 +34,38 @@ interface RightPanelProps {
   onDismissFlag: (flagId: string) => void;
 }
 
-function SearchStateCard({
-  eyebrow,
+function OutputShell({
+  label,
   title,
-  description,
-  accentClassName,
-  detailLines,
+  body,
+  tone = "neutral",
 }: {
-  eyebrow: string;
+  label: string;
   title: string;
-  description: string;
-  accentClassName: string;
-  detailLines: string[];
+  body: string;
+  tone?: "neutral" | "active" | "warning" | "error";
 }) {
-  return (
-    <div className="flex min-h-[560px] items-stretch">
-      <div className="flex w-full flex-col justify-between rounded-[32px] border border-black/8 bg-white/78 p-6 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
-            {eyebrow}
-          </p>
-          <h2 className="mt-3 font-serif text-3xl font-bold text-stone-900">{title}</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600">{description}</p>
-        </div>
+  const toneClassName =
+    tone === "active"
+      ? "border-sky-200 bg-sky-50"
+      : tone === "warning"
+        ? "border-amber-200 bg-amber-50"
+        : tone === "error"
+          ? "border-rose-200 bg-rose-50"
+          : "border-black/8 bg-white/82";
 
-        <div className={`mt-6 rounded-[28px] border px-5 py-5 ${accentClassName}`}>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] opacity-70">
-            What happens here
-          </p>
-          <div className="mt-3 space-y-3">
-            {detailLines.map((detail) => (
-              <div
-                key={detail}
-                className="rounded-2xl border border-current/10 bg-white/70 px-4 py-3 text-sm leading-relaxed"
-              >
-                {detail}
-              </div>
-            ))}
-          </div>
-        </div>
+  return (
+    <div className="flex min-h-[460px] items-center">
+      <div
+        className={`w-full rounded-[28px] border p-7 shadow-[0_18px_40px_rgba(17,17,16,0.05)] ${toneClassName}`}
+      >
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+          {label}
+        </p>
+        <h2 className="mt-3 font-serif text-[2.1rem] font-bold leading-tight text-stone-900">
+          {title}
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600">{body}</p>
       </div>
     </div>
   );
@@ -99,12 +92,11 @@ export function RightPanel({
   onContinueToRIC,
   onDismissFlag,
 }: RightPanelProps) {
-  const selectedCount = selectedReferenceIds.length;
   const isSearching = status === "searching" || status === "translating";
-  const recentActivity = logs.slice(-4).map((entry) => `${entry.tool}: ${entry.message}`);
+  const lastLog = logs.at(-1)?.message;
 
   return (
-    <section className="flex h-full min-h-[420px] flex-col gap-4">
+    <section className="flex h-full min-h-[420px] flex-col gap-3">
       <PipelineTracker
         status={status}
         currentStep={currentStep}
@@ -115,76 +107,44 @@ export function RightPanel({
         onSelectStep={onSelectStep}
       />
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         {activeView === 1 ? (
           references.length > 0 ? (
             <ReferenceList
               references={references}
               selectedReferenceIds={selectedReferenceIds}
               language={language}
-              disabled={status === "searching" || status === "translating"}
+              disabled={isSearching}
               onToggleReference={onToggleReference}
               onRemoveReference={onRemoveReference}
               onContinue={onContinueToAVR}
             />
           ) : isSearching ? (
-            <SearchStateCard
-              eyebrow="Step 1 in progress"
-              title="Searching for studies..."
-              description={`We are interpreting "${query}" and checking PubMed plus OpenAlex. The live activity panel on the left shows the exact search path.`}
-              accentClassName="border-sky-200 bg-sky-50 text-sky-900"
-              detailLines={
-                recentActivity.length > 0
-                  ? recentActivity
-                  : [
-                      "The app can accept English or Vietnamese questions.",
-                      "PubMed search is refined for biomedical keywords.",
-                      "OpenAlex gives a broader cross-check in parallel.",
-                    ]
-              }
+            <OutputShell
+              label="Sources"
+              title="Searching sources..."
+              body={lastLog || "Checking PubMed and OpenAlex for relevant papers."}
+              tone="active"
             />
           ) : status === "error" ? (
-            <SearchStateCard
-              eyebrow="Step 1 needs attention"
-              title="The search stopped before results arrived"
-              description={errorMessage || "Something interrupted the request before references were returned."}
-              accentClassName="border-rose-200 bg-rose-50 text-rose-900"
-              detailLines={
-                recentActivity.length > 0
-                  ? recentActivity
-                  : [
-                      "Try running the search again with a shorter question.",
-                      "If it keeps failing, the live activity panel usually shows which source broke.",
-                    ]
-              }
+            <OutputShell
+              label="Sources"
+              title="Search stopped"
+              body={errorMessage || "Something interrupted the request. Try again with a shorter or broader question."}
+              tone="error"
             />
           ) : query.trim() ? (
-            <SearchStateCard
-              eyebrow="Step 1 complete"
-              title="No studies matched this search yet"
-              description={`We finished searching for "${query}" but did not keep any references. This usually means the topic is too narrow, too colloquial, or needs a more standard clinical term.`}
-              accentClassName="border-amber-200 bg-amber-50 text-amber-900"
-              detailLines={
-                recentActivity.length > 0
-                  ? recentActivity
-                  : [
-                      "Try a broader topic with fewer modifiers.",
-                      "Use the core population + intervention + condition only.",
-                      "If you know the English device/procedure term, include it directly.",
-                    ]
-              }
+            <OutputShell
+              label="Sources"
+              title="No matching studies yet"
+              body="Try a broader clinical term, fewer modifiers, or the English name of the procedure/device."
+              tone="warning"
             />
           ) : (
-            <SearchStateCard
-              eyebrow="Step 1"
-              title="Start by finding the evidence"
-              description="Use the brief panel on the left to describe the topic you want to write about. Once the search runs, this workspace will turn into a paper shortlist you can curate."
-              accentClassName="border-stone-200 bg-stone-50 text-stone-700"
-              detailLines={[
-                "Find evidence: search PubMed/OpenAlex and keep the useful papers.",
-                `Build first draft: turn the selected ${selectedCount > 0 ? `${selectedCount} paper(s)` : "papers"} into a manuscript scaffold.`,
-                "Audit claims: flag unsupported statements, missing citations, and overclaiming.",
-              ]}
+            <OutputShell
+              label="Sources"
+              title="Sources will appear here"
+              body="Type a research question on the left to fetch papers and build a shortlist."
             />
           )
         ) : null}
