@@ -58,58 +58,21 @@ export default function Home() {
             </div>
 
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-              <a
-                href="/ric"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="no-grid block rounded-2xl p-6 transition-opacity hover:opacity-85"
-                style={{ backgroundColor: "#C6D2DC" }}
-              >
-                <div className="mb-3 flex items-start justify-between gap-3">
-                  <p className="text-base font-semibold text-stone-900">RIC&thinsp;↗</p>
-                </div>
-                <p className="mb-1 text-sm font-medium text-stone-700">
-                  Research Integrity Check
-                </p>
-                <p className="text-sm leading-relaxed text-stone-600">
-                  AI detection, citation integrity, plagiarism scan, and peer review simulation
-                  before you submit.
-                </p>
-              </a>
-
-              <a
-                href="/trans"
+              <Link
+                href="/app"
                 className="no-grid block rounded-2xl p-6 transition-opacity hover:opacity-85"
                 style={{ backgroundColor: "#C6DCD2" }}
               >
                 <div className="mb-3 flex items-start justify-between gap-3">
-                  <p className="text-base font-semibold text-stone-900">Translator&thinsp;↗</p>
+                  <p className="text-base font-semibold text-stone-900">Research →</p>
                 </div>
                 <p className="mb-1 text-sm font-medium text-stone-700">
-                  Context-aware academic translation
+                  Literature Search & Translation
                 </p>
                 <p className="text-sm leading-relaxed text-stone-600">
-                  Translates any academic text across languages while preserving technical terms,
-                  statistics, and domain vocabulary.
+                  Find relevant biomedical papers instantly and translate documents on-demand while preserving academic vocabulary.
                 </p>
-              </a>
-
-              <a
-                href="/srma"
-                className="no-grid block rounded-2xl p-6 transition-opacity hover:opacity-85"
-                style={{ backgroundColor: "#F5E6D8" }}
-              >
-                <div className="mb-3 flex items-start justify-between gap-3">
-                  <p className="text-base font-semibold text-stone-900">SRMA&thinsp;↗</p>
-                </div>
-                <p className="mb-1 text-sm font-medium text-stone-700">
-                  Systematic Review Automation
-                </p>
-                <p className="text-sm leading-relaxed text-stone-600">
-                  AI-powered pipeline that automates deduplication and abstract screening with
-                  human-in-the-loop control.
-                </p>
-              </a>
+              </Link>
 
               <Link
                 href="/products#avr"
@@ -133,6 +96,42 @@ export default function Home() {
                   validated abstract → submission gate → manuscript outline.
                 </p>
               </Link>
+
+              <a
+                href="/ric"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="no-grid block rounded-2xl p-6 transition-opacity hover:opacity-85"
+                style={{ backgroundColor: "#C6D2DC" }}
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <p className="text-base font-semibold text-stone-900">RIC&thinsp;↗</p>
+                </div>
+                <p className="mb-1 text-sm font-medium text-stone-700">
+                  Research Integrity Check
+                </p>
+                <p className="text-sm leading-relaxed text-stone-600">
+                  AI detection, citation integrity, plagiarism scan, and peer review simulation
+                  before you submit.
+                </p>
+              </a>
+
+              <a
+                href="/srma"
+                className="no-grid block rounded-2xl p-6 transition-opacity hover:opacity-85"
+                style={{ backgroundColor: "#F5E6D8" }}
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <p className="text-base font-semibold text-stone-900">SRMA&thinsp;↗</p>
+                </div>
+                <p className="mb-1 text-sm font-medium text-stone-700">
+                  Systematic Review Automation
+                </p>
+                <p className="text-sm leading-relaxed text-stone-600">
+                  AI-powered pipeline that automates deduplication and abstract screening with
+                  human-in-the-loop control.
+                </p>
+              </a>
             </div>
           </div>
         </section>
