@@ -100,7 +100,7 @@ export default function CanvasPanel({ activeView }: { activeView: string }) {
                     <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01"></path></svg>
                     Lỗi trích dẫn (Statistic)
                   </strong>
-                  Tài liệu [ref-001] ghi nhận tỷ lệ là "1 trên 600-800 tuỳ thuộc vào chủng tộc". Con số 1/700 không hoàn toàn chính xác theo source.
+                  Tài liệu [ref-001] ghi nhận tỷ lệ là &quot;1 trên 600-800 tuỳ thuộc vào chủng tộc&quot;. Con số 1/700 không hoàn toàn chính xác theo source.
                   <div className="mt-3 flex gap-2">
                     <button className="bg-red-50 text-red-700 px-2.5 py-1 rounded border border-red-200 font-medium hover:bg-red-100 transition-colors">Sửa tự động</button>
                     <button className="bg-slate-50 text-slate-600 px-2.5 py-1 rounded border border-slate-200 font-medium hover:bg-slate-100 transition-colors">Bỏ qua</button>
@@ -118,7 +118,7 @@ export default function CanvasPanel({ activeView }: { activeView: string }) {
                     <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Cảnh báo (Overclaiming)
                   </strong>
-                  Không có tài liệu nào trong danh sách hỗ trợ con số "hơn 95%". Cần bổ sung nguồn hoặc điều chỉnh lại câu văn.
+                  Không có tài liệu nào trong danh sách hỗ trợ con số &quot;hơn 95%&quot;. Cần bổ sung nguồn hoặc điều chỉnh lại câu văn.
                 </span>
               </span>.
             </p>

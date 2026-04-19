@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 
-export default function ChatPanel({ onViewChange }: { onViewChange: (view: any) => void }) {
+export default function ChatPanel({ onViewChange }: { onViewChange: (view: 'idle' | 'references' | 'editor' | 'integrity') => void }) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<{role: string, text: string}[]>([
     { role: 'agent', text: 'Chào sếp! Em là AFA Assistant. Sếp cần tìm tài liệu, lên dàn ý (AVR), hay soát lỗi bài viết (RIC)?' }
