@@ -79,6 +79,23 @@ export default function Home() {
                 </p>
               </a>
 
+              {/* SRMA */}
+              <a
+                href="/srma"
+                className="block rounded-2xl p-6 hover:opacity-85 transition-opacity no-grid"
+                style={{ backgroundColor: "#F5E6D8" }}
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <p className="text-base font-semibold text-stone-900">SRMA&thinsp;↗</p>
+                </div>
+                <p className="text-sm font-medium text-stone-700 mb-1">
+                  Systematic Review Automation
+                </p>
+                <p className="text-sm text-stone-600 leading-relaxed">
+                  AI-powered pipeline that automates deduplication and abstract screening with human-in-the-loop control.
+                </p>
+              </a>
+
               {/* AVR */}
               <Link
                 href="/products#avr"
