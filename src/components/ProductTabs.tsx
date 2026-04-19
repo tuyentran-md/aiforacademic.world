@@ -5,9 +5,36 @@ import { useEffect, useState } from "react";
 // ── Tab data ──────────────────────────────────────────────────────────────────
 
 const TABS = [
-  { key: "ric", label: "RIC" },
-  { key: "translator", label: "Translator" },
-  { key: "avr", label: "AVR" },
+  {
+    key: "ric",
+    label: "RIC",
+    colors: {
+      bg: "#CDE2F0", // Lighter blue
+      text: "#1A2E44",
+      activeBg: "#1A2E44",
+      activeText: "#E8E4DC",
+    },
+  },
+  {
+    key: "translator",
+    label: "Translator",
+    colors: {
+      bg: "#CDE0D7", // Lighter green
+      text: "#1A402F",
+      activeBg: "#1A402F",
+      activeText: "#E8EDE4",
+    },
+  },
+  {
+    key: "avr",
+    label: "AVR",
+    colors: {
+      bg: "#DCD7E6", // Lighter purple
+      text: "#3A2860",
+      activeBg: "#3A2860",
+      activeText: "#F0EDF5",
+    },
+  },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -235,27 +262,32 @@ export default function ProductTabs() {
         }}
       >
         <div className="max-w-5xl mx-auto px-6 md:px-8">
-          <nav className="flex gap-1 py-2">
+          <nav className="flex justify-center gap-2 py-2">
             {TABS.map((tab) => {
               const isActive = active === tab.key;
               return (
                 <button
                   key={tab.key}
                   onClick={() => setActive(tab.key)}
-                  className={`
-                    flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap
-                    ${isActive
-                      ? "bg-stone-900 text-white"
-                      : "text-stone-500 hover:text-stone-800 hover:bg-stone-200/50"}
-                  `}
+                  className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap hover:opacity-90"
+                  style={{
+                    backgroundColor: isActive
+                      ? tab.colors.activeBg
+                      : tab.colors.bg,
+                    color: isActive ? tab.colors.activeText : tab.colors.text,
+                  }}
                 >
                   {tab.label}
                   {tab.key === "avr" && (
                     <span
                       className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
                       style={{
-                        backgroundColor: isActive ? "rgba(255,255,255,0.2)" : "#D0C8E0",
-                        color: isActive ? "rgba(255,255,255,0.8)" : "#3a2860",
+                        backgroundColor: isActive
+                          ? "rgba(255,255,255,0.2)"
+                          : "rgba(0,0,0,0.08)",
+                        color: isActive
+                          ? "rgba(255,255,255,0.8)"
+                          : tab.colors.text,
                       }}
                     >
                       Soon
