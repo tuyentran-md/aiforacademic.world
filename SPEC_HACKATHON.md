@@ -68,12 +68,13 @@ aiforacademic.world (landing + blog)
 **Target (monolith):**
 ```
 aiforacademic.world
-  ├── / → landing page (KEEP, minor update to add Pipeline CTA)
+  ├── / → redirect to /app (current product decision)
   ├── /app → NEW: Pipeline UI (split-view, the main hackathon feature)
   ├── /ric → KEEP proxy (standalone RIC still accessible)
   ├── /trans → KEEP proxy (standalone Translator still accessible)
   ├── /srma → KEEP (standalone page)
-  ├── /blog, /about, /resources → KEEP as-is
+  ├── /blog, /resources → KEEP as-is
+  ├── /about → KEEP, but simplified into a compact Q&A / tab layout
   │
   ├── /api/pipeline/search → NEW: Search & Translate tool
   ├── /api/pipeline/avr → NEW: AVR tool (placeholder)
@@ -1215,11 +1216,11 @@ These pages remain unchanged:
 
 | Route | Status |
 |-------|--------|
-| `/` (landing) | KEEP — add a CTA card/button linking to `/app` |
+| `/` | IMPLEMENTED as redirect to `/app` |
 | `/products` | KEEP |
 | `/srma` | KEEP |
 | `/blog`, `/blog/[slug]` | KEEP |
-| `/about` | KEEP |
+| `/about` | KEEP — redesigned as compact Q&A tabs |
 | `/resources` | KEEP |
 | `/ric` (proxy) | KEEP — standalone RIC still works |
 | `/trans` (proxy) | KEEP — standalone Translator still works |
@@ -1393,6 +1394,90 @@ Build in this sequence. Each step should be deployable independently.
 27. **Loading states** — skeleton screens, progress indicators
 28. **Export** — download manuscript as .md
 29. **Edge cases** — empty search results, API timeouts, malformed LLM output
+
+### Status Update — 2026-04-19
+
+This section records the real implementation state in the repo after the current hackathon sprint.
+
+#### What is done
+
+- **Phase 1 complete**
+  - `src/lib/pipeline/types.ts` exists
+  - provider-agnostic LLM abstraction exists under `src/lib/llm/`
+  - SSE helper exists at `src/lib/pipeline/sse.ts`
+  - `POST /api/pipeline/smoke` exists and streams successfully
+- **Phase 2 complete**
+  - PubMed + OpenAlex clients are implemented
+  - Search orchestration, deduplication, translation, and SSE search route are implemented
+  - client consumes `POST` SSE streams via `fetch` + `eventsource-parser`
+- **Phase 3 complete for hackathon scope**
+  - AVR interface exists
+  - AVR mock/placeholder exists and streams sample blueprint + manuscript output
+- **Phase 4 complete for hackathon scope**
+  - RIC route exists
+  - integrity flags + summary stream back to the client
+  - severity/type normalization is in place for app compatibility
+- **Phase 5 complete in the current UX direction**
+  - `/app` is implemented as the main product surface
+  - current UI direction is **chat + artifact**, not a dashboard/tool-picker
+  - left pane = chat/workflow stream
+  - right pane = artifact pane with `Papers / Draft / Review`
+  - `/` now redirects directly to `/app`
+  - `/about` has been redesigned into a compact tabbed Q&A page
+- **Phase 6 partially complete**
+  - responsive simplification done
+  - empty/error states implemented
+  - manuscript export to `.md` implemented
+  - polish is still open and should continue after usability review
+
+#### Current known limitations
+
+- **AVR is still placeholder/mock** — real module will be plugged in later by another dev
+- **No auth / persistence** — still stateless, in line with hackathon scope
+- **Search quality is usable but not “done”** — biomedical retrieval still depends on query interpretation and fallback heuristics
+- **UI direction is still provisional** — latest iteration is intentionally simplified for clarity and may continue changing after live review
+
+#### Errors and issues encountered during implementation
+
+- **Spec ambiguity**
+  - earlier drafts mixed server-side pipeline orchestration with client orchestration
+  - resolved by locking the decision: no `/api/pipeline/run`, client sequences `search -> avr -> ric`
+- **Transport mismatch**
+  - native `EventSource` does not work for these routes because they are `POST`
+  - resolved with `fetch` streaming + `eventsource-parser`
+- **Phase 1 audit gap**
+  - SSE smoke route was missing initially, so foundation was not auditable
+  - fixed by adding `/api/pipeline/smoke`
+- **Vietnamese query retrieval returning 0 results**
+  - some Vietnamese queries produced empty search output
+  - improved by translating/interpreting the search question into a concise English biomedical phrase before retrieval
+- **PubMed refinement instability**
+  - LLM-refined queries occasionally came back malformed or truncated
+  - fixed by adding sanity checks and falling back to the original cleaned query
+- **Translation schema mismatch**
+  - Gemini translation output did not always use the exact expected key names
+  - fixed by hardening parsing, accepting common variants, and batching output more safely
+- **RIC contract mismatch**
+  - live model output used severities like `high` / `medium`, while the UI only handled `error` / `warning` / `info`
+  - fixed by normalizing severities and deduplicating overlapping flags
+- **Deduplication bug**
+  - DOI dedup after fuzzy title merge could still leak duplicates
+  - fixed by updating DOI indexing after merges
+- **UI clarity failures**
+  - earlier split-view/dashboard versions were too verbose and looked like a tool picker instead of one workflow
+  - current direction changes `/app` into a simpler **chat + artifact** workspace
+- **Preview protection**
+  - Vercel preview deployments were not anonymously viewable because preview protection returned `401`
+  - production deployment is needed for public review without Vercel login
+
+#### Validation completed
+
+- `npm run lint` passes
+- `npm run build` passes
+- `/api/pipeline/search` streams references
+- `/api/pipeline/avr` streams mock draft output
+- `/api/pipeline/ric` streams integrity output
+- `/api/pipeline/smoke` streams successfully
 
 ---
 
