@@ -7,18 +7,18 @@ import { usePipeline } from "@/hooks/usePipeline";
 
 export default function PipelinePage() {
   const pipeline = usePipeline();
-  const [mobilePanel, setMobilePanel] = useState<"brief" | "workspace">("workspace");
+  const [mobilePanel, setMobilePanel] = useState<"ask" | "results">("results");
 
   return (
     <div className="min-h-[calc(100vh-56px)] bg-[radial-gradient(circle_at_top_left,rgba(196,99,78,0.07),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(26,46,68,0.06),transparent_32%)] text-[15px]">
-      <div className="mx-auto max-w-[1760px] px-3 py-3 md:px-5 lg:px-6">
+      <div className="mx-auto max-w-[1660px] px-3 py-3 md:px-5 lg:px-6">
         <div className="mb-4 flex items-center justify-between lg:hidden">
           <div className="inline-flex rounded-full border border-black/10 bg-white/80 p-1 shadow-sm">
             {(
               [
-                { id: "brief" as const, label: "Brief" },
-                { id: "workspace" as const, label: "Workspace" },
-              ] satisfies ReadonlyArray<{ id: "brief" | "workspace"; label: string }>
+                { id: "ask" as const, label: "Ask" },
+                { id: "results" as const, label: "Results" },
+              ] satisfies ReadonlyArray<{ id: "ask" | "results"; label: string }>
             ).map((panel) => (
               <button
                 key={panel.id}
@@ -37,27 +37,22 @@ export default function PipelinePage() {
           ) : null}
         </div>
 
-        <div className="mb-3 flex items-center justify-between gap-4 rounded-[24px] border border-black/8 bg-white/78 px-4 py-3 shadow-[0_14px_32px_rgba(17,17,16,0.04)] backdrop-blur">
+        <div className="mb-3 flex items-end justify-between gap-4 rounded-[24px] border border-black/8 bg-white/72 px-4 py-3 shadow-[0_14px_32px_rgba(17,17,16,0.04)] backdrop-blur">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
-              AI for Academic
+              Pipeline
             </p>
             <p className="mt-1 text-sm text-stone-600">
-              Search papers, draft a scaffold, then run a quick integrity check.
+              One chat on the left. One artifact on the right.
             </p>
           </div>
-          <div className="hidden items-center gap-2 xl:flex">
-            <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
-              Input on the left
-            </span>
-            <span className="rounded-full bg-stone-900 px-3 py-1 text-xs font-medium text-white">
-              Output on the right
-            </span>
-          </div>
+          <p className="hidden text-sm text-stone-500 xl:block">
+            Ask once. AFA returns papers, a draft scaffold, and an integrity review.
+          </p>
         </div>
 
-        <div className="grid min-h-[calc(100vh-132px)] gap-3 xl:grid-cols-[300px_minmax(0,1fr)]">
-          <div className={`${mobilePanel === "workspace" ? "hidden lg:block" : "block"} xl:block`}>
+        <div className="grid min-h-[calc(100vh-164px)] gap-3 xl:grid-cols-[340px_minmax(0,1fr)]">
+          <div className={`${mobilePanel === "results" ? "hidden lg:block" : "block"} xl:block`}>
             <LeftPanel
               logs={pipeline.logs}
               language={pipeline.language}
@@ -65,14 +60,14 @@ export default function PipelinePage() {
               isRunning={pipeline.isRunning}
               onLanguageChange={pipeline.setLanguage}
               onSearch={async (query) => {
-                setMobilePanel("workspace");
+                setMobilePanel("results");
                 await pipeline.startSearch(query, pipeline.language);
               }}
               onReset={pipeline.reset}
             />
           </div>
 
-          <div className={`${mobilePanel === "brief" ? "hidden lg:block" : "block"} xl:block`}>
+          <div className={`${mobilePanel === "ask" ? "hidden lg:block" : "block"} xl:block`}>
             <RightPanel
               status={pipeline.status}
               currentStep={pipeline.currentStep}

@@ -33,11 +33,9 @@ export function ChatInput({
   }
 
   return (
-    <div className="rounded-[24px] border border-black/10 bg-white/90 p-3 shadow-[0_16px_36px_rgba(17,17,16,0.06)] backdrop-blur">
+    <div className="rounded-[28px] border border-black/8 bg-white p-3 shadow-[0_12px_32px_rgba(17,17,16,0.05)]">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
-          Input
-        </p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">Message</p>
         <div className="inline-flex rounded-full border border-black/10 bg-stone-100 p-1 text-[11px] font-medium text-stone-600">
           {(["EN", "VI"] as const).map((option) => (
             <button
@@ -67,21 +65,21 @@ export function ChatInput({
         placeholder={
           disabled
             ? "AFA is searching..."
-            : "Example: pressure dressing after pediatric circumcision\nor: tìm tài liệu về băng ép sau mổ cắt da quy đầu ở trẻ em"
+            : "Ask in English or Vietnamese.\nExample: pressure dressing after pediatric circumcision\nor: tìm tài liệu về băng ép sau mổ cắt da quy đầu ở trẻ em"
         }
-        className="min-h-[132px] w-full resize-none rounded-[20px] border border-black/8 bg-stone-50 px-4 py-3 text-sm leading-relaxed text-stone-800 outline-none transition focus:border-stone-300"
+        className="min-h-[148px] w-full resize-none rounded-[22px] border border-black/8 bg-stone-50 px-4 py-3 text-sm leading-relaxed text-stone-800 outline-none transition focus:border-stone-300"
         disabled={disabled}
       />
 
       <div className="mt-3 flex items-center justify-between gap-3">
-        <p className="text-xs text-stone-500">Describe the topic. Press Enter to run.</p>
+        <p className="text-xs text-stone-500">Press Enter to send. Shift + Enter for a new line.</p>
         <button
           type="button"
           onClick={() => void handleSubmit()}
           disabled={disabled}
           className="inline-flex items-center rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {disabled ? "Working..." : "Run"}
+          {disabled ? "Working..." : "Send"}
         </button>
       </div>
     </div>

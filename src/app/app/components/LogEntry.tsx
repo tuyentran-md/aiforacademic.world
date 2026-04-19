@@ -3,7 +3,7 @@
 import type { LogEntry as LogEntryType } from "@/lib/pipeline/types";
 
 const TOOL_STYLES: Record<LogEntryType["tool"], string> = {
-  System: "border-stone-300 bg-stone-50 text-stone-700",
+  System: "border-stone-200 bg-white text-stone-700",
   Search: "border-sky-200 bg-sky-50 text-sky-700",
   PubMed: "border-sky-200 bg-sky-50 text-sky-700",
   OpenAlex: "border-orange-200 bg-orange-50 text-orange-700",
@@ -14,7 +14,9 @@ const TOOL_STYLES: Record<LogEntryType["tool"], string> = {
 
 export function LogEntry({ entry }: { entry: LogEntryType }) {
   return (
-    <div className={`rounded-2xl border px-3 py-2 text-sm ${TOOL_STYLES[entry.tool]}`}>
+    <div
+      className={`max-w-[92%] rounded-[28px] rounded-tl-md border px-4 py-3 text-sm shadow-[0_10px_24px_rgba(17,17,16,0.04)] ${TOOL_STYLES[entry.tool]}`}
+    >
       <div className="mb-1 flex items-center justify-between gap-3">
         <span className="font-medium">{entry.tool}</span>
         <span className="text-[11px] uppercase tracking-[0.12em] opacity-60">

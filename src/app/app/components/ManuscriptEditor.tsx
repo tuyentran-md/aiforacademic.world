@@ -37,15 +37,18 @@ export function ManuscriptEditor({
   const previewMarkdown = linkifyReferenceCitations(manuscript);
 
   return (
-    <div className="rounded-[28px] border border-black/8 bg-white/88 p-4 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
+    <div className="rounded-[28px] border border-black/8 bg-stone-50/80 p-4 shadow-[0_14px_34px_rgba(17,17,16,0.04)]">
       <div className="mb-4 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
             Draft
           </p>
           <h2 className="mt-2 font-serif text-[2rem] font-bold text-stone-900">
-            {blueprint ? blueprint.title : "Draft output"}
+            {blueprint ? blueprint.title : "Draft scaffold"}
           </h2>
+          <p className="mt-2 text-sm text-stone-600">
+            AFA turns your selected papers into a first manuscript structure here.
+          </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {blueprint?.sections.map((section) => (
               <span
@@ -81,7 +84,7 @@ export function ManuscriptEditor({
             disabled={isStreaming || !manuscript.trim()}
             className="inline-flex items-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Run check
+            Run review
           </button>
         </div>
       </div>
@@ -137,7 +140,7 @@ export function ManuscriptEditor({
             }}
           >
             {previewMarkdown ||
-              "Your draft will appear here once generation starts."}
+              "Your draft scaffold will appear here once you create it from the selected papers."}
           </ReactMarkdown>
           {isStreaming ? <div className="mt-4 h-6 w-1 animate-pulse rounded-full bg-violet-500" /> : null}
         </div>

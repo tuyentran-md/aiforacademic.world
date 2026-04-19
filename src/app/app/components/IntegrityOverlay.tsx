@@ -53,18 +53,18 @@ export function IntegrityOverlay({
   }
 
   return (
-    <div className="rounded-[28px] border border-black/8 bg-white/88 p-4 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
+    <div className="rounded-[28px] border border-black/8 bg-stone-50/80 p-4 shadow-[0_14px_34px_rgba(17,17,16,0.04)]">
       <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
-            Check
+            Review
           </p>
           <h2 className="mt-2 font-serif text-[2rem] font-bold text-stone-900">
-            Integrity score {report ? `${report.overallScore}/100` : "pending"}
+            {report ? `Integrity score ${report.overallScore}/100` : "Integrity review"}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600">
             {report?.summary ||
-              "Flags and score will appear here once the check runs."}
+              "AFA will flag weak claims, missing support, and citation issues here."}
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -131,7 +131,7 @@ export function IntegrityOverlay({
 
         {isRunning ? (
           <div className="rounded-2xl border border-dashed border-black/10 bg-stone-50 px-4 py-5 text-sm text-stone-500">
-            RIC is still reading the manuscript and streaming integrity flags.
+            AFA is still reading the manuscript and streaming integrity flags.
           </div>
         ) : null}
       </div>

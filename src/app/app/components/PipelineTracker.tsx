@@ -46,14 +46,14 @@ function getStepState(
 }
 
 const OUTPUT_TABS = [
-  { step: 1 as const, label: "Sources" },
+  { step: 1 as const, label: "Papers" },
   { step: 2 as const, label: "Draft" },
-  { step: 3 as const, label: "Check" },
+  { step: 3 as const, label: "Review" },
 ];
 
 function getBadgeLabel(step: 1 | 2 | 3, props: Omit<PipelineTrackerProps, "onSelectStep">): string {
   if (step === 1) {
-    return props.referencesCount > 0 ? String(props.referencesCount) : "0";
+    return props.referencesCount > 0 ? String(props.referencesCount) : "Empty";
   }
   if (step === 2) {
     return props.hasManuscript ? "Ready" : "Locked";
@@ -64,7 +64,7 @@ function getBadgeLabel(step: 1 | 2 | 3, props: Omit<PipelineTrackerProps, "onSel
 
 export function PipelineTracker(props: PipelineTrackerProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-[22px] border border-black/8 bg-white/88 p-2 shadow-[0_14px_30px_rgba(17,17,16,0.05)] backdrop-blur">
+    <div className="flex flex-wrap items-center gap-2">
       {OUTPUT_TABS.map((tab) => {
         const stepState = getStepState(tab.step, props);
         const selectable =
@@ -78,10 +78,10 @@ export function PipelineTracker(props: PipelineTrackerProps) {
             type="button"
             onClick={() => selectable && props.onSelectStep(tab.step)}
             disabled={!selectable}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition ${
+            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
               props.activeView === tab.step
-                ? "bg-stone-900 text-white"
-                : "bg-stone-50 text-stone-600 hover:bg-white"
+                ? "border-stone-900 bg-stone-900 text-white"
+                : "border-black/8 bg-white text-stone-600 hover:bg-stone-50"
             } ${!selectable ? "cursor-not-allowed opacity-55" : ""}`}
           >
             <span
@@ -98,7 +98,9 @@ export function PipelineTracker(props: PipelineTrackerProps) {
             <span className="font-medium">{tab.label}</span>
             <span
               className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                props.activeView === tab.step ? "bg-white/12 text-white" : "bg-white text-stone-500"
+                props.activeView === tab.step
+                  ? "bg-white/12 text-white"
+                  : "bg-stone-100 text-stone-500"
               }`}
             >
               {getBadgeLabel(tab.step, props)}

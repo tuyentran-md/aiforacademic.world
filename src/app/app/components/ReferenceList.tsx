@@ -47,15 +47,16 @@ export function ReferenceList({
   const openAlexCount = references.filter((reference) => reference.source === "openalex").length;
 
   return (
-    <div className="rounded-[28px] border border-black/8 bg-white/88 p-4 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
+    <div className="rounded-[28px] border border-black/8 bg-stone-50/80 p-4 shadow-[0_14px_34px_rgba(17,17,16,0.04)]">
       <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
-            Sources
+            Papers
           </p>
           <h2 className="mt-2 font-serif text-[2rem] font-bold text-stone-900">
-            {references.length} studies found
+            {references.length} papers found
           </h2>
+          <p className="mt-2 text-sm text-stone-600">Keep the papers you want to use for the draft.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -74,7 +75,7 @@ export function ReferenceList({
             disabled={disabled || selectedCount === 0}
             className="inline-flex items-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Draft from selection
+            Create draft
           </button>
         </div>
       </div>
