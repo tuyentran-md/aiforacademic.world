@@ -297,7 +297,7 @@ export default function CanvasPanel({
               AFA Workspace
             </h2>
             <p className="text-stone-500 text-sm max-w-xs leading-relaxed mb-8">
-              Tìm tài liệu, lên dàn ý, kiểm tra toàn vẹn học thuật — tất cả trong một nơi.
+              Search literature, draft manuscripts, and check research integrity — all in one place.
             </p>
 
             {/* Entry point chips */}
@@ -305,17 +305,17 @@ export default function CanvasPanel({
               {[
                 {
                   emoji: "🔍",
-                  label: "Tìm tài liệu",
-                  action: () => onSendMessage("Tìm tài liệu về: "),
+                  label: "Search literature",
+                  action: () => onSendMessage("Find papers on: "),
                 },
                 {
                   emoji: "✍️",
-                  label: "Viết bản thảo (AVR)",
-                  action: () => onSendMessage("Viết bản thảo về: "),
+                  label: "Draft manuscript (AVR)",
+                  action: () => onSendMessage("Draft a manuscript about: "),
                 },
                 {
                   emoji: "🔬",
-                  label: "Check bài viết (RIC)",
+                  label: "Check my paper (RIC)",
                   action: () => onSelectTab("editor"),
                 },
               ].map(({ emoji, label, action }) => (
@@ -339,11 +339,11 @@ export default function CanvasPanel({
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="font-semibold text-stone-900">Tài liệu tìm được</h2>
+                <h2 className="font-semibold text-stone-900">Search Results</h2>
                 <p className="text-xs text-stone-400 mt-0.5">
                   {references.length > 0
-                    ? `${selectedReferenceIds.length}/${references.length} đang được chọn`
-                    : isRunning ? "Đang tìm kiếm..." : "Chưa có kết quả"}
+                    ? `${selectedReferenceIds.length}/${references.length} selected`
+                    : isRunning ? "Searching..." : "No results yet"}
                 </p>
               </div>
               {references.length > 0 && (
@@ -406,7 +406,7 @@ export default function CanvasPanel({
               <div>
                 <h2 className="font-semibold text-stone-900">✍️ Draft Editor</h2>
                 <p className="text-xs text-stone-400 mt-0.5">
-                  Paste hoặc nhập nội dung bản thảo để dùng với RIC
+                  Paste your manuscript here to use with RIC
                 </p>
               </div>
               {manuscript && (
@@ -431,9 +431,9 @@ export default function CanvasPanel({
             <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-xl bg-violet-50 border border-violet-100">
               <span className="text-lg">🚧</span>
               <div>
-                <p className="text-sm font-medium text-violet-800">AVR đang được hoàn thiện</p>
+                <p className="text-sm font-medium text-violet-800">AVR — Coming Soon</p>
                 <p className="text-xs text-violet-600 mt-0.5">
-                  Tính năng AI viết tự động sẽ có sớm. Hiện tại sếp có thể paste bản thảo vào đây để RIC quét.
+                  AI-powered manuscript drafting is almost ready. For now, paste your draft below and run RIC to check integrity.
                 </p>
               </div>
             </div>
@@ -442,13 +442,13 @@ export default function CanvasPanel({
             <textarea
               value={manuscript}
               onChange={(e) => onUpdateManuscript(e.target.value)}
-              placeholder="Paste nội dung bản thảo vào đây...&#10;&#10;Sau khi có nội dung, bấm 🔬 Chạy RIC để kiểm tra toàn vẹn học thuật."
+              placeholder="Paste your manuscript here...&#10;&#10;Once you have content, click 🔬 Run RIC to check research integrity."
               className="flex-1 min-h-[300px] w-full rounded-xl border border-black/[0.08] bg-white px-5 py-4 text-sm text-stone-800 leading-relaxed font-serif resize-none outline-none focus:border-stone-300 focus:ring-1 focus:ring-stone-200 transition-all placeholder-stone-300"
             />
 
             {manuscript && (
               <p className="mt-2 text-xs text-stone-400 text-right">
-                {manuscript.split(/\s+/).filter(Boolean).length} từ
+                {manuscript.split(/\s+/).filter(Boolean).length} words
               </p>
             )}
           </div>
@@ -462,7 +462,7 @@ export default function CanvasPanel({
               <div>
                 <h2 className="font-semibold text-stone-900">🔬 RIC Integrity Report</h2>
                 <p className="text-xs text-stone-400 mt-0.5">
-                  {isRunning ? "Đang quét..." : "Click vào text được highlight để xem chi tiết"}
+                  {isRunning ? "Analyzing..." : "Click highlighted text to see details"}
                 </p>
               </div>
               {integrityReport && (
@@ -653,7 +653,7 @@ export default function CanvasPanel({
                     />
                   ))}
                 </div>
-                Đang phân tích bài viết...
+                Analyzing manuscript...
               </div>
             )}
 
@@ -661,8 +661,8 @@ export default function CanvasPanel({
             {!isRunning && !integrityReport && !manuscript && (
               <div className="text-center py-16 text-stone-400">
                 <p className="text-4xl mb-3">📄</p>
-                <p className="text-sm">Chưa có nội dung để kiểm tra.</p>
-                <p className="text-xs mt-1">Paste bản thảo vào Editor rồi chạy RIC nhé.</p>
+                <p className="text-sm">No content to check yet.</p>
+                <p className="text-xs mt-1">Paste your manuscript in the Editor tab and run RIC.</p>
               </div>
             )}
           </div>

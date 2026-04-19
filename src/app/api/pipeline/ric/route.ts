@@ -26,8 +26,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "manuscript is required" }, { status: 400 });
   }
 
-  if (!isReferenceArray(body.references) || body.references.length === 0) {
-    return NextResponse.json({ error: "references are required" }, { status: 400 });
+  if (!isReferenceArray(body.references)) {
+    return NextResponse.json({ error: "references must be an array" }, { status: 400 });
   }
 
   const payload: RICRequest = {

@@ -158,7 +158,7 @@ export default function ChatPanel({ messages, isRunning, onSendMessage }: ChatPa
             onKeyDown={handleKeyDown}
             rows={2}
             disabled={isRunning}
-            placeholder="Nhập yêu cầu... (VD: Tìm tài liệu về phẫu thuật vạt da)"
+            placeholder="Type a request... (e.g. Find papers on cardiac surgery)"
             className="w-full resize-none bg-transparent px-4 py-3 pr-12 text-sm text-stone-800 placeholder-stone-400 outline-none leading-relaxed disabled:opacity-60"
           />
           <button
@@ -173,7 +173,7 @@ export default function ChatPanel({ messages, isRunning, onSendMessage }: ChatPa
           </button>
         </div>
         <p className="mt-1.5 text-[11px] text-stone-400 text-center">
-          Enter để gửi · Shift+Enter xuống dòng
+          Enter to send · Shift+Enter for new line
         </p>
       </div>
     </div>

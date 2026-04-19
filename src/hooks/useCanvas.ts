@@ -99,11 +99,11 @@ export function useCanvas() {
     {
       id: "welcome",
       role: "agent",
-      text: "Chào sếp! Em là AFA Assistant. Sếp cần **tìm tài liệu**, **lên dàn ý / viết** (AVR), hay **soát lỗi bài** (RIC)?",
+      text: "Hi! I'm AFA Assistant. I can help you **search literature**, **draft a manuscript** (AVR), or **check research integrity** (RIC). What would you like to do?",
     },
   ]);
 
-  const [language, setLanguage] = useState<"EN" | "VI">("VI");
+  const [language, setLanguage] = useState<"EN" | "VI">("EN");
   const [references, setReferences] = useState<Reference[]>([]);
   const [selectedReferenceIds, setSelectedReferenceIds] = useState<string[]>([]);
   const [manuscript, setManuscript] = useState("");
@@ -114,7 +114,7 @@ export function useCanvas() {
 
   // ── Refs (avoid stale closures in SSE handlers) ──────────────────────────
   const mountedRef = useRef(true);
-  const languageRef = useRef<"EN" | "VI">("VI");
+  const languageRef = useRef<"EN" | "VI">("EN");
   const referencesRef = useRef<Reference[]>([]);
   const selectedReferenceIdsRef = useRef<string[]>([]);
   const manuscriptRef = useRef("");
@@ -412,11 +412,11 @@ export function useCanvas() {
     const lower = trimmed.toLowerCase();
 
     const isSearch =
-      /tìm|search|tài liệu|literature|pubmed|openalex|paper|nghiên cứu|bài báo/.test(lower);
+      /tìm|search|tài liệu|literature|pubmed|openalex|paper|nghiên cứu|bài báo|find|look for/.test(lower);
     const isRIC =
-      /check|ric|kiểm tra|soát lỗi|integrity|plagiarism|lỗi trích|review bài|xem bài/.test(lower);
+      /check|ric|kiểm tra|soát lỗi|integrity|plagiarism|lỗi trích|review bài|xem bài|audit|verify/.test(lower);
     const isAVR =
-      /viết|draft|avr|dàn ý|outline|bản thảo|manuscript|lên ý|bắt đầu viết/.test(lower);
+      /viết|draft|avr|dàn ý|outline|bản thảo|manuscript|lên ý|bắt đầu viết|write|writing/.test(lower);
 
     if (isSearch) {
       void startSearch(trimmed);
@@ -441,7 +441,7 @@ export function useCanvas() {
     // Fallback
     appendMessage({
       role: "agent",
-      text: "Em chưa bắt được ý sếp. Sếp muốn:\n• **Tìm tài liệu** → gõ từ khoá nghiên cứu\n• **Viết / lên dàn ý** → bảo em \"viết\" hoặc \"lên dàn ý về...\"\n• **Check bài** → gõ \"check bài này:\" rồi paste nội dung",
+      text: "I'm not sure what you need. Try:\n• **Search**: \"Find papers on [topic]\"\n• **Write / Draft**: \"Draft a manuscript about [topic]\"\n• **Check**: \"Check this paper:\" then paste your text",
     });
   }
 
@@ -492,10 +492,10 @@ export function useCanvas() {
       {
         id: "welcome",
         role: "agent",
-        text: "Chào sếp! Em là AFA Assistant. Sếp cần **tìm tài liệu**, **lên dàn ý / viết** (AVR), hay **soát lỗi bài** (RIC)?",
+        text: "Hi! I'm AFA Assistant. I can help you **search literature**, **draft a manuscript** (AVR), or **check research integrity** (RIC). What would you like to do?",
       },
     ]);
-    setLanguage("VI");
+    setLanguage("EN");
     setReferences([]);
     setSelectedReferenceIds([]);
     setManuscript("");
