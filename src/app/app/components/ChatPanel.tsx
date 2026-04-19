@@ -23,11 +23,12 @@ function renderText(text: string): React.ReactNode[] {
 interface ChatPanelProps {
   messages: Message[];
   isRunning: boolean;
+  language: "EN" | "VI";
   onSendMessage: (text: string) => void;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
-export default function ChatPanel({ messages, isRunning, onSendMessage }: ChatPanelProps) {
+export default function ChatPanel({ messages, isRunning, language, onSendMessage }: ChatPanelProps) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -106,7 +107,9 @@ export default function ChatPanel({ messages, isRunning, onSendMessage }: ChatPa
                       />
                     ))}
                   </div>
-                  <span className="text-xs text-stone-400">AI đang xử lý...</span>
+                  <span className="text-xs text-stone-400">
+                    {language === "EN" ? "AI is processing..." : "Hệ thống đang xử lý..."}
+                  </span>
                 </div>
               )}
             </div>
@@ -125,7 +128,9 @@ export default function ChatPanel({ messages, isRunning, onSendMessage }: ChatPa
                 />
               ))}
             </div>
-            <span className="text-xs text-stone-400">AI đang xử lý...</span>
+            <span className="text-xs text-stone-400">
+              {language === "EN" ? "AI is processing..." : "Hệ thống đang xử lý..."}
+            </span>
           </div>
         )}
 
@@ -158,7 +163,11 @@ export default function ChatPanel({ messages, isRunning, onSendMessage }: ChatPa
             onKeyDown={handleKeyDown}
             rows={2}
             disabled={isRunning}
-            placeholder="Type a request... (e.g. Find papers on cardiac surgery)"
+            placeholder={
+              language === "EN"
+                ? "Type a request... (e.g. Find papers on cardiac surgery)"
+                : "Nhập yêu cầu... (VD: Tìm tài liệu về phẫu thuật nội soi)"
+            }
             className="w-full resize-none bg-transparent px-4 py-3 pr-12 text-sm text-stone-800 placeholder-stone-400 outline-none leading-relaxed disabled:opacity-60"
           />
           <button
@@ -173,7 +182,9 @@ export default function ChatPanel({ messages, isRunning, onSendMessage }: ChatPa
           </button>
         </div>
         <p className="mt-1.5 text-[11px] text-stone-400 text-center">
-          Enter to send · Shift+Enter for new line
+          {language === "EN"
+            ? "Enter to send · Shift+Enter for new line"
+            : "Nhấn Enter để gửi · Shift+Enter để xuống dòng"}
         </p>
       </div>
     </div>

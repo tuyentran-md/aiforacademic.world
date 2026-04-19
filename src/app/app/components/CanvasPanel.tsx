@@ -93,10 +93,12 @@ function ReferenceSkeleton() {
 function ReferenceCard({
   reference,
   selected,
+  language,
   onToggle,
 }: {
   reference: Reference;
   selected: boolean;
+  language: "EN" | "VI";
   onToggle: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -166,7 +168,9 @@ function ReferenceCard({
               onClick={() => setExpanded(!expanded)}
               className="mt-1 text-xs text-stone-400 hover:text-stone-600 transition-colors"
             >
-              {expanded ? "Thu gọn ↑" : "Xem thêm ↓"}
+              {expanded
+                ? language === "EN" ? "Show less ↑" : "Thu gọn ↑"
+                : language === "EN" ? "Show more ↓" : "Xem thêm ↓"}
             </button>
           )}
         </div>
@@ -179,8 +183,10 @@ function ReferenceCard({
             disabled={!reference.abstractTranslated}
             title={
               reference.abstractTranslated
-                ? showTranslated ? "Xem bản gốc" : "Xem bản dịch TV"
-                : "Tìm ở chế độ VI để có bản dịch"
+                ? showTranslated
+                  ? language === "EN" ? "View Original" : "Xem bản gốc"
+                  : language === "EN" ? "View Translation" : "Xem bản dịch TV"
+                : language === "EN" ? "Search in VI mode for translation" : "Tìm ở chế độ VI để có bản dịch"
             }
             className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
               reference.abstractTranslated
@@ -190,7 +196,9 @@ function ReferenceCard({
                 : "border-stone-100 text-stone-300 cursor-not-allowed"
             }`}
           >
-            🌐 {showTranslated ? "Bản gốc" : "Dịch"}
+            🌐 {showTranslated 
+                 ? (language === "EN" ? "Original" : "Bản gốc") 
+                 : (language === "EN" ? "Translate" : "Dịch")}
           </button>
 
           {/* Copy */}
@@ -198,7 +206,9 @@ function ReferenceCard({
             onClick={handleCopy}
             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 transition-colors"
           >
-            {copied ? "✓ Đã copy" : "📋 Copy"}
+            {copied 
+              ? (language === "EN" ? "✓ Copied" : "✓ Đã copy") 
+              : "📋 Copy"}
           </button>
 
           {/* Link */}
@@ -239,6 +249,7 @@ export default function CanvasPanel({
   integrityReport,
   isRunning,
   status,
+  language,
   onSelectTab,
   onToggleReference,
   onUpdateManuscript,
@@ -348,7 +359,7 @@ export default function CanvasPanel({
               </div>
               {references.length > 0 && (
                 <span className="px-2.5 py-1 rounded-full bg-[#C4634E]/10 text-[#C4634E] text-xs font-semibold">
-                  {references.length} kết quả
+                  {references.length} {language === "EN" ? "results" : "kết quả"}
                 </span>
               )}
             </div>
@@ -368,6 +379,7 @@ export default function CanvasPanel({
                 key={ref.id}
                 reference={ref}
                 selected={selectedReferenceIds.includes(ref.id)}
+                language={language}
                 onToggle={() => onToggleReference(ref.id)}
               />
             ))}
@@ -384,7 +396,7 @@ export default function CanvasPanel({
                     />
                   ))}
                 </div>
-                Đang tải thêm...
+                {language === "EN" ? "Loading more..." : "Đang tải thêm..."}
               </div>
             )}
 
@@ -392,7 +404,11 @@ export default function CanvasPanel({
             {!isRunning && references.length === 0 && (
               <div className="text-center py-16 text-stone-400">
                 <p className="text-4xl mb-3">📭</p>
-                <p className="text-sm">Không tìm thấy tài liệu nào. Thử từ khoá khác nhé.</p>
+                <p className="text-sm">
+                  {language === "EN" 
+                    ? "No references found. Try a different term." 
+                    : "Không tìm thấy tài liệu nào. Vui lòng thử từ khoá khác."}
+                </p>
               </div>
             )}
           </div>
@@ -421,7 +437,7 @@ export default function CanvasPanel({
                     onClick={() => onStartRIC()}
                     className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#C4634E] text-white hover:bg-[#b45743] transition-colors"
                   >
-                    🔬 Chạy RIC
+                    🔬 {language === "EN" ? "Run RIC" : "Chạy RIC"}
                   </button>
                 </div>
               )}

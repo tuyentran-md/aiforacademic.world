@@ -77,6 +77,7 @@ export default function AppLayout() {
         <ChatPanel
           messages={canvas.messages}
           isRunning={canvas.isRunning}
+          language={canvas.language}
           onSendMessage={canvas.sendMessage}
         />
       </div>
