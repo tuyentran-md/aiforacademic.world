@@ -16,8 +16,10 @@ interface CanvasPanelProps {
   isRunning: boolean;
   status: PipelineStatus;
   language: "EN" | "VI";
+  translatingIds: string[];
   onSelectTab: (state: CanvasState) => void;
   onToggleReference: (id: string) => void;
+  onTranslateReference: (id: string) => void;
   onUpdateManuscript: (text: string) => void;
   onDismissFlag: (id: string) => void;
   onSendMessage: (text: string) => void;
@@ -94,12 +96,16 @@ function ReferenceCard({
   reference,
   selected,
   language,
+  isTranslating,
   onToggle,
+  onTranslate,
 }: {
   reference: Reference;
   selected: boolean;
   language: "EN" | "VI";
+  isTranslating: boolean;
   onToggle: () => void;
+  onTranslate: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [showTranslated, setShowTranslated] = useState(false);
@@ -108,6 +114,13 @@ function ReferenceCard({
   const abstract = showTranslated && reference.abstractTranslated
     ? reference.abstractTranslated
     : reference.abstract;
+
+  // Auto-switch view when translation finishes
+  React.useEffect(() => {
+    if (reference.abstractTranslated) {
+      setShowTranslated(true);
+    }
+  }, [reference.abstractTranslated]);
 
   const snippetLength = 200;
   const isLong = abstract.length > snippetLength;
@@ -179,26 +192,34 @@ function ReferenceCard({
         <div className="ml-7 flex flex-wrap items-center gap-1.5">
           {/* Translate */}
           <button
-            onClick={() => setShowTranslated(!showTranslated)}
-            disabled={!reference.abstractTranslated}
+            onClick={() => {
+              if (reference.abstractTranslated) {
+                setShowTranslated(!showTranslated);
+              } else {
+                onTranslate();
+              }
+            }}
+            disabled={isTranslating}
             title={
               reference.abstractTranslated
                 ? showTranslated
                   ? language === "EN" ? "View Original" : "Xem bản gốc"
                   : language === "EN" ? "View Translation" : "Xem bản dịch TV"
-                : language === "EN" ? "Search in VI mode for translation" : "Tìm ở chế độ VI để có bản dịch"
+                : language === "EN" ? "Translate to VI" : "Dịch sang Tiếng Việt"
             }
             className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
               reference.abstractTranslated
                 ? showTranslated
                   ? "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
                   : "border-stone-200 text-stone-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-                : "border-stone-100 text-stone-300 cursor-not-allowed"
+                : "border-stone-200 text-stone-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-50 disabled:cursor-wait"
             }`}
           >
-            🌐 {showTranslated 
+            {isTranslating
+              ? (language === "EN" ? "🌐 Translating..." : "🌐 Đang dịch...")
+              : "🌐 " + (reference.abstractTranslated && showTranslated 
                  ? (language === "EN" ? "Original" : "Bản gốc") 
-                 : (language === "EN" ? "Translate" : "Dịch")}
+                 : (language === "EN" ? "Translate" : "Dịch"))}
           </button>
 
           {/* Copy */}
@@ -250,8 +271,10 @@ export default function CanvasPanel({
   isRunning,
   status,
   language,
+  translatingIds,
   onSelectTab,
   onToggleReference,
+  onTranslateReference,
   onUpdateManuscript,
   onDismissFlag,
   onSendMessage,
@@ -380,7 +403,9 @@ export default function CanvasPanel({
                 reference={ref}
                 selected={selectedReferenceIds.includes(ref.id)}
                 language={language}
+                isTranslating={translatingIds.includes(ref.id)}
                 onToggle={() => onToggleReference(ref.id)}
+                onTranslate={() => onTranslateReference(ref.id)}
               />
             ))}
 

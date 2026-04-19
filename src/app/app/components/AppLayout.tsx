@@ -100,8 +100,10 @@ export default function AppLayout() {
           isRunning={canvas.isRunning}
           status={canvas.status}
           language={canvas.language}
+          translatingIds={canvas.translatingIds}
           onSelectTab={canvas.selectCanvasTab}
           onToggleReference={canvas.toggleReference}
+          onTranslateReference={canvas.translateReference}
           onUpdateManuscript={canvas.updateManuscript}
           onDismissFlag={canvas.dismissFlag}
           onSendMessage={canvas.sendMessage}

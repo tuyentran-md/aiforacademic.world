@@ -106,6 +106,7 @@ export function useCanvas() {
   const [language, setLanguage] = useState<"EN" | "VI">("EN");
   const [references, setReferences] = useState<Reference[]>([]);
   const [selectedReferenceIds, setSelectedReferenceIds] = useState<string[]>([]);
+  const [translatingIds, setTranslatingIds] = useState<string[]>([]);
   const [manuscript, setManuscript] = useState("");
   const [integrityReport, setIntegrityReport] = useState<IntegrityReport | null>(null);
   const [dismissedFlagIds, setDismissedFlagIds] = useState<string[]>([]);
@@ -519,6 +520,37 @@ export function useCanvas() {
     setManuscript(text);
   }
 
+  async function translateReference(id: string) {
+    const ref = referencesRef.current.find((r) => r.id === id);
+    if (!ref || ref.abstractTranslated) return;
+
+    setTranslatingIds((prev) => [...prev, id]);
+
+    try {
+      const res = await fetch("/api/pipeline/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: ref.id, abstract: ref.abstract }),
+      });
+
+      if (!res.ok) throw new Error("Translation failed");
+      
+      const data = await res.json();
+      
+      if (data.abstractTranslated) {
+        setReferences((prev) => {
+          const next = prev.map((r) => (r.id === id ? { ...r, abstractTranslated: data.abstractTranslated } : r));
+          referencesRef.current = next;
+          return next;
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setTranslatingIds((prev) => prev.filter((i) => i !== id));
+    }
+  }
+
   function dismissFlag(flagId: string) {
     setDismissedFlagIds((prev) => (prev.includes(flagId) ? prev : [...prev, flagId]));
   }
@@ -566,6 +598,7 @@ export function useCanvas() {
     language,
     references,
     selectedReferenceIds,
+    translatingIds,
     selectedReferences,
     manuscript,
     integrityReport: integrityReport ? { ...integrityReport, flags: visibleFlags } : null,
@@ -576,6 +609,7 @@ export function useCanvas() {
     startSearch,
     startRIC,
     startAVR,
+    translateReference,
     selectCanvasTab,
     toggleReference,
     removeReference,

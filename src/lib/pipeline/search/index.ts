@@ -482,59 +482,7 @@ export async function runSearch(
     emit({ type: "reference", data: reference });
   }
 
-  if (request.language === "VI" && rankedReferences.some((reference) => reference.abstract.trim())) {
-    emit({
-      type: "status",
-      data: {
-        status: "translating",
-        message: "Translating abstracts...",
-      },
-    });
-    emit({
-      type: "log",
-      data: {
-        tool: "Translator",
-        message: "Translating abstracts to Vietnamese...",
-        timestamp: now(),
-      },
-    });
 
-    const translated = await translateAbstracts(rankedReferences, "VI");
-    for (const reference of translated) {
-      if (reference.abstractTranslated) {
-        emit({ type: "reference", data: reference });
-      }
-    }
-    emit({
-      type: "log",
-      data: {
-        tool: "Translator",
-        message: "Translation complete",
-        timestamp: now(),
-      },
-    });
-
-    emit({
-      type: "status",
-      data: {
-        status: "completed",
-        message: `Found ${translated.length} references`,
-      },
-    });
-    emit({ type: "done", data: { step: 1 } });
-    return translated;
-  }
-
-  if (request.language === "VI") {
-    emit({
-      type: "log",
-      data: {
-        tool: "Translator",
-        message: "No abstract text available to translate, so references are shown in the source language.",
-        timestamp: now(),
-      },
-    });
-  }
 
   emit({
     type: "status",
