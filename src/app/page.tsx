@@ -35,6 +35,37 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="pb-8">
+          <div className="max-w-5xl mx-auto px-6 md:px-8">
+            <Link
+              href="/app"
+              className="block overflow-hidden rounded-[28px] border border-black/8 bg-[linear-gradient(135deg,#171717,#2d2a28_55%,#4b342c)] px-7 py-7 text-white shadow-[0_24px_60px_rgba(17,17,16,0.22)] transition hover:opacity-95"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-300">
+                New • Pipeline demo
+              </p>
+              <div className="mt-4 grid gap-5 md:grid-cols-[1.2fr_0.8fr] md:items-end">
+                <div>
+                  <h2 className="font-serif text-3xl font-bold leading-tight md:text-4xl">
+                    From question to draft
+                    <br />
+                    in one workflow.
+                  </h2>
+                  <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-300">
+                    Search literature, generate a manuscript scaffold, then run an integrity check
+                    without leaving the workspace.
+                  </p>
+                </div>
+                <div className="grid gap-2 text-sm text-stone-300 md:justify-items-end">
+                  <span>01 Search &amp; Translate</span>
+                  <span>02 AVR Drafting</span>
+                  <span>03 RIC Audit</span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </section>
+
         {/* ─── TOOLS ───────────────────────────────────────── */}
         <section className="pb-16 md:pb-24">
           <div className="max-w-5xl mx-auto px-6 md:px-8">

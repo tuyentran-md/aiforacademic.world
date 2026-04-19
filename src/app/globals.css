@@ -28,6 +28,14 @@
   --background: #FAF9F6;
   --foreground: #111110;
   --grid-color: rgba(0, 0, 0, 0.04);
+  --pipeline-search: #3B82F6;
+  --pipeline-avr: #8B5CF6;
+  --pipeline-ric: #EF4444;
+  --pipeline-success: #22C55E;
+  --pipeline-warning: #F59E0B;
+  --flag-error-bg: #FEF2F2;
+  --flag-warning-bg: #FFFBEB;
+  --flag-info-bg: #EFF6FF;
 }
 
 /* Warm cream base + dot grid */
@@ -53,6 +61,10 @@ html {
 
 a {
   text-decoration: none;
+}
+
+button {
+  cursor: pointer;
 }
 
 /* ── WordPress / blog post content ───────────────────────────────────────── */
