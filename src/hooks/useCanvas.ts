@@ -418,7 +418,7 @@ export function useCanvas(userId?: string) {
       setErrorMessage(msg);
       appendMessage({
         role: "agent",
-        text: useLang === "EN" ? `❌ Search error: ${msg}` : `❌ Lỗi tìm kiếm: ${msg}`,
+        text: useLang === "EN" ? `Search failed: ${msg}` : `Tìm kiếm thất bại: ${msg}`,
       });
     }
   }
@@ -432,8 +432,8 @@ export function useCanvas(userId?: string) {
         role: "agent",
         text:
           languageRef.current === "EN"
-            ? "Please paste your manuscript into the Canvas Editor (or include it in chat) before running RIC."
-            : "Vui lòng dán nội dung bản thảo vào Editor tại Canvas (hoặc gửi kèm trong chat) trước khi chạy RIC.",
+            ? "Please paste your manuscript into the Editor (or upload a file) before checking."
+            : "Vui lòng dán bản thảo vào Editor (hoặc tải tệp lên) trước khi kiểm tra.",
       });
       return;
     }
@@ -454,8 +454,8 @@ export function useCanvas(userId?: string) {
       role: "agent",
       text:
         languageRef.current === "EN"
-          ? "Scanning manuscript with RIC Audit..."
-          : "Đang phân tích bản thảo qua RIC Audit...",
+          ? "Analyzing your manuscript for integrity issues..."
+          : "Đang phân tích bản thảo để kiểm tra toàn vẹn học thuật...",
     });
 
     try {
@@ -470,7 +470,7 @@ export function useCanvas(userId?: string) {
       setErrorMessage(msg);
       appendMessage({
         role: "agent",
-        text: languageRef.current === "EN" ? `❌ RIC error: ${msg}` : `❌ Lỗi RIC: ${msg}`,
+        text: languageRef.current === "EN" ? `Integrity check failed: ${msg}` : `Kiểm tra thất bại: ${msg}`,
       });
     }
   }
@@ -574,14 +574,26 @@ export function useCanvas(userId?: string) {
       return;
     }
 
+    // Smart fallback: if user is on idle screen and types anything ≥ 3 words
+    // treat it as a research question and search directly
+    if (canvasState === "idle" && trimmed.split(/\s+/).length >= 3) {
+      void startSearch(trimmed);
+      return;
+    }
+
     // Fallback
     appendMessage({
       role: "agent",
       text:
         languageRef.current === "EN"
-          ? "I'm not sure what you'd like to do. Try typing a research question like 'What is the evidence for laparoscopic vs open appendectomy in children?' and I'll search for relevant papers."
-          : "Tôi chưa hiểu rõ yêu cầu. Hãy thử nhập câu hỏi nghiên cứu, ví dụ: 'So sánh phẫu thuật nội soi và mổ mở ruột thừa ở trẻ em' — tôi sẽ tìm tài liệu liên quan.",
+          ? "I'm not sure what you'd like to do. Try typing a research question — for example: 'laparoscopic vs open appendectomy in children' — and I'll find relevant papers."
+          : "Tôi chưa hiểu rõ yêu cầu. Hãy thử nhập câu hỏi nghiên cứu — ví dụ: 'So sánh phẫu thuật nội soi và mổ mở ruột thừa ở trẻ em' — tôi sẽ tìm tài liệu.",
     });
+  }
+
+  // ── Open editor directly (adds to canvas history for back-navigation) ────
+  function openEditor() {
+    pushCanvas("editor", "Your manuscript");
   }
 
   // ── Reference management ─────────────────────────────────────────────────
@@ -718,6 +730,7 @@ export function useCanvas(userId?: string) {
     startSearch,
     startRIC,
     startAVR,
+    openEditor,
     translateReference,
     bulkTranslate,
     selectCanvasTab,

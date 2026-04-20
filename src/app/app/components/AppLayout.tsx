@@ -20,7 +20,7 @@ export default function AppLayout() {
   }, [canvas.canvasState]);
 
   return (
-    <div className="flex h-[calc(100dvh-3.5rem)] w-full overflow-hidden bg-[#FAF9F6]">
+    <div className="flex h-dvh md:h-[calc(100dvh-3.5rem)] w-full overflow-hidden bg-[#FAF9F6]">
 
       {/* ── Mobile Tab Bar ────────────────────────────────────────────── */}
       <div className="md:hidden absolute top-0 left-0 right-0 z-20 flex border-b border-black/[0.07] bg-[#F5F1EA]">
@@ -116,7 +116,7 @@ export default function AppLayout() {
           onUpdateManuscript={canvas.updateManuscript}
           onDismissFlag={canvas.dismissFlag}
           onSendMessage={canvas.sendMessage}
-          onStartSearch={canvas.startSearch}
+          onOpenEditor={canvas.openEditor}
           onStartRIC={canvas.startRIC}
           onStartAVR={canvas.startAVR}
         />

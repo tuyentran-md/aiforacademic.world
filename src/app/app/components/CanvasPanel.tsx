@@ -24,7 +24,7 @@ interface CanvasPanelProps {
   onUpdateManuscript: (text: string) => void;
   onDismissFlag: (id: string) => void;
   onSendMessage: (text: string) => void;
-  onStartSearch: (query: string) => void;
+  onOpenEditor: () => void;
   onStartRIC: (text?: string) => void;
   onStartAVR: () => void;
 }
@@ -245,7 +245,7 @@ export default function CanvasPanel({
   canvasState, canvasHistory, references, selectedReferenceIds, manuscript,
   integrityReport, isRunning, language, translatingIds,
   onSelectTab, onToggleReference, onTranslateReference, onBulkTranslate,
-  onUpdateManuscript, onDismissFlag, onStartSearch, onStartRIC, onStartAVR,
+  onUpdateManuscript, onDismissFlag, onSendMessage, onOpenEditor, onStartRIC, onStartAVR,
 }: CanvasPanelProps) {
   const uniqueTabs = getUniqueTabs(canvasHistory);
   const [activeFlagId, setActiveFlagId] = useState<string | null>(null);
@@ -256,7 +256,6 @@ export default function CanvasPanel({
 
   // File upload handling
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   function scrollToFlag(flagId: string) {
     setActiveFlagId(flagId);
     document.querySelector(`[data-flag-id="${flagId}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -266,7 +265,9 @@ export default function CanvasPanel({
     e.preventDefault();
     const q = searchQuery.trim();
     if (!q) return;
-    onStartSearch(q);
+    // Route through sendMessage so user message appears in chat
+    // Smart idle fallback in useCanvas will treat this as a search
+    onSendMessage(q);
     setSearchQuery("");
   }
 
@@ -326,7 +327,7 @@ export default function CanvasPanel({
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className={`flex-1 min-h-0 ${canvasState === "editor" ? "overflow-hidden" : "overflow-y-auto"}`}>
 
         {/* ── IDLE ── */}
         {canvasState === "idle" && (
@@ -374,7 +375,7 @@ export default function CanvasPanel({
             </p>
             <div className="flex gap-2">
               <button
-                onClick={() => onSelectTab("editor")}
+                onClick={() => onOpenEditor()}
                 className="px-4 py-2.5 rounded-xl bg-white border border-black/[0.08] shadow-sm hover:border-black/[0.15] hover:shadow-md transition-all text-sm font-medium text-stone-700"
               >
                 {language === "EN" ? "Check my paper" : "Kiểm tra bài của tôi"}
@@ -499,9 +500,9 @@ export default function CanvasPanel({
                 )}
                 <button
                   onClick={() => onStartRIC()}
-                  disabled={!manuscript.trim()}
+                  disabled={!manuscript.trim() || isRunning}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    manuscript.trim()
+                    manuscript.trim() && !isRunning
                       ? "bg-[#C4634E] text-white hover:bg-[#b45743]"
                       : "bg-stone-100 text-stone-400 cursor-not-allowed"
                   }`}
@@ -557,7 +558,12 @@ export default function CanvasPanel({
                 {/* Bottom CTA */}
                 <button
                   onClick={() => onStartRIC()}
-                  className="mt-3 w-full py-2.5 rounded-xl bg-[#C4634E] text-white text-sm font-medium hover:bg-[#b45743] transition-colors"
+                  disabled={isRunning}
+                  className={`mt-3 w-full py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                    isRunning
+                      ? "bg-stone-200 text-stone-400 cursor-not-allowed"
+                      : "bg-[#C4634E] text-white hover:bg-[#b45743]"
+                  }`}
                 >
                   {language === "EN" ? "Check Integrity →" : "Kiểm tra toàn vẹn →"}
                 </button>

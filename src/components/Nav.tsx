@@ -18,7 +18,7 @@ export default function Nav() {
 
   return (
     <header
-      className="sticky top-0 z-50 no-grid border-b border-black/[0.06]"
+      className={`sticky top-0 z-50 no-grid border-b border-black/[0.06]${pathname?.startsWith("/app") ? " hidden md:block" : ""}`}
       style={{
         backgroundColor: "rgba(245, 241, 234, 0.92)",
         backdropFilter: "blur(12px)",
