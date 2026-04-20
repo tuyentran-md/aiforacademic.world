@@ -30,7 +30,8 @@ export async function POST(request: Request) {
   };
 
   try {
-    const translatedArray = await translateAbstracts([refMock], "VI");
+    const targetLang = body.targetLanguage || "VI";
+    const translatedArray = await translateAbstracts([refMock], targetLang);
     
     if (translatedArray.length === 0 || !translatedArray[0].abstractTranslated) {
       return NextResponse.json({ error: "Translation failed to return text" }, { status: 500 });

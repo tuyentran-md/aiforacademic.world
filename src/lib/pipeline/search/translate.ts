@@ -122,9 +122,9 @@ async function requestTranslationBatch(batch: Reference[]): Promise<TranslationR
 
 export async function translateAbstracts(
   refs: Reference[],
-  targetLang: "VI",
+  targetLang: "EN" | "VI",
 ): Promise<Reference[]> {
-  if (targetLang !== "VI" || refs.length === 0 || !hasLLMConfiguration()) {
+  if (refs.length === 0 || !hasLLMConfiguration()) {
     return refs;
   }
 

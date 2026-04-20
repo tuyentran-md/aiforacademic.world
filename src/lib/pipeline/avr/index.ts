@@ -1,4 +1,6 @@
 import { type AVRModule } from "./interface";
-import { avrMock } from "./mock";
+// NOTE: "mock" is a legacy filename — the module is a full LLM-backed
+// implementation (callLLM + streamLLM, blueprint generation, section streaming).
+import { avrMock as avrImplementation } from "./mock";
 
-export const avrModule: AVRModule = avrMock;
+export const avrModule: AVRModule = avrImplementation;

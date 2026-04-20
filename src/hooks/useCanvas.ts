@@ -245,8 +245,8 @@ export function useCanvas(userId?: string) {
           role: "agent",
           text:
             languageRef.current === "EN"
-              ? `❌ Error: ${event.data.message}`
-              : `❌ Lỗi: ${event.data.message}`,
+              ? `Error: ${event.data.message}`
+              : `Lỗi: ${event.data.message}`,
         });
         return;
 
@@ -286,7 +286,7 @@ export function useCanvas(userId?: string) {
                           role: "agent",
                           text: isEN
                             ? "Please paste your manuscript into the chat and write 'check this paper' to proceed."
-                            : "Vui lòng dán nội dung bài vào chat và gõ 'kiểm tra bài này' để RIC phân tích.",
+                            : "Vui lòng dán nội dung bài vào chat và gõ 'kiểm tra bài này' để phân tích.",
                         }),
                     },
                   ]
@@ -449,7 +449,7 @@ export function useCanvas(userId?: string) {
     setDismissedFlagIds([]);
     setErrorMessage(null);
 
-    pushCanvas("integrity", "RIC Report");
+    pushCanvas("integrity", "Integrity Report");
     appendMessage({
       role: "agent",
       text:
@@ -466,7 +466,7 @@ export function useCanvas(userId?: string) {
       );
     } catch (error) {
       setStatus("error");
-      const msg = error instanceof Error ? error.message : "RIC failed";
+      const msg = error instanceof Error ? error.message : "Integrity check failed";
       setErrorMessage(msg);
       appendMessage({
         role: "agent",
