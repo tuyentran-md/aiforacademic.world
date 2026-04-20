@@ -116,6 +116,7 @@ export default function AppLayout() {
           onUpdateManuscript={canvas.updateManuscript}
           onDismissFlag={canvas.dismissFlag}
           onSendMessage={canvas.sendMessage}
+          onStartSearch={canvas.startSearch}
           onStartRIC={canvas.startRIC}
           onStartAVR={canvas.startAVR}
         />

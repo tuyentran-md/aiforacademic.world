@@ -104,7 +104,7 @@ export function useCanvas(userId?: string) {
     {
       id: "welcome",
       role: "agent",
-      text: "Hi! I'm AFA Assistant. I can help you **search literature**, **draft a manuscript** (AVR), or **check research integrity** (RIC). What would you like to do?",
+      text: "Welcome to AI for Academic — your research mentor.\n\nStart by typing a research question in the Canvas — I'll find relevant papers, help you draft a manuscript, and check it for integrity issues before you submit.",
     },
   ]);
 
@@ -125,6 +125,7 @@ export function useCanvas(userId?: string) {
   const selectedReferenceIdsRef = useRef<string[]>([]);
   const manuscriptRef = useRef("");
   const sessionIdRef = useRef<string | null>(null);
+  const queryRef = useRef(""); // last search query — used by AVR
 
   useEffect(() => {
     mountedRef.current = true;
@@ -396,6 +397,7 @@ export function useCanvas(userId?: string) {
     setSelectedReferenceIds([]);
     setErrorMessage(null);
     setLogs([]);
+    queryRef.current = query; // store for AVR
 
     pushCanvas("reference", "References");
     appendMessage({
@@ -473,9 +475,67 @@ export function useCanvas(userId?: string) {
     }
   }
 
-  // ── AVR (dev will implement SSE wiring) ─────────────────────────────────
+  // ── AVR ──────────────────────────────────────────────────────────────────
   async function startAVR() {
+    const query = queryRef.current;
+    if (!query.trim()) {
+      appendMessage({
+        role: "agent",
+        text:
+          languageRef.current === "EN"
+            ? "Please search for references first, then click Draft."
+            : "Vui lòng tìm tài liệu trước, sau đó bấm Viết bản thảo.",
+      });
+      return;
+    }
+
+    const refs = referencesRef.current.filter((r) =>
+      selectedReferenceIdsRef.current.includes(r.id),
+    );
+
+    if (refs.length === 0) {
+      appendMessage({
+        role: "agent",
+        text:
+          languageRef.current === "EN"
+            ? "Please select at least one reference to draft from."
+            : "Vui lòng chọn ít nhất một tài liệu để viết.",
+      });
+      return;
+    }
+
+    setManuscript("");
+    manuscriptRef.current = "";
+    setErrorMessage(null);
     pushCanvas("editor", "Draft");
+
+    appendMessage({
+      role: "agent",
+      text:
+        languageRef.current === "EN"
+          ? `Generating manuscript draft from ${refs.length} selected references...`
+          : `Đang tạo bản thảo từ ${refs.length} tài liệu đã chọn...`,
+    });
+
+    try {
+      if (userId) void trackUsage(userId, "avr");
+      await consumeSSE(
+        "/api/pipeline/avr",
+        { query, references: refs, language: languageRef.current },
+        handleEvent,
+      );
+    } catch (error) {
+      setStatus("error");
+      const msg = error instanceof Error ? error.message : "AVR failed";
+      setErrorMessage(msg);
+      appendMessage({
+        role: "agent",
+        text:
+          languageRef.current === "EN"
+            ? `Draft generation failed: ${msg}`
+            : `Tạo bản thảo thất bại: ${msg}`,
+      });
+    }
   }
 
   // ── Message routing ──────────────────────────────────────────────────────
@@ -519,8 +579,8 @@ export function useCanvas(userId?: string) {
       role: "agent",
       text:
         languageRef.current === "EN"
-          ? "I couldn't catch that. Do you want to:\n• **Search**: 'Find papers on [topic]'\n• **Write / Draft**: 'Draft a manuscript about [topic]'\n• **Check**: 'Check this paper:' then paste your text"
-          : "Hệ thống chưa hiểu rõ yêu cầu. Bạn muốn:\n• **Tìm tài liệu**: gõ 'Tìm tài liệu về...'\n• **Viết bài**: gõ 'Viết bản thảo về...'\n• **Kiểm tra**: gõ 'Kiểm tra bài này:' kèm theo nội dung",
+          ? "I'm not sure what you'd like to do. Try typing a research question like 'What is the evidence for laparoscopic vs open appendectomy in children?' and I'll search for relevant papers."
+          : "Tôi chưa hiểu rõ yêu cầu. Hãy thử nhập câu hỏi nghiên cứu, ví dụ: 'So sánh phẫu thuật nội soi và mổ mở ruột thừa ở trẻ em' — tôi sẽ tìm tài liệu liên quan.",
     });
   }
 
@@ -561,13 +621,17 @@ export function useCanvas(userId?: string) {
       const res = await fetch("/api/pipeline/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: ref.id, abstract: ref.abstract }),
+        body: JSON.stringify({
+          id: ref.id,
+          abstract: ref.abstract,
+          targetLanguage: "VI",
+        }),
       });
 
       if (!res.ok) throw new Error("Translation failed");
-      
+
       const data = await res.json();
-      
+
       if (data.abstractTranslated) {
         setReferences((prev) => {
           const next = prev.map((r) => (r.id === id ? { ...r, abstractTranslated: data.abstractTranslated } : r));
@@ -578,6 +642,13 @@ export function useCanvas(userId?: string) {
       }
     } catch (error) {
       console.error(error);
+      appendMessage({
+        role: "agent",
+        text:
+          languageRef.current === "EN"
+            ? "Translation failed. Please try again."
+            : "Dịch thất bại. Vui lòng thử lại.",
+      });
     } finally {
       setTranslatingIds((prev) => prev.filter((i) => i !== id));
     }
@@ -611,8 +682,8 @@ export function useCanvas(userId?: string) {
         role: "agent",
         text:
           languageRef.current === "EN"
-            ? "Hi! I'm AFA Assistant. I can help you **search literature**, **draft a manuscript** (AVR), or **check research integrity** (RIC). What would you like to do?"
-            : "Xin chào! Đây là trợ lý AFA. Tôi có thể hỗ trợ **tìm tài liệu**, **viết bản thảo** (AVR), hoặc **kiểm tra toàn vẹn học thuật** (RIC). Bạn muốn bắt đầu với chức năng nào?",
+            ? "Welcome to AI for Academic — your research mentor.\n\nStart by typing a research question in the Canvas — I'll find relevant papers, help you draft a manuscript, and check it for integrity issues before you submit."
+            : "Chào mừng đến AI for Academic — trợ lý nghiên cứu của bạn.\n\nBắt đầu bằng cách nhập câu hỏi nghiên cứu ở Canvas bên phải — tôi sẽ tìm tài liệu, giúp bạn viết bản thảo, và kiểm tra trước khi nộp.",
       },
     ]);
     setLanguage(languageRef.current);

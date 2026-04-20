@@ -5,7 +5,7 @@ import { type Reference } from "@/lib/pipeline/types";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  let body: { id: string; abstract: string };
+  let body: { id: string; abstract: string; targetLanguage?: "EN" | "VI" };
 
   try {
     body = await request.json();

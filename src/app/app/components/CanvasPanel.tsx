@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import type { CanvasHistoryEntry, CanvasState } from "@/hooks/useCanvas";
 import type { IntegrityFlag, IntegrityReport, PipelineStatus, Reference } from "@/lib/pipeline/types";
 import { parseManuscriptSections, getParagraphSeverity } from "./pipeline-utils";
 
-// ── Props ────────────────────────────────────────────────────────────────────
+// ── Props ─────────────────────────────────────────────────────────────────────
 interface CanvasPanelProps {
   canvasState: CanvasState;
   canvasHistory: CanvasHistoryEntry[];
@@ -24,40 +24,33 @@ interface CanvasPanelProps {
   onUpdateManuscript: (text: string) => void;
   onDismissFlag: (id: string) => void;
   onSendMessage: (text: string) => void;
+  onStartSearch: (query: string) => void;
   onStartRIC: (text?: string) => void;
   onStartAVR: () => void;
 }
 
-// ── Tabs visible order (deduplicated by state type, keep last label) ──────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function getUniqueTabs(history: CanvasHistoryEntry[]): CanvasHistoryEntry[] {
   const seen = new Map<CanvasState, CanvasHistoryEntry>();
-  for (const entry of history) {
-    seen.set(entry.state, entry);
-  }
+  for (const entry of history) seen.set(entry.state, entry);
   return Array.from(seen.values());
 }
 
-// ── Inline highlight renderer ─────────────────────────────────────────────────
 function renderWithHighlights(
   text: string,
   flags: IntegrityFlag[],
   onFlagClick: (id: string) => void,
 ): React.ReactNode {
   if (flags.length === 0) return text;
-
   const positioned = flags
     .map((f) => ({ flag: f, idx: text.indexOf(f.location.textSnippet) }))
     .filter((f) => f.idx >= 0)
     .sort((a, b) => a.idx - b.idx);
-
   if (positioned.length === 0) return text;
-
   const nodes: React.ReactNode[] = [];
   let cursor = 0;
-
   for (const { flag, idx } of positioned) {
     if (idx > cursor) nodes.push(text.slice(cursor, idx));
-
     const isError = flag.severity === "error";
     nodes.push(
       <mark
@@ -76,12 +69,11 @@ function renderWithHighlights(
     );
     cursor = idx + flag.location.textSnippet.length;
   }
-
   if (cursor < text.length) nodes.push(text.slice(cursor));
   return nodes;
 }
 
-// ── Reference skeleton ────────────────────────────────────────────────────────
+// ── Skeleton ──────────────────────────────────────────────────────────────────
 function ReferenceSkeleton() {
   return (
     <div className="animate-pulse rounded-xl border border-black/[0.06] bg-white p-5 space-y-3">
@@ -93,7 +85,7 @@ function ReferenceSkeleton() {
   );
 }
 
-// ── SVG Icons ────────────────────────────────────────────────────────────────
+// ── SVG Icons ─────────────────────────────────────────────────────────────────
 function IconCopy({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} className={className}>
@@ -102,7 +94,6 @@ function IconCopy({ className = "w-3.5 h-3.5" }: { className?: string }) {
     </svg>
   );
 }
-
 function IconExternalLink({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} className={className}>
@@ -110,7 +101,6 @@ function IconExternalLink({ className = "w-3.5 h-3.5" }: { className?: string })
     </svg>
   );
 }
-
 function IconSpinner({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} className={`${className} animate-spin`}>
@@ -119,7 +109,6 @@ function IconSpinner({ className = "w-3.5 h-3.5" }: { className?: string }) {
     </svg>
   );
 }
-
 function IconTranslate({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} className={className}>
@@ -127,66 +116,53 @@ function IconTranslate({ className = "w-3.5 h-3.5" }: { className?: string }) {
     </svg>
   );
 }
+function IconUpload({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className={className}>
+      <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4-4 4M12 4v12" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-// ── Reference card ────────────────────────────────────────────────────────────
+// ── Reference Card ────────────────────────────────────────────────────────────
 function ReferenceCard({
-  reference,
-  selected,
-  language,
-  isTranslating,
-  onToggle,
-  onTranslate,
+  reference, selected, language, isTranslating, onToggle, onTranslate,
 }: {
-  reference: Reference;
-  selected: boolean;
-  language: "EN" | "VI";
-  isTranslating: boolean;
-  onToggle: () => void;
-  onTranslate: () => void;
+  reference: Reference; selected: boolean; language: "EN" | "VI";
+  isTranslating: boolean; onToggle: () => void; onTranslate: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [showTranslated, setShowTranslated] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  // Auto-show translation panel when translation finishes
   React.useEffect(() => {
-    if (reference.abstractTranslated) {
-      setShowTranslated(true);
-    }
+    if (reference.abstractTranslated) setShowTranslated(true);
   }, [reference.abstractTranslated]);
 
   const snippetLength = 220;
   const isLong = reference.abstract.length > snippetLength;
   const displayAbstract =
-    expanded || !isLong
-      ? reference.abstract
-      : reference.abstract.slice(0, snippetLength) + "…";
+    expanded || !isLong ? reference.abstract : reference.abstract.slice(0, snippetLength) + "…";
 
   async function handleCopy() {
     const firstAuthor = reference.authors[0] ?? "Unknown";
-    const authorStr =
-      reference.authors.length > 1 ? `${firstAuthor} et al.` : firstAuthor;
-    const citation = `${authorStr}, ${reference.year}. ${reference.title}. ${reference.journal}.`;
-    await navigator.clipboard.writeText(citation);
+    const authorStr = reference.authors.length > 1 ? `${firstAuthor} et al.` : firstAuthor;
+    await navigator.clipboard.writeText(
+      `${authorStr}, ${reference.year}. ${reference.title}. ${reference.journal}.`,
+    );
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
 
   return (
-    <div
-      className={`rounded-xl border bg-white shadow-sm transition-all ${
-        selected
-          ? "border-[#C4634E]/30 ring-1 ring-[#C4634E]/20"
-          : "border-black/[0.07] hover:border-black/[0.12]"
-      }`}
-    >
+    <div className={`rounded-xl border bg-white shadow-sm transition-all ${
+      selected ? "border-[#C4634E]/30 ring-1 ring-[#C4634E]/20" : "border-black/[0.07] hover:border-black/[0.12]"
+    }`}>
       <div className="p-5">
         {/* Title + checkbox */}
         <div className="flex items-start gap-3 mb-2">
           <input
-            type="checkbox"
-            checked={selected}
-            onChange={onToggle}
+            type="checkbox" checked={selected} onChange={onToggle}
             className="mt-0.5 flex-shrink-0 w-4 h-4 rounded border-stone-300 text-[#C4634E] focus:ring-[#C4634E] cursor-pointer"
           />
           <h3
@@ -196,65 +172,37 @@ function ReferenceCard({
             {reference.title}
           </h3>
         </div>
-
         {/* Meta */}
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-stone-500 mb-3 ml-7">
-          <span>
-            {reference.authors.slice(0, 3).join(", ")}
-            {reference.authors.length > 3 ? " et al." : ""}
-          </span>
+          <span>{reference.authors.slice(0, 3).join(", ")}{reference.authors.length > 3 ? " et al." : ""}</span>
           <span className="text-stone-300">·</span>
           <span className="italic">{reference.journal}</span>
           <span className="text-stone-300">·</span>
           <span>{reference.year}</span>
           {reference.citationCount != null && (
-            <>
-              <span className="text-stone-300">·</span>
-              <span>Cited: {reference.citationCount}</span>
-            </>
+            <><span className="text-stone-300">·</span><span>Cited: {reference.citationCount}</span></>
           )}
         </div>
-
-        {/* Original Abstract */}
+        {/* Abstract */}
         <div className="ml-7 rounded-lg bg-stone-50 border border-stone-100 px-3 py-2.5 text-sm text-stone-700 leading-relaxed mb-2">
           <p>{displayAbstract}</p>
           {isLong && (
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="mt-1 text-xs text-stone-400 hover:text-stone-600 transition-colors"
-            >
-              {expanded
-                ? language === "EN"
-                  ? "Show less ↑"
-                  : "Thu gọn ↑"
-                : language === "EN"
-                ? "Show more ↓"
-                : "Xem thêm ↓"}
+            <button onClick={() => setExpanded(!expanded)} className="mt-1 text-xs text-stone-400 hover:text-stone-600 transition-colors">
+              {expanded ? (language === "EN" ? "Show less ↑" : "Thu gọn ↑") : (language === "EN" ? "Show more ↓" : "Xem thêm ↓")}
             </button>
           )}
         </div>
-
-        {/* Translated abstract — inline below original */}
+        {/* Translation */}
         {reference.abstractTranslated && showTranslated && (
           <div className="ml-7 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2.5 text-sm text-blue-900 leading-relaxed mb-2">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-500 mb-1">
-              {language === "EN" ? "Vietnamese" : "Tiếng Việt"}
-            </p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-500 mb-1">Tiếng Việt</p>
             <p>{reference.abstractTranslated}</p>
           </div>
         )}
-
-        {/* Action buttons */}
+        {/* Actions */}
         <div className="ml-7 flex flex-wrap items-center gap-1.5">
-          {/* Translate */}
           <button
-            onClick={() => {
-              if (reference.abstractTranslated) {
-                setShowTranslated(!showTranslated);
-              } else {
-                onTranslate();
-              }
-            }}
+            onClick={() => reference.abstractTranslated ? setShowTranslated(!showTranslated) : onTranslate()}
             disabled={isTranslating}
             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
               reference.abstractTranslated
@@ -264,102 +212,89 @@ function ReferenceCard({
                 : "border-stone-200 text-stone-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-50 disabled:cursor-wait"
             }`}
           >
-            {isTranslating ? (
-              <>
-                <IconSpinner />
-                {language === "EN" ? "Translating" : "Đang dịch"}
-              </>
-            ) : (
-              <>
-                <IconTranslate />
+            {isTranslating ? <><IconSpinner />{language === "EN" ? "Translating" : "Đang dịch"}</> : (
+              <><IconTranslate />
                 {reference.abstractTranslated
-                  ? showTranslated
-                    ? language === "EN"
-                      ? "Hide translation"
-                      : "Ẩn bản dịch"
-                    : language === "EN"
-                    ? "Show translation"
-                    : "Hiện bản dịch"
-                  : language === "EN"
-                  ? "Translate"
-                  : "Dịch"}
+                  ? showTranslated ? (language === "EN" ? "Hide translation" : "Ẩn bản dịch") : (language === "EN" ? "Show translation" : "Hiện bản dịch")
+                  : (language === "EN" ? "Translate" : "Dịch")
+                }
               </>
             )}
           </button>
-
-          {/* Full text */}
           {reference.url && (
-            <a
-              href={reference.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 transition-colors"
-            >
-              <IconExternalLink />
-              {language === "EN" ? "Full text" : "Toàn văn"} ↗
+            <a href={reference.url} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 transition-colors">
+              <IconExternalLink />{language === "EN" ? "Full text" : "Toàn văn"} ↗
             </a>
           )}
-
-          {/* Copy citation */}
-          <button
-            onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 transition-colors"
-          >
-            <IconCopy />
-            {copied
-              ? language === "EN"
-                ? "Copied"
-                : "Đã copy"
-              : language === "EN"
-              ? "Copy citation"
-              : "Copy trích dẫn"}
+          <button onClick={handleCopy}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 transition-colors">
+            <IconCopy />{copied ? (language === "EN" ? "Copied" : "Đã copy") : (language === "EN" ? "Copy citation" : "Copy trích dẫn")}
           </button>
-
-          {/* Source badge */}
-          <span
-            className={`ml-auto px-2 py-0.5 rounded-full text-[10px] font-semibold lowercase tracking-wide ${
-              reference.source === "pubmed"
-                ? "bg-blue-50 text-blue-600"
-                : "bg-violet-50 text-violet-600"
-            }`}
-          >
-            {reference.source}
-          </span>
+          <span className={`ml-auto px-2 py-0.5 rounded-full text-[10px] font-semibold lowercase tracking-wide ${
+            reference.source === "pubmed" ? "bg-blue-50 text-blue-600" : "bg-violet-50 text-violet-600"
+          }`}>{reference.source}</span>
         </div>
       </div>
     </div>
   );
 }
 
-// ── Main CanvasPanel ──────────────────────────────────────────────────────────
+// ── Main Component ────────────────────────────────────────────────────────────
 export default function CanvasPanel({
-  canvasState,
-  canvasHistory,
-  references,
-  selectedReferenceIds,
-  manuscript,
-  integrityReport,
-  isRunning,
-  status,
-  language,
-  translatingIds,
-  onSelectTab,
-  onToggleReference,
-  onTranslateReference,
-  onBulkTranslate,
-  onUpdateManuscript,
-  onDismissFlag,
-  onSendMessage,
-  onStartRIC,
-  onStartAVR,
+  canvasState, canvasHistory, references, selectedReferenceIds, manuscript,
+  integrityReport, isRunning, language, translatingIds,
+  onSelectTab, onToggleReference, onTranslateReference, onBulkTranslate,
+  onUpdateManuscript, onDismissFlag, onStartSearch, onStartRIC, onStartAVR,
 }: CanvasPanelProps) {
   const uniqueTabs = getUniqueTabs(canvasHistory);
   const [activeFlagId, setActiveFlagId] = useState<string | null>(null);
 
+  // Idle screen search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // File upload handling
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   function scrollToFlag(flagId: string) {
     setActiveFlagId(flagId);
-    const el = document.querySelector(`[data-flag-id="${flagId}"]`);
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    document.querySelector(`[data-flag-id="${flagId}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function handleIdleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    onStartSearch(q);
+    setSearchQuery("");
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      if (file.name.endsWith(".txt") || file.name.endsWith(".md")) {
+        const text = await file.text();
+        onUpdateManuscript(text);
+      } else if (file.name.endsWith(".docx")) {
+        const mammoth = await import("mammoth");
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        onUpdateManuscript(result.value);
+      } else if (file.name.endsWith(".pdf")) {
+        onUpdateManuscript(
+          `[PDF: ${file.name} — text extraction not yet supported. Please paste the text manually below.]`,
+        );
+      } else {
+        const text = await file.text();
+        onUpdateManuscript(text);
+      }
+    } catch {
+      onUpdateManuscript(`[Failed to read ${file.name}. Please paste the text manually below.]`);
+    }
+    // Reset input so same file can be re-uploaded
+    e.target.value = "";
   }
 
   const tabLabels: Record<CanvasState, string> = {
@@ -369,7 +304,6 @@ export default function CanvasPanel({
     integrity: "Integrity Report",
   };
 
-  // References not yet translated among selected
   const untranslatedSelectedIds = selectedReferenceIds.filter((id) => {
     const ref = references.find((r) => r.id === id);
     return ref && !ref.abstractTranslated && !translatingIds.includes(id);
@@ -377,8 +311,7 @@ export default function CanvasPanel({
 
   return (
     <div className="flex flex-col h-full min-h-0">
-
-      {/* ── Canvas Tab Bar ────────────────────────────────────────────── */}
+      {/* Tab bar */}
       {uniqueTabs.length > 0 && (
         <div className="flex-shrink-0 flex items-center gap-1 px-4 py-2.5 border-b border-black/[0.06] bg-white/60 overflow-x-auto">
           {uniqueTabs.map((entry) => (
@@ -386,76 +319,79 @@ export default function CanvasPanel({
               key={entry.state}
               onClick={() => onSelectTab(entry.state)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                canvasState === entry.state
-                  ? "bg-stone-900 text-white shadow-sm"
-                  : "text-stone-500 hover:bg-stone-100 hover:text-stone-700"
+                canvasState === entry.state ? "bg-stone-900 text-white shadow-sm" : "text-stone-500 hover:bg-stone-100 hover:text-stone-700"
               }`}
-            >
-              {tabLabels[entry.state]}
-            </button>
+            >{tabLabels[entry.state]}</button>
           ))}
         </div>
       )}
 
-      {/* ── Canvas content ────────────────────────────────────────────── */}
       <div className="flex-1 min-h-0 overflow-y-auto">
 
-        {/* ── IDLE ──────────────────────────────────────────────────── */}
+        {/* ── IDLE ── */}
         {canvasState === "idle" && (
           <div className="flex flex-col items-center justify-center h-full px-8 py-16">
-            {/* Logo mark */}
             <div className="w-12 h-12 rounded-xl bg-[#C4634E] flex items-center justify-center mb-8 shadow-sm">
-              <span className="text-white font-bold text-xl font-serif tracking-tight">A</span>
+              <span className="text-white font-bold text-xl font-serif">A</span>
             </div>
-
-            <h2 className="font-serif font-bold text-2xl text-stone-900 mb-2 text-center">
-              What are you working on?
+            <h2 className="font-serif font-bold text-2xl text-stone-900 mb-1 text-center">
+              AI for Academic
             </h2>
             <p className="text-stone-400 text-sm max-w-xs leading-relaxed mb-8 text-center">
               {language === "EN"
-                ? "Search literature, draft manuscripts, and check research integrity — all in one place."
-                : "Tìm tài liệu, viết bản thảo và kiểm tra toàn vẹn học thuật — tất cả trong một nơi."}
+                ? "Your research mentor — from idea to manuscript"
+                : "Người hướng dẫn nghiên cứu — từ ý tưởng đến bản thảo"}
             </p>
 
-            {/* Command prompt area (decorative + functional) */}
-            <div className="w-full max-w-sm mb-6">
-              <button
-                onClick={() => onSendMessage("Find papers on ")}
-                className="w-full text-left px-4 py-3 rounded-xl border border-black/[0.1] bg-white shadow-sm text-sm text-stone-400 hover:border-stone-300 hover:shadow-md transition-all focus:outline-none"
-              >
-                {language === "EN"
-                  ? "Ask a research question…"
-                  : "Đặt câu hỏi nghiên cứu…"}
-              </button>
-            </div>
-
-            {/* Quick actions */}
-            <div className="w-full max-w-sm">
-              <p className="text-xs text-stone-400 mb-3 font-medium uppercase tracking-wider text-center">
-                {language === "EN" ? "Quick actions" : "Thao tác nhanh"}
-              </p>
-              <div className="flex gap-2">
+            {/* Search input */}
+            <form onSubmit={handleIdleSearch} className="w-full max-w-sm mb-6">
+              <div className="flex rounded-xl border border-black/[0.1] bg-white shadow-sm overflow-hidden focus-within:border-stone-300 focus-within:shadow-md transition-all">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={
+                    language === "EN"
+                      ? "What's your research question?"
+                      : "Câu hỏi nghiên cứu của bạn là gì?"
+                  }
+                  className="flex-1 px-4 py-3 text-sm text-stone-800 outline-none bg-transparent placeholder-stone-400"
+                />
                 <button
-                  onClick={() => onSendMessage("Find papers on ")}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-black/[0.08] shadow-sm hover:border-black/[0.15] hover:shadow-md transition-all text-sm font-medium text-stone-700 text-center"
+                  type="submit"
+                  disabled={!searchQuery.trim()}
+                  className="px-4 py-3 text-sm font-medium text-[#C4634E] hover:bg-stone-50 disabled:text-stone-300 transition-colors border-l border-black/[0.08]"
                 >
-                  {language === "EN" ? "Search literature" : "Tìm tài liệu"}
-                </button>
-                <button
-                  onClick={() => onSelectTab("editor")}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-black/[0.08] shadow-sm hover:border-black/[0.15] hover:shadow-md transition-all text-sm font-medium text-stone-700 text-center"
-                >
-                  {language === "EN" ? "Check my paper" : "Kiểm tra bài"}
+                  {language === "EN" ? "Search →" : "Tìm →"}
                 </button>
               </div>
+            </form>
+
+            {/* Secondary actions */}
+            <p className="text-xs text-stone-400 mb-3 font-medium uppercase tracking-wider text-center">
+              {language === "EN" ? "or" : "hoặc"}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => onSelectTab("editor")}
+                className="px-4 py-2.5 rounded-xl bg-white border border-black/[0.08] shadow-sm hover:border-black/[0.15] hover:shadow-md transition-all text-sm font-medium text-stone-700"
+              >
+                {language === "EN" ? "Check my paper" : "Kiểm tra bài của tôi"}
+              </button>
+              <a
+                href="/products"
+                className="px-4 py-2.5 rounded-xl bg-white border border-black/[0.08] shadow-sm hover:border-black/[0.15] hover:shadow-md transition-all text-sm font-medium text-stone-700"
+              >
+                {language === "EN" ? "About our tools →" : "Về công cụ →"}
+              </a>
             </div>
           </div>
         )}
 
-        {/* ── REFERENCE_VIEW ────────────────────────────────────────── */}
+        {/* ── REFERENCES ── */}
         {canvasState === "reference" && (
           <div className="px-5 py-5 space-y-3">
-            {/* Header */}
             <div className="flex items-center justify-between mb-2">
               <div>
                 <h2 className="font-semibold text-stone-900">Search Results</h2>
@@ -463,12 +399,8 @@ export default function CanvasPanel({
                   {references.length > 0
                     ? `${selectedReferenceIds.length}/${references.length} selected`
                     : isRunning
-                    ? language === "EN"
-                      ? "Searching…"
-                      : "Đang tìm kiếm…"
-                    : language === "EN"
-                    ? "No results yet"
-                    : "Chưa có kết quả"}
+                    ? (language === "EN" ? "Searching…" : "Đang tìm kiếm…")
+                    : (language === "EN" ? "No results yet" : "Chưa có kết quả")}
                 </p>
               </div>
               {references.length > 0 && (
@@ -478,48 +410,38 @@ export default function CanvasPanel({
               )}
             </div>
 
-            {/* Bulk actions toolbar */}
+            {/* Bulk toolbar */}
             {selectedReferenceIds.length >= 1 && !isRunning && (
               <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-stone-900 text-white text-xs font-medium shadow-sm">
                 <span className="text-stone-300">
-                  {selectedReferenceIds.length}{" "}
-                  {language === "EN" ? "selected" : "đã chọn"}
+                  {selectedReferenceIds.length} {language === "EN" ? "selected" : "đã chọn"}
                 </span>
                 <span className="text-stone-600">·</span>
                 {untranslatedSelectedIds.length > 0 && (
-                  <button
-                    onClick={() => onBulkTranslate(untranslatedSelectedIds)}
-                    className="hover:text-stone-300 transition-colors"
-                  >
-                    {language === "EN" ? "Translate all" : "Dịch tất cả"}
-                  </button>
+                  <>
+                    <button onClick={() => onBulkTranslate(untranslatedSelectedIds)} className="hover:text-stone-300 transition-colors">
+                      {language === "EN" ? "Translate all" : "Dịch tất cả"}
+                    </button>
+                    <span className="text-stone-600">·</span>
+                  </>
                 )}
-                {untranslatedSelectedIds.length > 0 && (
-                  <span className="text-stone-600">·</span>
-                )}
-                <button
-                  onClick={() => onStartAVR()}
-                  className="hover:text-stone-300 transition-colors flex items-center gap-1"
-                >
-                  {language === "EN" ? "Draft" : "Viết bản thảo"} ›
+                <button onClick={() => onStartAVR()} className="hover:text-stone-300 transition-colors">
+                  {language === "EN" ? "Draft manuscript ›" : "Viết bản thảo ›"}
                 </button>
               </div>
             )}
 
-            {/* Streaming skeletons */}
-            {isRunning && (status === "searching" || status === "translating") && (
+            {/* Skeletons while streaming */}
+            {isRunning && references.length === 0 && (
               <div className="space-y-3">
-                {references.length === 0 && <ReferenceSkeleton />}
-                {references.length === 0 && <ReferenceSkeleton />}
-                {references.length === 0 && <ReferenceSkeleton />}
+                <ReferenceSkeleton /><ReferenceSkeleton /><ReferenceSkeleton />
               </div>
             )}
 
             {/* Reference cards */}
             {references.map((ref) => (
               <ReferenceCard
-                key={ref.id}
-                reference={ref}
+                key={ref.id} reference={ref}
                 selected={selectedReferenceIds.includes(ref.id)}
                 language={language}
                 isTranslating={translatingIds.includes(ref.id)}
@@ -528,42 +450,31 @@ export default function CanvasPanel({
               />
             ))}
 
-            {/* Loading more indicator */}
             {isRunning && references.length > 0 && (
               <div className="flex items-center gap-2 py-3 text-stone-400 text-sm">
                 <div className="flex gap-1">
                   {[0, 1, 2].map((i) => (
-                    <span
-                      key={i}
-                      className="w-1.5 h-1.5 rounded-full bg-stone-300 animate-bounce"
-                      style={{ animationDelay: `${i * 0.15}s` }}
-                    />
+                    <span key={i} className="w-1.5 h-1.5 rounded-full bg-stone-300 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
                   ))}
                 </div>
                 {language === "EN" ? "Loading more…" : "Đang tải thêm…"}
               </div>
             )}
 
-            {/* Empty state */}
             {!isRunning && references.length === 0 && (
               <div className="text-center py-16 text-stone-400">
                 <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-3">
                   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
-                    <circle cx="9" cy="9" r="6" />
-                    <path d="M15 15l3 3" strokeLinecap="round" />
+                    <circle cx="9" cy="9" r="6" /><path d="M15 15l3 3" strokeLinecap="round" />
                   </svg>
                 </div>
-                <p className="text-sm">
-                  {language === "EN"
-                    ? "No references found. Try a different term."
-                    : "Không tìm thấy tài liệu nào. Vui lòng thử từ khoá khác."}
-                </p>
+                <p className="text-sm">{language === "EN" ? "No references found. Try a different term." : "Không tìm thấy tài liệu. Vui lòng thử từ khoá khác."}</p>
               </div>
             )}
           </div>
         )}
 
-        {/* ── EDITOR_VIEW ───────────────────────────────────────────── */}
+        {/* ── EDITOR ── */}
         {canvasState === "editor" && (
           <div className="flex flex-col h-full px-5 py-5">
             {/* Header */}
@@ -572,27 +483,58 @@ export default function CanvasPanel({
                 <h2 className="font-semibold text-stone-900">Draft Editor</h2>
                 <p className="text-xs text-stone-400 mt-0.5">
                   {language === "EN"
-                    ? "Paste your manuscript here to use with RIC"
-                    : "Dán bản thảo vào đây để kiểm tra bằng RIC"}
+                    ? "Upload or paste your manuscript, then check integrity"
+                    : "Tải lên hoặc dán bản thảo, rồi kiểm tra toàn vẹn"}
                 </p>
               </div>
-              {manuscript && (
-                <div className="flex gap-2">
+              {/* Check Integrity — always visible, disabled when empty */}
+              <div className="flex gap-2">
+                {manuscript && (
                   <button
                     onClick={() => navigator.clipboard.writeText(manuscript)}
                     className="px-3 py-1.5 rounded-lg text-xs font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors"
                   >
                     Copy
                   </button>
-                  <button
-                    onClick={() => onStartRIC()}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#C4634E] text-white hover:bg-[#b45743] transition-colors"
-                  >
-                    {language === "EN" ? "Check Integrity" : "Kiểm tra toàn vẹn"}
-                  </button>
-                </div>
-              )}
+                )}
+                <button
+                  onClick={() => onStartRIC()}
+                  disabled={!manuscript.trim()}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    manuscript.trim()
+                      ? "bg-[#C4634E] text-white hover:bg-[#b45743]"
+                      : "bg-stone-100 text-stone-400 cursor-not-allowed"
+                  }`}
+                >
+                  {language === "EN" ? "Check Integrity" : "Kiểm tra toàn vẹn"}
+                </button>
+              </div>
             </div>
+
+            {/* File upload zone — shown when no manuscript */}
+            {!manuscript && (
+              <div className="mb-4">
+                <label className="flex flex-col items-center justify-center w-full h-32 rounded-xl border-2 border-dashed border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50 transition-all cursor-pointer">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".txt,.md,.doc,.docx,.pdf"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                  />
+                  <IconUpload className="w-6 h-6 text-stone-300 mb-2" />
+                  <p className="text-sm text-stone-500">
+                    {language === "EN" ? "Upload your manuscript" : "Tải lên bản thảo"}
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1">
+                    {language === "EN" ? ".txt, .md, .docx, or .pdf" : ".txt, .md, .docx, hoặc .pdf"}
+                  </p>
+                </label>
+                <div className="text-center text-xs text-stone-400 my-3">
+                  {language === "EN" ? "— or paste below —" : "— hoặc dán bên dưới —"}
+                </div>
+              </div>
+            )}
 
             {/* Textarea */}
             <textarea
@@ -600,61 +542,61 @@ export default function CanvasPanel({
               onChange={(e) => onUpdateManuscript(e.target.value)}
               placeholder={
                 language === "EN"
-                  ? "Paste your manuscript here…\n\nOnce you have content, click Check Integrity to verify research integrity."
-                  : "Dán bản thảo vào đây…\n\nSau đó bấm Kiểm tra toàn vẹn để RIC phân tích."
+                  ? "Paste your manuscript here…"
+                  : "Dán bản thảo vào đây…"
               }
-              className="flex-1 min-h-[300px] w-full rounded-xl border border-black/[0.08] bg-white px-5 py-4 text-sm text-stone-800 leading-relaxed font-serif resize-none outline-none focus:border-stone-300 focus:ring-1 focus:ring-stone-200 transition-all placeholder-stone-300"
+              className="flex-1 min-h-[200px] w-full rounded-xl border border-black/[0.08] bg-white px-5 py-4 text-sm text-stone-800 leading-relaxed font-serif resize-none outline-none focus:border-stone-300 focus:ring-1 focus:ring-stone-200 transition-all placeholder-stone-300"
             />
 
             {manuscript && (
-              <p className="mt-2 text-xs text-stone-400 text-right">
-                {manuscript.split(/\s+/).filter(Boolean).length}{" "}
-                {language === "EN" ? "words" : "từ"}
-              </p>
+              <>
+                <p className="mt-2 text-xs text-stone-400 text-right">
+                  {manuscript.split(/\s+/).filter(Boolean).length}{" "}
+                  {language === "EN" ? "words" : "từ"}
+                </p>
+                {/* Bottom CTA */}
+                <button
+                  onClick={() => onStartRIC()}
+                  className="mt-3 w-full py-2.5 rounded-xl bg-[#C4634E] text-white text-sm font-medium hover:bg-[#b45743] transition-colors"
+                >
+                  {language === "EN" ? "Check Integrity →" : "Kiểm tra toàn vẹn →"}
+                </button>
+              </>
             )}
           </div>
         )}
 
-        {/* ── INTEGRITY_OVERLAY ─────────────────────────────────────── */}
+        {/* ── INTEGRITY ── */}
         {canvasState === "integrity" && (
           <div className="px-5 py-5 space-y-5">
-            {/* Header */}
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-semibold text-stone-900">Integrity Report</h2>
                 <p className="text-xs text-stone-400 mt-0.5">
                   {isRunning
-                    ? language === "EN"
-                      ? "Analyzing…"
-                      : "Đang phân tích…"
-                    : language === "EN"
-                    ? "Click highlighted text to see details"
-                    : "Click vào văn bản để xem chi tiết"}
+                    ? (language === "EN" ? "Analyzing…" : "Đang phân tích…")
+                    : (language === "EN" ? "Click highlighted text to see details" : "Click vào văn bản để xem chi tiết")}
                 </p>
               </div>
               {integrityReport && (
-                <div
-                  className={`px-3 py-1.5 rounded-full text-sm font-bold ${
-                    integrityReport.overallScore >= 80
-                      ? "bg-green-50 text-green-700 border border-green-200"
-                      : integrityReport.overallScore >= 60
-                      ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
-                      : "bg-red-50 text-red-700 border border-red-200"
-                  }`}
-                >
+                <div className={`px-3 py-1.5 rounded-full text-sm font-bold ${
+                  integrityReport.overallScore >= 80
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : integrityReport.overallScore >= 60
+                    ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}>
                   {integrityReport.overallScore}/100
                 </div>
               )}
             </div>
 
-            {/* Summary */}
             {integrityReport?.summary && (
               <div className="px-4 py-3 rounded-xl bg-stone-50 border border-stone-100 text-sm text-stone-700 leading-relaxed">
                 {integrityReport.summary}
               </div>
             )}
 
-            {/* Flag counts */}
             {integrityReport && integrityReport.flags.length > 0 && (
               <div className="flex gap-3">
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 border border-red-100">
@@ -680,72 +622,38 @@ export default function CanvasPanel({
                 <div className="px-6 py-5 font-serif text-base text-stone-800 leading-relaxed">
                   {(() => {
                     const sections = parseManuscriptSections(manuscript);
-                    if (sections.length === 0) {
-                      const paragraphs = manuscript.split(/\n\n+/).filter(Boolean);
+                    const paragraphs = manuscript.split(/\n\n+/).filter(Boolean);
+                    const items = sections.length > 0 ? sections : null;
+                    if (!items) {
                       return paragraphs.map((para, pIdx) => {
-                        const paraFlags =
-                          integrityReport?.flags.filter(
-                            (f) => f.location.paragraphIndex === pIdx,
-                          ) ?? [];
+                        const paraFlags = integrityReport?.flags.filter((f) => f.location.paragraphIndex === pIdx) ?? [];
                         const severity = getParagraphSeverity(paraFlags);
                         return (
-                          <p
-                            key={pIdx}
-                            id={`para-${pIdx}`}
+                          <p key={pIdx} id={`para-${pIdx}`}
                             className={`mb-4 text-justify last:mb-0 rounded px-1 -mx-1 transition-colors ${
-                              severity === "error"
-                                ? "bg-red-50/50"
-                                : severity === "warning"
-                                ? "bg-yellow-50/50"
-                                : ""
-                            } ${
-                              activeFlagId &&
-                              paraFlags.some((f) => f.id === activeFlagId)
-                                ? "ring-2 ring-offset-1 ring-yellow-300"
-                                : ""
-                            }`}
-                          >
-                            {renderWithHighlights(para, paraFlags, scrollToFlag)}
-                          </p>
+                              severity === "error" ? "bg-red-50/50" : severity === "warning" ? "bg-yellow-50/50" : ""
+                            } ${activeFlagId && paraFlags.some((f) => f.id === activeFlagId) ? "ring-2 ring-offset-1 ring-yellow-300" : ""}`}
+                          >{renderWithHighlights(para, paraFlags, scrollToFlag)}</p>
                         );
                       });
                     }
-
-                    return sections.map((section, sIdx) => (
+                    return items.map((section, sIdx) => (
                       <div key={sIdx}>
                         {section.heading && (
-                          <h3 className="font-sans font-bold text-lg text-stone-900 mt-6 mb-3 first:mt-0">
-                            {section.heading}
-                          </h3>
+                          <h3 className="font-sans font-bold text-lg text-stone-900 mt-6 mb-3 first:mt-0">{section.heading}</h3>
                         )}
                         {section.paragraphs.map((para, pIdx) => {
-                          const paraFlags =
-                            integrityReport?.flags.filter(
-                              (f) =>
-                                f.location.sectionHeading === section.heading &&
-                                f.location.paragraphIndex === pIdx,
-                            ) ?? [];
+                          const paraFlags = integrityReport?.flags.filter(
+                            (f) => f.location.sectionHeading === section.heading && f.location.paragraphIndex === pIdx,
+                          ) ?? [];
                           const severity = getParagraphSeverity(paraFlags);
                           const paraKey = sIdx * 1000 + pIdx;
                           return (
-                            <p
-                              key={paraKey}
-                              id={`para-${paraKey}`}
+                            <p key={paraKey} id={`para-${paraKey}`}
                               className={`mb-4 text-justify last:mb-0 rounded px-1 -mx-1 transition-colors ${
-                                severity === "error"
-                                  ? "bg-red-50/50"
-                                  : severity === "warning"
-                                  ? "bg-yellow-50/50"
-                                  : ""
-                              } ${
-                                activeFlagId &&
-                                paraFlags.some((f) => f.id === activeFlagId)
-                                  ? "ring-2 ring-offset-1 ring-yellow-300"
-                                  : ""
-                              }`}
-                            >
-                              {renderWithHighlights(para, paraFlags, scrollToFlag)}
-                            </p>
+                                severity === "error" ? "bg-red-50/50" : severity === "warning" ? "bg-yellow-50/50" : ""
+                              } ${activeFlagId && paraFlags.some((f) => f.id === activeFlagId) ? "ring-2 ring-offset-1 ring-yellow-300" : ""}`}
+                            >{renderWithHighlights(para, paraFlags, scrollToFlag)}</p>
                           );
                         })}
                       </div>
@@ -767,41 +675,24 @@ export default function CanvasPanel({
                   {integrityReport.flags.map((flag) => (
                     <div
                       key={flag.id}
-                      className={`px-4 py-3 hover:bg-stone-50 transition-colors cursor-pointer ${
-                        activeFlagId === flag.id ? "bg-yellow-50/50" : ""
-                      }`}
                       onClick={() => scrollToFlag(flag.id)}
+                      className={`px-4 py-3 hover:bg-stone-50 transition-colors cursor-pointer ${activeFlagId === flag.id ? "bg-yellow-50/50" : ""}`}
                     >
                       <div className="flex items-start gap-3">
-                        <span
-                          className={`flex-shrink-0 mt-0.5 w-2 h-2 rounded-full ${
-                            flag.severity === "error" ? "bg-red-400" : "bg-yellow-400"
-                          }`}
-                        />
+                        <span className={`flex-shrink-0 mt-0.5 w-2 h-2 rounded-full ${flag.severity === "error" ? "bg-red-400" : "bg-yellow-400"}`} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-stone-700 mb-0.5">
-                            {flag.message}
-                          </p>
-                          <p className="text-[11px] text-stone-400 truncate">
-                            &ldquo;{flag.location.textSnippet}&rdquo;
-                          </p>
+                          <p className="text-xs font-medium text-stone-700 mb-0.5">{flag.message}</p>
+                          <p className="text-[11px] text-stone-400 truncate">&ldquo;{flag.location.textSnippet}&rdquo;</p>
                           {flag.suggestion && (
                             <p className="text-[11px] text-stone-500 mt-1 italic">
-                              {language === "EN" ? "Suggestion: " : "Gợi ý: "}
-                              {flag.suggestion}
+                              {language === "EN" ? "Suggestion: " : "Gợi ý: "}{flag.suggestion}
                             </p>
                           )}
                         </div>
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDismissFlag(flag.id);
-                          }}
+                          onClick={(e) => { e.stopPropagation(); onDismissFlag(flag.id); }}
                           className="flex-shrink-0 text-stone-300 hover:text-stone-500 transition-colors text-sm"
-                          title={language === "EN" ? "Dismiss" : "Bỏ qua"}
-                        >
-                          ×
-                        </button>
+                        >×</button>
                       </div>
                     </div>
                   ))}
@@ -809,23 +700,17 @@ export default function CanvasPanel({
               </div>
             )}
 
-            {/* Loading state */}
             {isRunning && (
               <div className="flex items-center gap-2 py-2 text-stone-400 text-sm">
                 <div className="flex gap-1">
                   {[0, 1, 2].map((i) => (
-                    <span
-                      key={i}
-                      className="w-1.5 h-1.5 rounded-full bg-stone-300 animate-bounce"
-                      style={{ animationDelay: `${i * 0.15}s` }}
-                    />
+                    <span key={i} className="w-1.5 h-1.5 rounded-full bg-stone-300 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
                   ))}
                 </div>
                 {language === "EN" ? "Analyzing manuscript…" : "Đang phân tích bản thảo…"}
               </div>
             )}
 
-            {/* Empty state */}
             {!isRunning && !integrityReport && !manuscript && (
               <div className="text-center py-16 text-stone-400">
                 <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-3">
@@ -833,14 +718,7 @@ export default function CanvasPanel({
                     <path d="M9 12h6M9 8h6M5 12h.01M5 8h.01M3 5.5A1.5 1.5 0 014.5 4h11A1.5 1.5 0 0117 5.5v9a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 013 14.5v-9z" strokeLinecap="round" />
                   </svg>
                 </div>
-                <p className="text-sm">
-                  {language === "EN" ? "No content to check yet." : "Chưa có nội dung để kiểm tra."}
-                </p>
-                <p className="text-xs mt-1">
-                  {language === "EN"
-                    ? "Paste your manuscript in the editor above and click Check Integrity."
-                    : "Dán bản thảo vào editor và bấm Kiểm tra toàn vẹn."}
-                </p>
+                <p className="text-sm">{language === "EN" ? "No content to check yet." : "Chưa có nội dung để kiểm tra."}</p>
               </div>
             )}
           </div>
