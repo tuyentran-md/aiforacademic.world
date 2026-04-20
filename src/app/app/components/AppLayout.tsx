@@ -2,11 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { useCanvas } from "@/hooks/useCanvas";
+import { useAuth } from "@/lib/firebase/auth";
 import ChatPanel from "./ChatPanel";
 import CanvasPanel from "./CanvasPanel";
+import AuthButton from "./AuthButton";
 
 export default function AppLayout() {
-  const canvas = useCanvas();
+  const auth = useAuth();
+  const canvas = useCanvas(auth.user?.uid ?? undefined);
   const [mobileTab, setMobileTab] = useState<"chat" | "canvas">("chat");
 
   // Auto-switch to canvas tab on mobile when canvas state changes
@@ -31,7 +34,7 @@ export default function AppLayout() {
                 : "text-stone-400"
             }`}
           >
-            {tab === "chat" ? "💬 Chat" : "🖥 Canvas"}
+            {tab === "chat" ? "Chat" : "Canvas"}
           </button>
         ))}
       </div>
@@ -51,26 +54,31 @@ export default function AppLayout() {
               A
             </div>
             <div>
-              <p className="font-semibold text-stone-900 text-sm leading-tight">AFA Assistant</p>
-              <p className="text-[11px] text-stone-400 leading-tight">Agentic Research Workspace</p>
+              <p className="font-semibold text-stone-900 text-sm leading-tight">AFA</p>
             </div>
           </div>
 
-          {/* Language toggle */}
-          <div className="inline-flex rounded-full border border-black/10 bg-stone-100 p-0.5 text-[11px] font-medium">
-            {(["VI", "EN"] as const).map((lang) => (
-              <button
-                key={lang}
-                onClick={() => canvas.updateLanguage(lang)}
-                className={`rounded-full px-2.5 py-1 transition-all ${
-                  canvas.language === lang
-                    ? "bg-stone-900 text-white shadow-sm"
-                    : "text-stone-500 hover:text-stone-700"
-                }`}
-              >
-                {lang}
-              </button>
-            ))}
+          {/* Right side: language toggle + auth */}
+          <div className="flex items-center gap-2">
+            {/* Language toggle */}
+            <div className="inline-flex rounded-full border border-black/10 bg-stone-100 p-0.5 text-[11px] font-medium">
+              {(["VI", "EN"] as const).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => canvas.updateLanguage(lang)}
+                  className={`rounded-full px-2.5 py-1 transition-all ${
+                    canvas.language === lang
+                      ? "bg-stone-900 text-white shadow-sm"
+                      : "text-stone-500 hover:text-stone-700"
+                  }`}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+
+            {/* Auth button */}
+            <AuthButton auth={auth} language={canvas.language} />
           </div>
         </div>
 
@@ -104,10 +112,12 @@ export default function AppLayout() {
           onSelectTab={canvas.selectCanvasTab}
           onToggleReference={canvas.toggleReference}
           onTranslateReference={canvas.translateReference}
+          onBulkTranslate={canvas.bulkTranslate}
           onUpdateManuscript={canvas.updateManuscript}
           onDismissFlag={canvas.dismissFlag}
           onSendMessage={canvas.sendMessage}
           onStartRIC={canvas.startRIC}
+          onStartAVR={canvas.startAVR}
         />
       </div>
     </div>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { href: "/app", label: "Pipeline" },
+  { href: "/app", label: "Workspace" },
   { href: "/products", label: "Tools" },
   { href: "/resources", label: "Resources" },
   { href: "/blog", label: "Blog" },

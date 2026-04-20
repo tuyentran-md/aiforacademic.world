@@ -9,6 +9,7 @@ const __dirname = dirname(__filename);
  * aiforacademic.world
  */
 const nextConfig: NextConfig = {
+  output: "standalone",
   outputFileTracingRoot: __dirname,
   images: {
     remotePatterns: [

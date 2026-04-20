@@ -107,9 +107,6 @@ export default function ChatPanel({ messages, isRunning, language, onSendMessage
                       />
                     ))}
                   </div>
-                  <span className="text-xs text-stone-400">
-                    {language === "EN" ? "AI is processing..." : "Hệ thống đang xử lý..."}
-                  </span>
                 </div>
               )}
             </div>
@@ -128,9 +125,6 @@ export default function ChatPanel({ messages, isRunning, language, onSendMessage
                 />
               ))}
             </div>
-            <span className="text-xs text-stone-400">
-              {language === "EN" ? "AI is processing..." : "Hệ thống đang xử lý..."}
-            </span>
           </div>
         )}
 

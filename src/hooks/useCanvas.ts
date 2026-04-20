@@ -9,6 +9,11 @@ import type {
   Reference,
   SSEEvent,
 } from "@/lib/pipeline/types";
+import {
+  saveSession,
+  trackUsage,
+  cacheReference,
+} from "@/lib/firebase/sessions";
 
 // ── Canvas types ────────────────────────────────────────────────────────────
 
@@ -89,7 +94,7 @@ async function consumeSSE(
 
 // ── Hook ────────────────────────────────────────────────────────────────────
 
-export function useCanvas() {
+export function useCanvas(userId?: string) {
   // ── Core state ──────────────────────────────────────────────────────────
   const [status, setStatus] = useState<PipelineStatus>("idle");
   const [canvasState, setCanvasState] = useState<CanvasState>("idle");
@@ -119,6 +124,7 @@ export function useCanvas() {
   const referencesRef = useRef<Reference[]>([]);
   const selectedReferenceIdsRef = useRef<string[]>([]);
   const manuscriptRef = useRef("");
+  const sessionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -196,6 +202,8 @@ export function useCanvas() {
         setReferences((prev) => {
           const next = upsertReference(prev, event.data);
           referencesRef.current = next;
+          // Cache reference to Firestore by DOI (fire-and-forget)
+          void cacheReference(event.data);
           return next;
         });
         setSelectedReferenceIds((prev) => {
@@ -266,12 +274,12 @@ export function useCanvas() {
                 ? [
                     {
                       id: "draft",
-                      label: isEN ? "✍️ Draft from these references" : "✍️ Viết bản thảo từ tài liệu này",
+                      label: isEN ? "Draft from these references" : "Viết bản thảo từ tài liệu này",
                       trigger: () => void startAVR(),
                     },
                     {
                       id: "ric",
-                      label: isEN ? "🔬 Check my paper against these sources" : "🔬 Kiểm tra bài viết theo nguồn này",
+                      label: isEN ? "Check my paper against these sources" : "Kiểm tra bài viết theo nguồn này",
                       trigger: () =>
                         appendMessage({
                           role: "agent",
@@ -283,6 +291,17 @@ export function useCanvas() {
                   ]
                 : undefined,
           });
+          // Save session to Firestore (fire-and-forget)
+          if (userId && count > 0) {
+            void saveSession(
+              userId,
+              {
+                query: referencesRef.current[0]?.title ?? "",
+                language: languageRef.current,
+                referenceIds: referencesRef.current.map((r) => r.id),
+              },
+            ).then((id) => { sessionIdRef.current = id; });
+          }
         }
 
         if (event.data.step === 2) {
@@ -295,12 +314,12 @@ export function useCanvas() {
             suggestedActions: [
               {
                 id: "check",
-                label: isEN ? "🔬 Check draft with RIC" : "🔬 Kiểm tra bản thảo bằng RIC",
+                label: isEN ? "Check Integrity" : "Kiểm tra tính toàn vẹn",
                 trigger: () => void startRIC(),
               },
               {
                 id: "more-refs",
-                label: isEN ? "🔍 Search more references" : "🔍 Tìm thêm tài liệu",
+                label: isEN ? "Search more references" : "Tìm thêm tài liệu",
                 trigger: () =>
                   appendMessage({
                     role: "agent",
@@ -311,6 +330,15 @@ export function useCanvas() {
               },
             ],
           });
+          // Update session with manuscript (fire-and-forget)
+          if (userId) {
+            void saveSession(
+              userId,
+              { manuscript: manuscriptRef.current },
+              sessionIdRef.current ?? undefined,
+            ).then((id) => { if (id) sessionIdRef.current = id; });
+            void trackUsage(userId, "avr");
+          }
         }
 
         if (event.data.step === 3) {
@@ -323,12 +351,12 @@ export function useCanvas() {
             suggestedActions: [
               {
                 id: "fix",
-                label: isEN ? "✍️ Fix flagged items" : "✍️ Sửa các lỗi cảnh báo",
+                label: isEN ? "Fix flagged items" : "Sửa các lỗi cảnh báo",
                 trigger: () => void startAVR(),
               },
               {
                 id: "find-refs",
-                label: isEN ? "🔍 Find citations for flags" : "🔍 Tìm trích dẫn cho cảnh báo",
+                label: isEN ? "Find citations for flags" : "Tìm trích dẫn cho cảnh báo",
                 trigger: () =>
                   appendMessage({
                     role: "agent",
@@ -339,6 +367,15 @@ export function useCanvas() {
               },
             ],
           });
+          // Update session with integrity score (fire-and-forget)
+          if (userId) {
+            void saveSession(
+              userId,
+              { integrityScore: integrityReport?.overallScore },
+              sessionIdRef.current ?? undefined,
+            ).then((id) => { if (id) sessionIdRef.current = id; });
+            void trackUsage(userId, "ric");
+          }
         }
         return;
 
@@ -367,6 +404,7 @@ export function useCanvas() {
     });
 
     try {
+      if (userId) void trackUsage(userId, "search");
       await consumeSSE(
         "/api/pipeline/search",
         { query, language: useLang, maxResults: 10 },
@@ -435,16 +473,9 @@ export function useCanvas() {
     }
   }
 
-  // ── AVR (placeholder until Tool 2 merges) ────────────────────────────────
+  // ── AVR (dev will implement SSE wiring) ─────────────────────────────────
   async function startAVR() {
     pushCanvas("editor", "Draft");
-    appendMessage({
-      role: "agent",
-      text:
-        languageRef.current === "EN"
-          ? "✍️ AVR (AI Drafting) is coming soon. For now, you can paste your draft in the Editor and check it with RIC."
-          : "✍️ Tính năng AVR (Viết AI) đang được hoàn thiện. Trong lúc chờ, bạn có thể dán bản thảo vào Editor để sử dụng RIC.",
-    });
   }
 
   // ── Message routing ──────────────────────────────────────────────────────
@@ -543,6 +574,7 @@ export function useCanvas() {
           referencesRef.current = next;
           return next;
         });
+        if (userId) void trackUsage(userId, "translate");
       }
     } catch (error) {
       console.error(error);
@@ -553,6 +585,12 @@ export function useCanvas() {
 
   function dismissFlag(flagId: string) {
     setDismissedFlagIds((prev) => (prev.includes(flagId) ? prev : [...prev, flagId]));
+  }
+
+  async function bulkTranslate(ids: string[]) {
+    for (const id of ids) {
+      await translateReference(id);
+    }
   }
 
   function updateLanguage(lang: "EN" | "VI") {
@@ -610,6 +648,7 @@ export function useCanvas() {
     startRIC,
     startAVR,
     translateReference,
+    bulkTranslate,
     selectCanvasTab,
     toggleReference,
     removeReference,
