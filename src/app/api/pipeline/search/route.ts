@@ -11,7 +11,7 @@ function isLanguage(value: unknown): value is "EN" | "VI" {
 }
 
 export async function POST(request: Request) {
-  return withQuota(request as any, "search_papers", async () => {
+  return withQuota(request, "search_papers", async () => {
     let body: Partial<SearchRequest>;
 
   try {

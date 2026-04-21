@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Icons } from "@/components/Icons";
 import { apiFetch } from "@/lib/api-client";
 
 function SuccessContent() {
@@ -19,7 +18,7 @@ function SuccessContent() {
       return;
     }
 
-    let intervalId: NodeJS.Timeout;
+    let intervalId: NodeJS.Timeout | null = null;
     const startTime = Date.now();
     const timeoutMs = 60000; // 60 seconds
 
@@ -30,13 +29,13 @@ function SuccessContent() {
 
         if (data.status === "paid") {
           setStatus("success");
-          clearInterval(intervalId);
+          if (intervalId) clearInterval(intervalId);
           setTimeout(() => {
             router.push("/workspace");
           }, 2000); // give it a moment to show success UI before redirect
         } else if (Date.now() - startTime > timeoutMs) {
           setStatus("timeout");
-          clearInterval(intervalId);
+          if (intervalId) clearInterval(intervalId);
         }
       } catch (err) {
         console.error("Polling error:", err);
@@ -49,7 +48,9 @@ function SuccessContent() {
     // Poll every 3s
     intervalId = setInterval(checkStatus, 3000);
 
-    return () => clearInterval(intervalId);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [orderId, router]);
 
   useEffect(() => {
