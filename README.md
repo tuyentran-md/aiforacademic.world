@@ -130,6 +130,12 @@ firestore.rules           Firestore security rules (paste into Firebase Console)
 
 ---
 
+## Admin
+
+- **Admin dashboard:** `/admin` — set cookie `admin_token` to ADMIN_TOKEN env var, then visit page for real-time metrics.
+
+---
+
 ## Pointers
 
 - **Product plan:** `docs/PLAN.md` — v2 three-phase reframe (supersedes legacy Canvas spec)

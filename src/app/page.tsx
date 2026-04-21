@@ -6,13 +6,13 @@ import { Icons } from "@/components/Icons";
 export const metadata = {
   title: "AI for Academic — Three phases. Literature to publication.",
   description:
-    "AI tools for Vietnamese clinical researchers. Search literature, draft manuscripts, check integrity — powered by Gemini 2.5 Flash.",
+    "AI tools for Vietnamese clinical researchers. Search literature, draft manuscripts, check integrity — from idea to publication.",
 };
 
 const stats = [
   { value: "2,400+", label: "papers checked" },
   { value: "340+", label: "fabricated refs found" },
-  { value: "120+", label: "doctors onboard" },
+  { value: "50+", label: "doctors onboard" },
 ];
 
 const phases = [
@@ -129,19 +129,19 @@ export default function Home() {
         <section className="py-6 md:py-8">
           <div className="mx-auto max-w-5xl px-6 md:px-8">
             <div
-              className="no-grid rounded-2xl p-7 md:p-9 text-white"
-              style={{ backgroundColor: "#1a1a18" }}
+              className="no-grid rounded-2xl p-5 md:p-6 text-white"
+              style={{ backgroundColor: "#2d2419" }}
             >
               <p className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-stone-400">Workspace</p>
-              <p className="mb-2 font-serif font-bold" style={{ fontSize: "clamp(1.3rem, 3vw, 1.9rem)" }}>
-                AI Workspace — from idea to manuscript
+              <p className="mb-2 font-serif font-bold" style={{ fontSize: "clamp(1.15rem, 2.5vw, 1.5rem)" }}>
+                AFA Workspace — from idea to manuscript
               </p>
-              <p className="mb-5 max-w-lg text-sm leading-relaxed text-stone-400">
-                Chat-based research assistant. Gemini invokes all 11 tools — search, draft, check — in one conversation. Artifacts persist per project.
+              <p className="mb-4 max-w-lg text-sm leading-relaxed text-stone-400">
+                Chat-based research assistant. One conversation, 11 tools — search, draft, check. Artifacts persist per project.
               </p>
               <Link
                 href="/workspace"
-                className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-opacity hover:opacity-90"
                 style={{ backgroundColor: "#C4634E", color: "white" }}
               >
                 Try Workspace free →
