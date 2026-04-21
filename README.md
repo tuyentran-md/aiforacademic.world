@@ -3,7 +3,7 @@
 AI-powered research platform for academic researchers. Three-phase workspace: Read → Write → Check, with a persistent chat + artifacts layer.
 
 **Live:** https://aiforacademic.world
-**Owner:** Tuyến Trần · **Stack:** Next.js 15 · TypeScript · Tailwind · Firebase · Gemini 2.5 Flash · SePay · Vercel
+**Owner:** Tuyến Trần · **Stack:** Next.js 15 · TypeScript · Tailwind · Firebase · SePay + LemonSqueezy · Vercel
 
 ---
 
@@ -13,7 +13,7 @@ AI-powered research platform for academic researchers. Three-phase workspace: Re
 2. **Write** — research mentor (validate idea, PICO outline, draft manuscript via AVR)
 3. **Check** — citations, AI detection, plagiarism, peer-review stress test (RIC)
 
-The Workspace (`/app`) is a Claude-style chat + artifact panel. Gemini invokes tool functions via function calling; artifacts persist per project in Firestore.
+The AFA Workspace (`/app`) is a chat + artifact panel. The assistant invokes tool functions via function calling; artifacts persist per project in Firestore.
 
 ---
 
@@ -52,22 +52,33 @@ FIREBASE_ADMIN_CLIENT_EMAIL
 FIREBASE_ADMIN_PRIVATE_KEY
 ```
 
-### Gemini
+### LLM provider
 ```
-GEMINI_API_KEY
+GEMINI_API_KEY                    # internal name for the model API key
 ```
 
-### SePay (Vietnam payment gateway)
+### SePay (VN — QR / bank transfer)
 ```
 SEPAY_MERCHANT_ID=SP-LIVE-TT45A678
 SEPAY_SECRET_KEY=<secret>
 NEXT_PUBLIC_SEPAY_SANDBOX=false
 ```
 
+### LemonSqueezy (international — USD, subscription, tax)
+```
+LEMONSQUEEZY_API_KEY
+LEMONSQUEEZY_WEBHOOK_SECRET
+NEXT_PUBLIC_LS_ENABLED=false      # flip true when /pricing UI wired
+```
+
+### Admin dashboard
+```
+ADMIN_TOKEN=<random 32-char>      # cookie `admin_token` must match to unlock /admin
+```
+
 ### App
 ```
 NEXT_PUBLIC_APP_URL=https://aiforacademic.world
-NEXT_PUBLIC_LS_ENABLED=false      # LemonSqueezy disabled, SePay only
 ```
 
 > ⚠️ Env vars pasted into Vercel may carry trailing `\n`. All env var reads in `src/lib/payment/sepay.ts` apply `.trim()` to defend against this (inherited lesson from tuyentranmd.com fix `ae4ce38`).
@@ -132,7 +143,20 @@ firestore.rules           Firestore security rules (paste into Firebase Console)
 
 ## Admin
 
-- **Admin dashboard:** `/admin` — set cookie `admin_token` to ADMIN_TOKEN env var, then visit page for real-time metrics.
+`/admin` is a server-rendered dashboard showing live Firestore metrics: total users, active Pro, paid orders, month-to-date revenue, plus recent users/orders tables.
+
+**Access:**
+1. Set env `ADMIN_TOKEN=<random>` on Vercel (Production + Preview).
+2. In the browser DevTools → Application → Cookies → add cookie `admin_token` with the same value, scoped to `aiforacademic.world`.
+3. Visit `/admin`. Mismatched/absent cookie → 404 (no hint leaked).
+
+## Payment strategy
+
+Dual gateway on purpose:
+- **SePay** — VN-first (QR / bank transfer). VN users often lack international cards.
+- **LemonSqueezy** — international (USD card, subscription, tax compliance). Cleaner for recurring billing.
+
+Profile field `subscription_source: "sepay" | "lemonsqueezy"` records which path the user came through.
 
 ---
 
