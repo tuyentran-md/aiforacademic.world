@@ -1,5 +1,6 @@
-import AppLayout from './components/AppLayout';
+import { redirect } from "next/navigation";
 
-export default function AppPage() {
-  return <AppLayout />;
+// /app/* → /workspace (301 handled in next.config.ts; this is runtime fallback)
+export default function LegacyAppPage() {
+  redirect("/workspace");
 }

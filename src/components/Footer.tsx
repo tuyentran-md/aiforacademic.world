@@ -4,19 +4,21 @@ import Link from "next/link";
 
 const footerLinks = [
   {
-    section: "Products",
+    section: "Tools",
     links: [
-      { label: "RIC — Research Integrity Check", href: "/ric", external: true },
-      { label: "Translator — Academic translation", href: "/trans", external: true },
-      { label: "AVR — AI for Vietnamese Research (soon)", href: "/products#avr" },
-      { label: "All Products", href: "/products" },
+      { label: "Literature Review (Phase 1)", href: "/tools/literature-review" },
+      { label: "Research Mentor (Phase 2)", href: "/tools/research-mentor" },
+      { label: "Paper Checker (Phase 3)", href: "/tools/paper-checker" },
+      { label: "Polish", href: "/tools/polish" },
     ],
   },
   {
     section: "Site",
     links: [
+      { label: "Workspace", href: "/workspace" },
       { label: "Blog", href: "/blog" },
       { label: "About", href: "/about" },
+      { label: "SRMA", href: "/srma" },
       { label: "Founder — tuyentranmd.com", href: "https://tuyentranmd.com", external: true },
     ],
   },
@@ -53,12 +55,8 @@ export default function Footer() {
                         rel="noopener noreferrer"
                         className="text-[13px] transition-colors"
                         style={{ color: "#e0e0e0" }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.color = "#fff")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.color = "#e0e0e0")
-                        }
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = "#e0e0e0")}
                       >
                         {link.label}&thinsp;↗
                       </a>
@@ -83,10 +81,10 @@ export default function Footer() {
           style={{ borderColor: "#222" }}
         >
           <p className="text-[12px]" style={{ color: "#aaa" }}>
-            AI for Academic · Built by Tuyến Trần, MD
+            AI for Academic · Three phases. From literature to publication.
           </p>
           <p className="text-[12px]" style={{ color: "#888" }}>
-            © {new Date().getFullYear()}
+            Built by Tuyến Trần, MD · © {new Date().getFullYear()}
           </p>
         </div>
       </div>

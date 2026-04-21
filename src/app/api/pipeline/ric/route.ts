@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { runRIC } from "@/lib/pipeline/ric";
 import { createSSEStream, sseResponse } from "@/lib/pipeline/sse";
 import { type RICRequest, type Reference } from "@/lib/pipeline/types";
+import { withQuota } from "@/lib/quota-wrapper";
 
 export const runtime = "nodejs";
 
@@ -14,45 +15,47 @@ function isReferenceArray(value: unknown): value is Reference[] {
 }
 
 export async function POST(request: Request) {
-  let body: Partial<RICRequest>;
+  return withQuota(request, "check_citations", async () => {
+    let body: Partial<RICRequest>;
 
-  try {
-    body = (await request.json()) as Partial<RICRequest>;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
-
-  if (!body.manuscript?.trim()) {
-    return NextResponse.json({ error: "manuscript is required" }, { status: 400 });
-  }
-
-  if (!isReferenceArray(body.references)) {
-    return NextResponse.json({ error: "references must be an array" }, { status: 400 });
-  }
-
-  const payload: RICRequest = {
-    manuscript: body.manuscript,
-    references: body.references,
-    language: isLanguage(body.language) ? body.language : "EN",
-  };
-
-  const { stream, emit, close } = createSSEStream();
-
-  queueMicrotask(async () => {
     try {
-      await runRIC(payload, emit);
-    } catch (error) {
-      emit({
-        type: "error",
-        data: {
-          code: "RIC_FAILED",
-          message: error instanceof Error ? error.message : "RIC failed",
-        },
-      });
-    } finally {
-      close();
+      body = (await request.json()) as Partial<RICRequest>;
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
-  });
 
-  return sseResponse(stream);
+    if (!body.manuscript?.trim()) {
+      return NextResponse.json({ error: "manuscript is required" }, { status: 400 });
+    }
+
+    if (!isReferenceArray(body.references)) {
+      return NextResponse.json({ error: "references must be an array" }, { status: 400 });
+    }
+
+    const payload: RICRequest = {
+      manuscript: body.manuscript,
+      references: body.references,
+      language: isLanguage(body.language) ? body.language : "EN",
+    };
+
+    const { stream, emit, close } = createSSEStream();
+
+    queueMicrotask(async () => {
+      try {
+        await runRIC(payload, emit);
+      } catch (error) {
+        emit({
+          type: "error",
+          data: {
+            code: "RIC_FAILED",
+            message: error instanceof Error ? error.message : "RIC failed",
+          },
+        });
+      } finally {
+        close();
+      }
+    });
+
+    return sseResponse(stream);
+  });
 }

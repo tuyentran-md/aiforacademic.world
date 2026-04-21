@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { href: "/app", label: "Workspace" },
-  { href: "/products", label: "Tools" },
+  { href: "/workspace", label: "Workspace" },
+  { href: "/tools", label: "Tools" },
   { href: "/resources", label: "Resources" },
   { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
@@ -16,9 +16,11 @@ export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  const isWorkspace = pathname?.startsWith("/workspace");
+
   return (
     <header
-      className={`sticky top-0 z-50 no-grid border-b border-black/[0.06]${pathname?.startsWith("/app") ? " hidden md:block" : ""}`}
+      className={`sticky top-0 z-50 no-grid border-b border-black/[0.06]${isWorkspace ? " hidden md:block" : ""}`}
       style={{
         backgroundColor: "rgba(245, 241, 234, 0.92)",
         backdropFilter: "blur(12px)",

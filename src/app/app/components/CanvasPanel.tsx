@@ -249,8 +249,8 @@ export default function CanvasPanel({
 }: CanvasPanelProps) {
   const uniqueTabs = getUniqueTabs(canvasHistory);
   const [activeFlagId, setActiveFlagId] = useState<string | null>(null);
+  const [integritySubTab, setIntegritySubTab] = useState<"annotated" | "issues">("issues");
 
-  // Idle screen search state
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -574,159 +574,288 @@ export default function CanvasPanel({
 
         {/* ── INTEGRITY ── */}
         {canvasState === "integrity" && (
-          <div className="px-5 py-5 space-y-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-semibold text-stone-900">Integrity Report</h2>
-                <p className="text-xs text-stone-400 mt-0.5">
-                  {isRunning
-                    ? (language === "EN" ? "Analyzing…" : "Đang phân tích…")
-                    : (language === "EN" ? "Click highlighted text to see details" : "Click vào văn bản để xem chi tiết")}
-                </p>
+          <div className="flex flex-col h-full">
+
+            {/* Header */}
+            <div className="flex-shrink-0 px-5 pt-5 pb-3 border-b border-black/[0.05]">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h2 className="font-semibold text-stone-900">Integrity Report</h2>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    {isRunning
+                      ? (language === "EN" ? "Analyzing…" : "Đang phân tích…")
+                      : (language === "EN" ? "Click highlighted text to see details" : "Click vào văn bản để xem chi tiết")}
+                  </p>
+                </div>
+                {integrityReport && (
+                  <div className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-bold ${
+                    integrityReport.overallScore >= 80
+                      ? "bg-green-50 text-green-700 border border-green-200"
+                      : integrityReport.overallScore >= 60
+                      ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                      : "bg-red-50 text-red-700 border border-red-200"
+                  }`}>
+                    {integrityReport.overallScore}/100
+                  </div>
+                )}
               </div>
+
+              {/* Summary */}
+              {integrityReport?.summary && (
+                <div className="px-4 py-3 rounded-xl bg-stone-50 border border-stone-100 text-sm text-stone-700 leading-relaxed mb-3">
+                  {integrityReport.summary}
+                </div>
+              )}
+
+              {/* Flag count badges */}
+              {integrityReport && integrityReport.flags.length > 0 && (
+                <div className="flex gap-2 mb-3">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 border border-red-100">
+                    <span className="w-2 h-2 rounded-full bg-red-400" />
+                    <span className="text-xs font-semibold text-red-700">
+                      {integrityReport.flags.filter((f) => f.severity === "error").length}{" "}
+                      {language === "EN" ? "critical" : "nghiêm trọng"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-100">
+                    <span className="w-2 h-2 rounded-full bg-yellow-400" />
+                    <span className="text-xs font-semibold text-yellow-700">
+                      {integrityReport.flags.filter((f) => f.severity === "warning").length}{" "}
+                      {language === "EN" ? "warnings" : "cảnh báo"}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Sub-tab selector */}
               {integrityReport && (
-                <div className={`px-3 py-1.5 rounded-full text-sm font-bold ${
-                  integrityReport.overallScore >= 80
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : integrityReport.overallScore >= 60
-                    ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
-                }`}>
-                  {integrityReport.overallScore}/100
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setIntegritySubTab("issues")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      integritySubTab === "issues"
+                        ? "bg-stone-900 text-white shadow-sm"
+                        : "text-stone-500 hover:bg-stone-100 hover:text-stone-700"
+                    }`}
+                  >
+                    {language === "EN"
+                      ? `Issue List (${integrityReport.flags.length})`
+                      : `Danh sách lỗi (${integrityReport.flags.length})`}
+                  </button>
+                  <button
+                    onClick={() => setIntegritySubTab("annotated")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      integritySubTab === "annotated"
+                        ? "bg-stone-900 text-white shadow-sm"
+                        : "text-stone-500 hover:bg-stone-100 hover:text-stone-700"
+                    }`}
+                  >
+                    {language === "EN" ? "Annotated Draft" : "Bản thảo có đấu"}
+                  </button>
                 </div>
               )}
             </div>
 
-            {integrityReport?.summary && (
-              <div className="px-4 py-3 rounded-xl bg-stone-50 border border-stone-100 text-sm text-stone-700 leading-relaxed">
-                {integrityReport.summary}
-              </div>
-            )}
+            {/* Body — scrollable */}
+            <div className="flex-1 min-h-0 overflow-y-auto">
 
-            {integrityReport && integrityReport.flags.length > 0 && (
-              <div className="flex gap-3">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 border border-red-100">
-                  <span className="w-2 h-2 rounded-full bg-red-400" />
-                  <span className="text-xs font-semibold text-red-700">
-                    {integrityReport.flags.filter((f) => f.severity === "error").length}{" "}
-                    {language === "EN" ? "critical" : "nghiêm trọng"}
-                  </span>
+              {/* Loading */}
+              {isRunning && (
+                <div className="flex items-center gap-2 px-5 py-4 text-stone-400 text-sm">
+                  <div className="flex gap-1">
+                    {[0, 1, 2].map((i) => (
+                      <span key={i} className="w-1.5 h-1.5 rounded-full bg-stone-300 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                    ))}
+                  </div>
+                  {language === "EN" ? "Analyzing manuscript…" : "Đang phân tích bản thảo…"}
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-100">
-                  <span className="w-2 h-2 rounded-full bg-yellow-400" />
-                  <span className="text-xs font-semibold text-yellow-700">
-                    {integrityReport.flags.filter((f) => f.severity === "warning").length}{" "}
-                    {language === "EN" ? "warnings" : "cảnh báo"}
-                  </span>
-                </div>
-              </div>
-            )}
+              )}
 
-            {/* Manuscript with highlights */}
-            {manuscript && (
-              <div className="rounded-xl border border-black/[0.07] bg-white shadow-sm">
-                <div className="px-6 py-5 font-serif text-base text-stone-800 leading-relaxed">
-                  {(() => {
-                    const sections = parseManuscriptSections(manuscript);
-                    const paragraphs = manuscript.split(/\n\n+/).filter(Boolean);
-                    const items = sections.length > 0 ? sections : null;
-                    if (!items) {
-                      return paragraphs.map((para, pIdx) => {
-                        const paraFlags = integrityReport?.flags.filter((f) => f.location.paragraphIndex === pIdx) ?? [];
-                        const severity = getParagraphSeverity(paraFlags);
-                        return (
-                          <p key={pIdx} id={`para-${pIdx}`}
-                            className={`mb-4 text-justify last:mb-0 rounded px-1 -mx-1 transition-colors ${
-                              severity === "error" ? "bg-red-50/50" : severity === "warning" ? "bg-yellow-50/50" : ""
-                            } ${activeFlagId && paraFlags.some((f) => f.id === activeFlagId) ? "ring-2 ring-offset-1 ring-yellow-300" : ""}`}
-                          >{renderWithHighlights(para, paraFlags, scrollToFlag)}</p>
-                        );
-                      });
-                    }
-                    return items.map((section, sIdx) => (
-                      <div key={sIdx}>
-                        {section.heading && (
-                          <h3 className="font-sans font-bold text-lg text-stone-900 mt-6 mb-3 first:mt-0">{section.heading}</h3>
-                        )}
-                        {section.paragraphs.map((para, pIdx) => {
-                          const paraFlags = integrityReport?.flags.filter(
-                            (f) => f.location.sectionHeading === section.heading && f.location.paragraphIndex === pIdx,
-                          ) ?? [];
-                          const severity = getParagraphSeverity(paraFlags);
-                          const paraKey = sIdx * 1000 + pIdx;
-                          return (
-                            <p key={paraKey} id={`para-${paraKey}`}
-                              className={`mb-4 text-justify last:mb-0 rounded px-1 -mx-1 transition-colors ${
-                                severity === "error" ? "bg-red-50/50" : severity === "warning" ? "bg-yellow-50/50" : ""
-                              } ${activeFlagId && paraFlags.some((f) => f.id === activeFlagId) ? "ring-2 ring-offset-1 ring-yellow-300" : ""}`}
-                            >{renderWithHighlights(para, paraFlags, scrollToFlag)}</p>
-                          );
-                        })}
+              {/* Empty state */}
+              {!isRunning && !integrityReport && !manuscript && (
+                <div className="text-center py-16 text-stone-400">
+                  <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-3">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
+                      <path d="M9 12h6M9 8h6M5 12h.01M5 8h.01M3 5.5A1.5 1.5 0 014.5 4h11A1.5 1.5 0 0117 5.5v9a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 013 14.5v-9z" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <p className="text-sm">{language === "EN" ? "No content to check yet." : "Chưa có nội dung để kiểm tra."}</p>
+                </div>
+              )}
+
+              {/* ── ISSUE LIST sub-tab ── */}
+              {integritySubTab === "issues" && integrityReport && (
+                <div className="px-5 py-4 space-y-3">
+                  {integrityReport.flags.length === 0 && !isRunning && (
+                    <div className="text-center py-12 text-stone-400">
+                      <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-3">
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5 text-green-500">
+                          <path d="M7 10l2.5 2.5L13 7" strokeLinecap="round" strokeLinejoin="round" />
+                          <circle cx="10" cy="10" r="7" />
+                        </svg>
                       </div>
-                    ));
-                  })()}
-                </div>
-              </div>
-            )}
+                      <p className="text-sm font-medium text-green-700">
+                        {language === "EN" ? "No issues detected." : "Không phát hiện lỗi."}
+                      </p>
+                    </div>
+                  )}
 
-            {/* Issue list */}
-            {integrityReport && integrityReport.flags.length > 0 && (
-              <div className="rounded-xl border border-black/[0.07] bg-white shadow-sm overflow-hidden">
-                <div className="px-4 py-3 border-b border-black/[0.06] bg-stone-50/80">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-stone-500">
-                    {language === "EN" ? "Issue List" : "Danh sách vấn đề"}
-                  </p>
-                </div>
-                <div className="divide-y divide-black/[0.05]">
-                  {integrityReport.flags.map((flag) => (
+                  {/* Errors first, then warnings */}
+                  {[
+                    ...integrityReport.flags.filter((f) => f.severity === "error"),
+                    ...integrityReport.flags.filter((f) => f.severity !== "error"),
+                  ].map((flag) => (
                     <div
                       key={flag.id}
-                      onClick={() => scrollToFlag(flag.id)}
-                      className={`px-4 py-3 hover:bg-stone-50 transition-colors cursor-pointer ${activeFlagId === flag.id ? "bg-yellow-50/50" : ""}`}
+                      className={`rounded-xl border bg-white shadow-sm transition-all ${
+                        flag.severity === "error"
+                          ? "border-red-100"
+                          : "border-yellow-100"
+                      } ${activeFlagId === flag.id ? "ring-2 ring-offset-1 ring-yellow-300" : ""}`}
                     >
-                      <div className="flex items-start gap-3">
-                        <span className={`flex-shrink-0 mt-0.5 w-2 h-2 rounded-full ${flag.severity === "error" ? "bg-red-400" : "bg-yellow-400"}`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-stone-700 mb-0.5">{flag.message}</p>
-                          <p className="text-[11px] text-stone-400 truncate">&ldquo;{flag.location.textSnippet}&rdquo;</p>
-                          {flag.suggestion && (
-                            <p className="text-[11px] text-stone-500 mt-1 italic">
-                              {language === "EN" ? "Suggestion: " : "Gợi ý: "}{flag.suggestion}
-                            </p>
-                          )}
+                      <div className="px-4 py-3">
+                        {/* Severity badge + type */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                            flag.severity === "error" ? "bg-red-400" : "bg-yellow-400"
+                          }`} />
+                          <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                            flag.severity === "error" ? "text-red-600" : "text-yellow-700"
+                          }`}>
+                            {flag.severity === "error"
+                              ? (language === "EN" ? "Critical" : "Nghiêm trọng")
+                              : (language === "EN" ? "Warning" : "Cảnh báo")}
+                          </span>
+                          <span className="text-stone-300">·</span>
+                          <span className="text-[10px] text-stone-400 uppercase tracking-wide">
+                            {flag.type.replaceAll("_", " ")}
+                          </span>
                         </div>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); onDismissFlag(flag.id); }}
-                          className="flex-shrink-0 text-stone-300 hover:text-stone-500 transition-colors text-sm"
-                        >×</button>
+
+                        {/* Flagged snippet */}
+                        <blockquote className={`text-xs px-3 py-2 rounded-lg mb-2 italic leading-relaxed ${
+                          flag.severity === "error"
+                            ? "bg-red-50 text-red-800 border-l-2 border-red-300"
+                            : "bg-yellow-50 text-yellow-900 border-l-2 border-yellow-300"
+                        }`}>
+                          &ldquo;{flag.location.textSnippet}&rdquo;
+                        </blockquote>
+
+                        {/* Message */}
+                        <p className="text-xs text-stone-700 leading-relaxed mb-2">
+                          {flag.message}
+                        </p>
+
+                        {/* Suggestion */}
+                        {flag.suggestion && (
+                          <div className="rounded-lg bg-stone-50 border border-stone-100 px-3 py-2 mb-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-1">
+                              {language === "EN" ? "Suggestion" : "Gợi ý"}
+                            </p>
+                            <p className="text-xs text-stone-600 leading-relaxed">
+                              {flag.suggestion}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              scrollToFlag(flag.id);
+                              setIntegritySubTab("annotated");
+                            }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50 transition-colors"
+                          >
+                            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-3 h-3">
+                              <circle cx="5" cy="5" r="3.5" />
+                              <path d="M8 8l2.5 2.5" strokeLinecap="round" />
+                            </svg>
+                            {language === "EN" ? "Show in draft" : "Xem trong bản thảo"}
+                          </button>
+                          <button
+                            onClick={() => {
+                              onSendMessage(
+                                language === "EN"
+                                  ? `Find citations for: "${flag.location.textSnippet.slice(0, 100)}"`
+                                  : `Tìm tài liệu cho: "${flag.location.textSnippet.slice(0, 100)}"`
+                              );
+                            }}
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                              flag.severity === "error"
+                                ? "border border-red-200 text-red-700 hover:bg-red-50"
+                                : "border border-[#C4634E]/30 text-[#C4634E] hover:bg-[#C4634E]/5"
+                            }`}
+                          >
+                            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-3 h-3">
+                              <path d="M2 6h8M6 2l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            {language === "EN" ? "Find citations →" : "Tìm trích dẫn →"}
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onDismissFlag(flag.id); }}
+                            className="ml-auto text-stone-300 hover:text-stone-500 transition-colors text-sm px-1"
+                            title={language === "EN" ? "Dismiss" : "Bỏ qua"}
+                          >
+                            ×
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
 
-            {isRunning && (
-              <div className="flex items-center gap-2 py-2 text-stone-400 text-sm">
-                <div className="flex gap-1">
-                  {[0, 1, 2].map((i) => (
-                    <span key={i} className="w-1.5 h-1.5 rounded-full bg-stone-300 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-                  ))}
+              {/* ── ANNOTATED DRAFT sub-tab ── */}
+              {integritySubTab === "annotated" && manuscript && (
+                <div className="px-5 py-4">
+                  <div className="rounded-xl border border-black/[0.07] bg-white shadow-sm">
+                    <div className="px-6 py-5 font-serif text-base text-stone-800 leading-relaxed">
+                      {(() => {
+                        const sections = parseManuscriptSections(manuscript);
+                        const paragraphs = manuscript.split(/\n\n+/).filter(Boolean);
+                        const items = sections.length > 0 ? sections : null;
+                        if (!items) {
+                          return paragraphs.map((para, pIdx) => {
+                            const paraFlags = integrityReport?.flags.filter((f) => f.location.paragraphIndex === pIdx) ?? [];
+                            const severity = getParagraphSeverity(paraFlags);
+                            return (
+                              <p key={pIdx} id={`para-${pIdx}`}
+                                className={`mb-4 text-justify last:mb-0 rounded px-1 -mx-1 transition-colors ${
+                                  severity === "error" ? "bg-red-50/50" : severity === "warning" ? "bg-yellow-50/50" : ""
+                                } ${activeFlagId && paraFlags.some((f) => f.id === activeFlagId) ? "ring-2 ring-offset-1 ring-yellow-300" : ""}`}
+                              >{renderWithHighlights(para, paraFlags, scrollToFlag)}</p>
+                            );
+                          });
+                        }
+                        return items.map((section, sIdx) => (
+                          <div key={sIdx}>
+                            {section.heading && (
+                              <h3 className="font-sans font-bold text-lg text-stone-900 mt-6 mb-3 first:mt-0">{section.heading}</h3>
+                            )}
+                            {section.paragraphs.map((para, pIdx) => {
+                              const paraFlags = integrityReport?.flags.filter(
+                                (f) => f.location.sectionHeading === section.heading && f.location.paragraphIndex === pIdx,
+                              ) ?? [];
+                              const severity = getParagraphSeverity(paraFlags);
+                              const paraKey = sIdx * 1000 + pIdx;
+                              return (
+                                <p key={paraKey} id={`para-${paraKey}`}
+                                  className={`mb-4 text-justify last:mb-0 rounded px-1 -mx-1 transition-colors ${
+                                    severity === "error" ? "bg-red-50/50" : severity === "warning" ? "bg-yellow-50/50" : ""
+                                  } ${activeFlagId && paraFlags.some((f) => f.id === activeFlagId) ? "ring-2 ring-offset-1 ring-yellow-300" : ""}`}
+                                >{renderWithHighlights(para, paraFlags, scrollToFlag)}</p>
+                              );
+                            })}
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
                 </div>
-                {language === "EN" ? "Analyzing manuscript…" : "Đang phân tích bản thảo…"}
-              </div>
-            )}
+              )}
 
-            {!isRunning && !integrityReport && !manuscript && (
-              <div className="text-center py-16 text-stone-400">
-                <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-3">
-                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
-                    <path d="M9 12h6M9 8h6M5 12h.01M5 8h.01M3 5.5A1.5 1.5 0 014.5 4h11A1.5 1.5 0 0117 5.5v9a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 013 14.5v-9z" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <p className="text-sm">{language === "EN" ? "No content to check yet." : "Chưa có nội dung để kiểm tra."}</p>
-              </div>
-            )}
+            </div>
           </div>
         )}
       </div>

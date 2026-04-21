@@ -6,7 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /**
- * aiforacademic.world
+ * aiforacademic.world — v2
+ * Rewrites removed: /ric and /trans are now in-house.
+ * Redirects added: /app → /workspace, /products → /tools
  */
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -19,17 +21,22 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async rewrites() {
+  async redirects() {
     return [
-      // RIC — researchcheck (Next.js on Vercel, basePath=/ric)
-      { source: '/ric', destination: 'https://researchcheck.vercel.app/ric' },
-      { source: '/ric/:path*', destination: 'https://researchcheck.vercel.app/ric/:path*' },
-      // Trans — med-translator (Next.js on Vercel, basePath=/trans)
-      // Use med-translator-swart.vercel.app as the public alias (project default).
-      { source: '/trans', destination: 'https://med-translator-swart.vercel.app/trans' },
-      { source: '/trans/:path*', destination: 'https://med-translator-swart.vercel.app/trans/:path*' },
+      // Legacy workspace
+      { source: "/app", destination: "/workspace", permanent: true },
+      { source: "/app/:path*", destination: "/workspace", permanent: true },
+      // Legacy products hub
+      { source: "/products", destination: "/tools", permanent: true },
+      // Legacy external rewrites → in-house tools
+      { source: "/ric", destination: "/tools/paper-checker", permanent: true },
+      { source: "/ric/:path*", destination: "/tools/paper-checker", permanent: true },
+      { source: "/trans", destination: "/tools/literature-review?tab=translate", permanent: true },
+      { source: "/trans/:path*", destination: "/tools/literature-review?tab=translate", permanent: true },
     ];
-  }
+  },
+  // NOTE: rewrites to researchcheck.vercel.app and med-translator-swart.vercel.app
+  // have been removed — tools are now in-house.
 };
 
 export default nextConfig;

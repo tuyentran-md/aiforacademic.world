@@ -9,17 +9,27 @@ const TABS = [
     key: "ric",
     label: "RIC",
     colors: {
-      bg: "#CDE2F0", // Lighter blue
+      bg: "#CDE2F0",
       text: "#1A2E44",
       activeBg: "#1A2E44",
       activeText: "#E8E4DC",
     },
   },
   {
+    key: "research",
+    label: "Research",
+    colors: {
+      bg: "#F0E6D3",
+      text: "#3D2000",
+      activeBg: "#C4634E",
+      activeText: "#FFF8F4",
+    },
+  },
+  {
     key: "translator",
     label: "Translator",
     colors: {
-      bg: "#CDE0D7", // Lighter green
+      bg: "#CDE0D7",
       text: "#1A402F",
       activeBg: "#1A402F",
       activeText: "#E8EDE4",
@@ -29,7 +39,7 @@ const TABS = [
     key: "avr",
     label: "AVR",
     colors: {
-      bg: "#DCD7E6", // Lighter purple
+      bg: "#DCD7E6",
       text: "#3A2860",
       activeBg: "#3A2860",
       activeText: "#F0EDF5",
@@ -114,6 +124,101 @@ function RICPanel() {
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Research panel ───────────────────────────────────────────────────────────
+
+function ResearchPanel() {
+  const features = [
+    {
+      title: "PubMed + OpenAlex",
+      desc: "Searches both PubMed and OpenAlex simultaneously — giving you broader coverage than either database alone, with citation counts and relevance scoring.",
+    },
+    {
+      title: "AI-ranked results",
+      desc: "Results are ranked by an LLM for relevance to your specific research question, not just keyword match. The most useful papers rise to the top.",
+    },
+    {
+      title: "Abstract translation",
+      desc: "Translate any abstract to Vietnamese instantly. Preserves statistical terminology, p-values, and clinical vocabulary that general translators mangle.",
+    },
+    {
+      title: "One-click to Draft",
+      desc: "Select the references you want to cite, then click \"Draft manuscript\" — the AVR pipeline turns them into a structured manuscript outline immediately.",
+    },
+  ];
+
+  return (
+    <div id="research" className="py-10 md:py-14">
+      <div className="max-w-5xl mx-auto px-6 md:px-8">
+
+        {/* Hero card */}
+        <div
+          className="rounded-2xl p-7 md:p-10 mb-8 no-grid"
+          style={{ backgroundColor: "#F5DDD4" }}
+        >
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-xl font-bold" style={{ color: "#3D2000" }}>Research</span>
+              </div>
+              <p className="text-base font-semibold mb-2" style={{ color: "#3D2000" }}>
+                Literature Search &amp; Reference Manager
+              </p>
+              <p className="text-[15px] leading-relaxed max-w-lg" style={{ color: "#7A3A1E" }}>
+                AI-powered literature search across PubMed and OpenAlex. Find, rank, and translate
+                relevant papers for your research question — then draft a manuscript directly from
+                your selected references.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              <a
+                href="/app"
+                className="inline-flex items-center justify-center gap-2 text-sm font-semibold px-6 py-2.5 rounded-full transition-opacity hover:opacity-85 no-grid"
+                style={{ backgroundColor: "#C4634E", color: "#fff8f4" }}
+              >
+                Open Workspace&thinsp;→
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Feature grid */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          {features.map((f) => (
+            <div
+              key={f.title}
+              className="rounded-2xl p-6 no-grid"
+              style={{ backgroundColor: "#EDE8DF" }}
+            >
+              <p className="text-sm font-semibold text-stone-900 mb-1.5">{f.title}</p>
+              <p className="text-sm text-stone-600 leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Workflow hint */}
+        <div
+          className="mt-6 rounded-2xl px-6 py-5 no-grid"
+          style={{ backgroundColor: "#F0E6D3" }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: "#C4634E" }}>
+            Workflow
+          </p>
+          <div className="flex flex-wrap items-center gap-2 text-sm" style={{ color: "#3D2000" }}>
+            <span className="px-3 py-1 rounded-full font-medium" style={{ backgroundColor: "#C4634E", color: "#fff8f4" }}>Search</span>
+            <span style={{ color: "#C4634E" }}>→</span>
+            <span className="px-3 py-1 rounded-full font-medium" style={{ backgroundColor: "#E8D0BC" }}>Select references</span>
+            <span style={{ color: "#C4634E" }}>→</span>
+            <span className="px-3 py-1 rounded-full font-medium" style={{ backgroundColor: "#E8D0BC" }}>Draft manuscript</span>
+            <span style={{ color: "#C4634E" }}>→</span>
+            <span className="px-3 py-1 rounded-full font-medium" style={{ backgroundColor: "#E8D0BC" }}>Check integrity</span>
+          </div>
+        </div>
+
       </div>
     </div>
   );
@@ -245,7 +350,7 @@ export default function ProductTabs() {
   // Activate tab from URL hash (e.g. /products#avr)
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
-    if (hash === "avr" || hash === "translator" || hash === "ric") {
+    if (hash === "avr" || hash === "translator" || hash === "ric" || hash === "research") {
       setActive(hash as TabKey);
     }
   }, []);
@@ -301,6 +406,7 @@ export default function ProductTabs() {
 
       {/* ── Panel ───────────────────────────────────────────── */}
       {active === "ric" && <RICPanel />}
+      {active === "research" && <ResearchPanel />}
       {active === "translator" && <TranslatorPanel />}
       {active === "avr" && <AVRPanel />}
     </div>

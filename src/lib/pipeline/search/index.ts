@@ -4,7 +4,7 @@ import { type Reference, type SSEEvent, type SearchRequest } from "@/lib/pipelin
 import { deduplicateReferences } from "./dedup";
 import { searchOpenAlex } from "./openalex";
 import { searchPubMed } from "./pubmed";
-import { translateAbstracts } from "./translate";
+
 
 interface RankedReferenceScore {
   id: string;

@@ -27,9 +27,21 @@ export function useAuth(): AuthState {
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
+      
+      if (firebaseUser) {
+        try {
+          const { migrateLegacySessions } = await import("./migrate-sessions");
+          const { migrated } = await migrateLegacySessions(firebaseUser.uid);
+          if (migrated > 0) {
+            console.log(`[auth/migration] Automatically migrated ${migrated} legacy sessions to projects.`);
+          }
+        } catch (e) {
+          console.error("Migration check failed:", e);
+        }
+      }
     });
 
     return unsubscribe;

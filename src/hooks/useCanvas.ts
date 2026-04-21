@@ -9,6 +9,7 @@ import type {
   Reference,
   SSEEvent,
 } from "@/lib/pipeline/types";
+import { apiFetch } from "@/lib/api-client";
 import {
   saveSession,
   trackUsage,
@@ -60,7 +61,7 @@ async function consumeSSE(
   body: unknown,
   onEvent: (event: SSEEvent) => void,
 ): Promise<void> {
-  const response = await fetch(url, {
+  const response = await apiFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -630,7 +631,7 @@ export function useCanvas(userId?: string) {
     setTranslatingIds((prev) => [...prev, id]);
 
     try {
-      const res = await fetch("/api/pipeline/translate", {
+      const res = await apiFetch("/api/pipeline/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

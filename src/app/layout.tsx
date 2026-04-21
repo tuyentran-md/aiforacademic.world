@@ -21,18 +21,20 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: {
-    default: "AI for Academic — AI tools for academic works",
+    default: "AI for Academic — Three phases. Literature to publication.",
     template: "%s | AI for Academic",
   },
   description:
-    "AI tools for academic works: manuscript integrity check, context-aware academic translation, and a research formation system for Vietnamese researchers.",
+    "AI tools for Vietnamese clinical researchers. Search literature, draft manuscripts, and check paper integrity — powered by Gemini 2.5 Flash.",
   keywords: [
     "AI research tools",
-    "research integrity check",
-    "academic translation",
-    "manuscript integrity",
+    "literature review AI",
+    "manuscript drafting",
+    "citation checker",
     "academic writing AI",
     "AI for Vietnamese research",
+    "research integrity",
+    "clinical research AI",
   ],
   authors: [{ name: "Tuyến Trần" }],
   creator: "Tuyến Trần",
@@ -42,15 +44,15 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://aiforacademic.world",
     siteName: "AI for Academic",
-    title: "AI for Academic — AI tools for academic works",
+    title: "AI for Academic — Three phases. Literature to publication.",
     description:
-      "AI tools for academic works: RIC, Translator, and AVR (AI for Vietnamese Research).",
+      "AI tools for Vietnamese clinical researchers. Search literature, draft manuscripts, and check paper integrity — powered by Gemini 2.5 Flash.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI for Academic — AI tools for academic works",
+    title: "AI for Academic — Three phases. Literature to publication.",
     description:
-      "AI tools for academic works: RIC, Translator, and AVR (AI for Vietnamese Research).",
+      "AI tools for Vietnamese clinical researchers. Search literature, draft manuscripts, and check paper integrity — powered by Gemini 2.5 Flash.",
   },
   robots: { index: true, follow: true },
   verification: {

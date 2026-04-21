@@ -41,12 +41,14 @@ function upsertReference(previous: Reference[], incoming: Reference): Reference[
   return clone;
 }
 
+import { apiFetch } from "@/lib/api-client";
+
 async function consumeSSE(
   url: string,
   body: unknown,
   onEvent: (event: SSEEvent) => void,
 ): Promise<void> {
-  const response = await fetch(url, {
+  const response = await apiFetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

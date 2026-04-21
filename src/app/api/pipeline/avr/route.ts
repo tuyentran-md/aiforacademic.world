@@ -6,6 +6,7 @@ import {
   type AVRRequest,
   type Reference,
 } from "@/lib/pipeline/types";
+import { withQuota } from "@/lib/quota-wrapper";
 
 export const runtime = "nodejs";
 
@@ -32,46 +33,48 @@ function isReferenceArray(value: unknown): value is Reference[] {
 }
 
 export async function POST(request: Request) {
-  let body: Partial<AVRRequest>;
+  return withQuota(request, "draft_manuscript", async () => {
+    let body: Partial<AVRRequest>;
 
-  try {
-    body = (await request.json()) as Partial<AVRRequest>;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
-
-  if (!body.query?.trim()) {
-    return NextResponse.json({ error: "query is required" }, { status: 400 });
-  }
-
-  if (!isReferenceArray(body.references) || body.references.length === 0) {
-    return NextResponse.json({ error: "references are required" }, { status: 400 });
-  }
-
-  const payload: AVRRequest = {
-    query: body.query.trim(),
-    references: body.references,
-    language: isLanguage(body.language) ? body.language : "EN",
-    articleType: isArticleType(body.articleType) ? body.articleType : undefined,
-  };
-
-  const { stream, emit, close } = createSSEStream();
-
-  queueMicrotask(async () => {
     try {
-      await avrModule.run(payload, emit);
-    } catch (error) {
-      emit({
-        type: "error",
-        data: {
-          code: "AVR_FAILED",
-          message: error instanceof Error ? error.message : "AVR failed",
-        },
-      });
-    } finally {
-      close();
+      body = (await request.json()) as Partial<AVRRequest>;
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
-  });
 
-  return sseResponse(stream);
+    if (!body.query?.trim()) {
+      return NextResponse.json({ error: "query is required" }, { status: 400 });
+    }
+
+    if (!isReferenceArray(body.references) || body.references.length === 0) {
+      return NextResponse.json({ error: "references are required" }, { status: 400 });
+    }
+
+    const payload: AVRRequest = {
+      query: body.query.trim(),
+      references: body.references,
+      language: isLanguage(body.language) ? body.language : "EN",
+      articleType: isArticleType(body.articleType) ? body.articleType : undefined,
+    };
+
+    const { stream, emit, close } = createSSEStream();
+
+    queueMicrotask(async () => {
+      try {
+        await avrModule.run(payload, emit);
+      } catch (error) {
+        emit({
+          type: "error",
+          data: {
+            code: "AVR_FAILED",
+            message: error instanceof Error ? error.message : "AVR failed",
+          },
+        });
+      } finally {
+        close();
+      }
+    });
+
+    return sseResponse(stream);
+  });
 }

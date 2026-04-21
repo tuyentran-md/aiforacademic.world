@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSSEStream, sseResponse } from "@/lib/pipeline/sse";
 import { runSearch } from "@/lib/pipeline/search";
 import { type SearchRequest } from "@/lib/pipeline/types";
+import { withQuota } from "@/lib/quota-wrapper";
 
 export const runtime = "nodejs";
 
@@ -10,7 +11,8 @@ function isLanguage(value: unknown): value is "EN" | "VI" {
 }
 
 export async function POST(request: Request) {
-  let body: Partial<SearchRequest>;
+  return withQuota(request as any, "search_papers", async () => {
+    let body: Partial<SearchRequest>;
 
   try {
     body = (await request.json()) as Partial<SearchRequest>;
@@ -47,4 +49,5 @@ export async function POST(request: Request) {
   });
 
   return sseResponse(stream);
+  });
 }
