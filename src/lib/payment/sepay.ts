@@ -2,8 +2,10 @@ import crypto from "crypto";
 
 // Default Sandbox status is "true", unless explicitly set to "false"
 const SEPAY_SANDBOX = process.env.NEXT_PUBLIC_SEPAY_SANDBOX !== "false";
-const SEPAY_MERCHANT_ID = process.env.SEPAY_MERCHANT_ID || "";
-const SEPAY_SECRET_KEY = process.env.SEPAY_SECRET_KEY || "";
+// IMPORTANT: .trim() guards against trailing \n or spaces in Vercel env vars —
+// previously caused signature mismatch on tuyentranmd.com (fix ae4ce38).
+const SEPAY_MERCHANT_ID = (process.env.SEPAY_MERCHANT_ID || "").trim();
+const SEPAY_SECRET_KEY = (process.env.SEPAY_SECRET_KEY || "").trim();
 
 let sepayClient: unknown = null;
 
