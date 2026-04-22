@@ -34,13 +34,15 @@ export function getAllPosts(): Omit<BlogPost, "content">[] {
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  const filePath = path.join(BLOG_DIR, `${slug}.md`);
+  const safeSlug = slug.replace(/[^a-zA-Z0-9-_]/g, "");
+  if (!safeSlug) return null;
+  const filePath = path.join(BLOG_DIR, `${safeSlug}.md`);
   if (!fs.existsSync(filePath)) return null;
   const raw = fs.readFileSync(filePath, "utf8");
   const { data, content } = matter(raw);
   const processed = await remark().use(html).process(content);
   return {
-    slug,
+    slug: safeSlug,
     title: data.title || "",
     date: data.date || "",
     excerpt: data.excerpt || "",

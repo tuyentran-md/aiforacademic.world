@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
     const signature = req.headers.get("x-signature");
-    const secret = process.env.LEMONSQUEEZY_SIGNING_SECRET;
+    const secret = (process.env.LEMONSQUEEZY_SIGNING_SECRET || "").trim();
 
     if (!signature || !secret) {
       return NextResponse.json({ error: "Missing signature or secret" }, { status: 401 });

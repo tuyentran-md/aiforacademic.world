@@ -42,7 +42,15 @@ export async function withQuota(
     if (uid && adminDb) {
       const profileDoc = await adminDb.collection("profile").doc(uid).get();
       if (profileDoc.exists) {
-        plan = (profileDoc.data()?.plan as PlanLevel) || "free";
+        const data = profileDoc.data();
+        let userPlan = (data?.plan as PlanLevel) || "free";
+        if (userPlan === "pro" && data?.subscription_expires_at) {
+          const expiresAt = new Date(data.subscription_expires_at);
+          if (!isNaN(expiresAt.getTime()) && expiresAt.getTime() < Date.now()) {
+            userPlan = "free";
+          }
+        }
+        plan = userPlan;
       } else {
         plan = "free";
       }
@@ -76,11 +84,13 @@ export async function withQuota(
     // 5. Run handler
     const response = await handler();
 
-    // 6. Increment on success (fire-and-forget — do not block response)
+    // 6. Increment on success — awaited so Vercel serverless doesn't freeze the write
     if (response.ok) {
-      incrementUsage(uid, ipHash, functionName).catch((err) => {
+      try {
+        await incrementUsage(uid, ipHash, functionName);
+      } catch (err) {
         console.error(`[quota] Failed to increment ${functionName}`, err);
-      });
+      }
     }
 
     return response;
