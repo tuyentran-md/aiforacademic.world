@@ -11,6 +11,8 @@ export default function BillingGrid() {
   const [plan, setPlan] = useState<"monthly" | "yearly">("monthly");
   
   const lsEnabled = process.env.NEXT_PUBLIC_LS_ENABLED === "true";
+  const lsMonthlyVariantId = process.env.NEXT_PUBLIC_LS_MONTHLY_VARIANT_ID ?? "";
+  const lsYearlyVariantId = process.env.NEXT_PUBLIC_LS_YEARLY_VARIANT_ID ?? "";
 
   const handleSepayClick = async () => {
     if (!user) {
@@ -134,7 +136,7 @@ export default function BillingGrid() {
           
           {lsEnabled && user ? (
             <a
-              href={buildCheckoutUrl(plan === "monthly" ? "pro-monthly" : "pro-annual", { uid: user.uid, email: user.email || undefined })}
+              href={buildCheckoutUrl(plan === "monthly" ? lsMonthlyVariantId : lsYearlyVariantId, { uid: user.uid, email: user.email || undefined })}
               className="w-full inline-flex items-center justify-center rounded-full py-3 px-5 text-sm font-semibold transition-opacity bg-stone-200 text-stone-600 hover:bg-stone-300"
             >
               Thanh toán thẻ →
