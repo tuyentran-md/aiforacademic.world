@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
         const isPro = data.status === "active" || data.status === "past_due";
         await profileRef.set({
           plan: isPro ? "pro" : "free",
+          subscription_source: "lemonsqueezy",
           lemonsqueezy_customer_id: data.customer_id,
           lemonsqueezy_subscription_id: String(payload.data.id),
           subscription_expires_at: data.renews_at || null,
