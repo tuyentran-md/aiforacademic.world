@@ -18,8 +18,7 @@ const footerLinks = [
       { label: "Workspace", href: "/workspace" },
       { label: "Blog", href: "/blog" },
       { label: "About", href: "/about" },
-      { label: "SRMA", href: "/srma" },
-      { label: "Founder — tuyentranmd.com", href: "https://tuyentranmd.com", external: true },
+      { label: "Tuyến Trần, MD — Courses & Blog", href: "https://tuyentranmd.com", external: true },
     ],
   },
   {

@@ -55,6 +55,14 @@ export default function Nav() {
             );
           })}
           <LangToggle />
+          <a
+            href="https://tuyentranmd.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-stone-400 hover:text-stone-700 transition-colors whitespace-nowrap border-l border-stone-200 pl-4 ml-1"
+          >
+            Tuyến Trần, MD&thinsp;↗
+          </a>
         </nav>
 
         {/* Mobile hamburger */}
@@ -95,8 +103,17 @@ export default function Nav() {
               {link.label}
             </Link>
           ))}
-          <div className="pt-3 border-t border-black/[0.06] mt-2">
+          <div className="pt-3 border-t border-black/[0.06] mt-2 flex items-center gap-4">
             <LangToggle />
+            <a
+              href="https://tuyentranmd.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-stone-400"
+              onClick={() => setOpen(false)}
+            >
+              Tuyến Trần, MD&thinsp;↗
+            </a>
           </div>
         </div>
       )}
