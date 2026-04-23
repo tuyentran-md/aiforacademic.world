@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Icons } from "@/components/Icons";
 import { apiFetch } from "@/lib/api-client";
 
 type JournalStyle = "nature" | "bmj" | "jama" | "generic";
@@ -79,19 +77,6 @@ export default function PolishPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* Header */}
-      <div className="border-b border-black/[0.06] bg-white px-6 py-5 md:px-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center gap-2 mb-1">
-            <Link href="/tools" className="text-xs text-stone-400 hover:text-stone-600">Tools</Link>
-            <span className="text-xs text-stone-300">/</span>
-            <span className="text-xs text-stone-600 font-medium">Polish</span>
-          </div>
-          <h1 className="text-xl font-serif font-bold text-stone-900 mb-0.5 flex items-center gap-2"><Icons.Sparkles className="w-6 h-6 text-amber-500" /> Polish</h1>
-          <p className="text-sm text-stone-500">Prose refinement — citations and statistics preserved verbatim</p>
-        </div>
-      </div>
-
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto px-6 md:px-10 py-8">
           <form onSubmit={handlePolish} className="space-y-5 mb-8">

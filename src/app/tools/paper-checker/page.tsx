@@ -434,21 +434,6 @@ export default function PaperCheckerPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* Header */}
-      <div className="border-b border-black/[0.06] bg-white px-6 py-5 md:px-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center gap-2 mb-1">
-            <Link href="/tools" className="text-xs text-stone-400 hover:text-stone-600">Tools</Link>
-            <span className="text-xs text-stone-300">/</span>
-            <span className="text-xs text-stone-600 font-medium">Paper Checker</span>
-          </div>
-          <h1 className="text-xl font-serif font-bold text-stone-900 mb-0.5 flex items-center gap-2">
-            <Icons.CheckCircle className="w-6 h-6" /> Paper Checker
-          </h1>
-          <p className="text-sm text-stone-500">5-in-1 integrity suite — Phase 3 of 3</p>
-        </div>
-      </div>
-
       {/* Tab bar */}
       <div className="border-b border-black/[0.06] bg-white px-6 md:px-10">
         <div className="max-w-5xl mx-auto flex flex-wrap gap-1">
