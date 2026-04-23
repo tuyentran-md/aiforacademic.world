@@ -15,6 +15,7 @@ import {
   getProjectMessages,
   type ProjectData,
 } from "@/lib/firebase/projects";
+import { getOrCreateProfile } from "@/lib/firebase/profile";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -290,6 +291,9 @@ export default function WorkspacePage() {
   const [projectsLoading, setProjectsLoading] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
 
+  // User plan (free / pro) — loaded from Firestore after sign-in
+  const [userPlan, setUserPlan] = useState<"free" | "pro" | null>(null);
+
   // Language toggle — must be declared before language-aware strings below
   const [outputLanguage, setOutputLanguage] = useState<"VI" | "EN">("VI");
 
@@ -350,14 +354,17 @@ export default function WorkspacePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [outputLanguage]);
 
-  // Load projects when user signs in
+  // Load projects + plan when user signs in
   useEffect(() => {
-    if (!user) { setProjects([]); return; }
+    if (!user) { setProjects([]); setUserPlan(null); return; }
     setProjectsLoading(true);
     getUserProjects(user.uid)
       .then((ps) => setProjects(ps))
       .catch(console.error)
       .finally(() => setProjectsLoading(false));
+    getOrCreateProfile(user.uid, user.email ?? undefined, user.displayName ?? undefined)
+      .then((profile) => setUserPlan(profile?.plan ?? "free"))
+      .catch(() => setUserPlan("free"));
   }, [user]);
 
   // Load project history when switching projects
@@ -414,13 +421,12 @@ export default function WorkspacePage() {
     setInput("");
     setShowToolMenu(false);
 
-    // Check if a file-required tool is mentioned but no file attached
+    // Block send if a file-required tool is mentioned but no file is attached.
+    // The inline warning below the input already guides the user — don't call API.
     const mentionedTool = WORKSPACE_FUNCTIONS.find(f => f.requiresFile && content.includes("@" + f.name));
     if (mentionedTool && !uploadedFile) {
-      const filePrompt = outputLanguage === "EN"
-        ? `Sure! To use **@${mentionedTool.name}**, I'll need the file 😊 — tap 📎 to attach your PDF or DOCX and I'll get right on it.`
-        : `Được rồi! Để dịch bài, bạn bấm 📎 đính kèm file PDF hoặc DOCX vào nhé — mình làm ngay 🙌`;
-      setMessages(prev => [...prev, { id: createId(), role: "assistant", text: filePrompt }]);
+      // Re-populate input so the user keeps their message and sees the warning
+      setInput(content);
       return;
     }
 
@@ -500,6 +506,14 @@ export default function WorkspacePage() {
     inputRef.current?.focus();
   }
 
+  // True when the input contains a tool that requires a file attachment
+  const inputHasFileRequiredTool = WORKSPACE_FUNCTIONS.some(
+    (f) => f.requiresFile && input.includes("@" + f.name)
+  );
+
+  // True when a file-required tool is in the input but no file has been attached
+  const showFileRequiredWarning = inputHasFileRequiredTool && !uploadedFile;
+
   return (
     <div className="flex h-dvh md:h-[calc(100dvh-3.5rem)] w-full overflow-hidden" style={{ backgroundColor: "#FAF9F6" }}>
 
@@ -554,8 +568,8 @@ export default function WorkspacePage() {
             {user && (
               <button onClick={createNewProject} className="text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors border border-black/10 rounded-full px-2.5 py-1" id="ws-new-btn">+ Project</button>
             )}
-            {user && (
-              <a href="/account/billing" className="text-xs font-semibold text-white rounded-full px-2.5 py-1 transition-opacity hover:opacity-90" style={{ backgroundColor: "#C4634E" }}>Upgrade</a>
+            {user && userPlan === "free" && (
+              <a href="/account/billing" className="text-xs font-semibold text-white rounded-full px-2.5 py-1 transition-opacity hover:opacity-90 animate-pulse" style={{ backgroundColor: "#C4634E" }}>⬆ Pro</a>
             )}
             {/* Language */}
             <div className="inline-flex rounded-full border border-black/10 bg-stone-100 p-0.5 text-[11px] font-medium">
@@ -648,12 +662,18 @@ export default function WorkspacePage() {
               )}
             </div>
 
-            {/* File upload button — shown when translate_doc tool detected */}
+            {/* File upload button — always visible; highlighted when a file-required tool is in the input */}
             <input ref={fileInputRef} type="file" accept=".pdf,.docx,.doc,.txt" className="hidden"
               onChange={(e) => setUploadedFile(e.target.files?.[0] ?? null)} />
             <button onClick={() => fileInputRef.current?.click()}
-              className={`flex-shrink-0 rounded-lg px-2.5 py-2 transition-colors ${uploadedFile ? "text-[#C4634E] bg-red-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
-              title={uploadedFile ? `File: ${uploadedFile.name}` : "Upload file"}>
+              className={`flex-shrink-0 rounded-lg px-2.5 py-2 transition-all ${
+                uploadedFile
+                  ? "text-[#C4634E] bg-red-50"
+                  : inputHasFileRequiredTool
+                  ? "text-white bg-[#C4634E] animate-pulse shadow-md"
+                  : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"
+              }`}
+              title={uploadedFile ? `📎 ${uploadedFile.name}` : inputHasFileRequiredTool ? "Tool này cần file — nhấn để upload" : "Upload file"}>
               {uploadedFile ? "📎" : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>}
             </button>
             <textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown}
@@ -676,7 +696,13 @@ export default function WorkspacePage() {
               )}
             </button>
           </div>
-          <p className="mt-1.5 text-[10px] text-stone-400 text-center">{t.footerHint}</p>
+          {showFileRequiredWarning ? (
+            <p className="mt-1.5 text-[11px] text-[#C4634E] text-center font-medium">
+              📎 Tool này cần file đính kèm — nhấn nút upload bên trái để chọn PDF / DOCX
+            </p>
+          ) : (
+            <p className="mt-1.5 text-[10px] text-stone-400 text-center">{t.footerHint}</p>
+          )}
         </div>
       </div>
 
@@ -748,6 +774,18 @@ export default function WorkspacePage() {
                   </button>
                 ))}
               </div>
+
+              {/* Upgrade banner — only shown for free-tier users */}
+              {user && userPlan === "free" && (
+                <a href="/account/billing"
+                  className="mt-8 w-full max-w-sm flex items-center justify-between gap-3 rounded-xl border border-[#C4634E]/30 bg-[#C4634E]/5 px-4 py-3 hover:bg-[#C4634E]/10 transition-colors group">
+                  <div className="text-left">
+                    <p className="text-xs font-semibold text-[#C4634E]">Đang dùng gói Free</p>
+                    <p className="text-[11px] text-stone-500 leading-tight mt-0.5">Nâng cấp Pro để dùng không giới hạn tất cả 11 tools</p>
+                  </div>
+                  <span className="flex-shrink-0 text-xs font-bold text-white bg-[#C4634E] rounded-full px-3 py-1.5 group-hover:opacity-90 transition-opacity">Upgrade →</span>
+                </a>
+              )}
             </div>
           )}
         </div>
