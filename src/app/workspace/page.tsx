@@ -40,10 +40,10 @@ interface Message {
 }
 
 // ── 11 workspace functions ─────────────────────────────────────────────────
-const WORKSPACE_FUNCTIONS: { name: string; desc: string; phase: number; icon: React.ReactNode }[] = [
+const WORKSPACE_FUNCTIONS: { name: string; desc: string; phase: number; icon: React.ReactNode; requiresFile?: boolean }[] = [
   { name: "search_papers",   desc: "Search PubMed + OpenAlex",                   phase: 1, icon: <Icons.Search className="w-3.5 h-3.5" /> },
   { name: "fetch_fulltext",  desc: "Fetch open-access full-text PDFs for DOIs",  phase: 1, icon: <Icons.FileText className="w-3.5 h-3.5" /> },
-  { name: "translate_doc",   desc: "Translate a PDF/DOCX to Vietnamese",          phase: 1, icon: <Icons.Globe className="w-3.5 h-3.5" /> },
+  { name: "translate_doc",   desc: "Translate a PDF/DOCX to Vietnamese",          phase: 1, icon: <Icons.Globe className="w-3.5 h-3.5" />, requiresFile: true },
   { name: "validate_idea",   desc: "Critique idea (novelty, feasibility)",        phase: 2, icon: <Icons.Lightbulb className="w-3.5 h-3.5" /> },
   { name: "generate_outline",desc: "Generate PICO + protocol outline",            phase: 2, icon: <Icons.ClipboardList className="w-3.5 h-3.5" /> },
   { name: "draft_manuscript",desc: "Draft manuscript from refs + outline",        phase: 2, icon: <Icons.Edit className="w-3.5 h-3.5" /> },
@@ -331,6 +331,8 @@ export default function WorkspacePage() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showToolMenu, setShowToolMenu] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [mobilePanel, setMobilePanel] = useState<"chat" | "artifacts">("chat");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -412,10 +414,21 @@ export default function WorkspacePage() {
     setInput("");
     setShowToolMenu(false);
 
+    // Check if a file-required tool is mentioned but no file attached
+    const mentionedTool = WORKSPACE_FUNCTIONS.find(f => f.requiresFile && content.includes("@" + f.name));
+    if (mentionedTool && !uploadedFile) {
+      setMessages(prev => [...prev, {
+        id: createId(), role: "assistant",
+        text: `Tool **@${mentionedTool.name}** cần file đính kèm. Vui lòng bấm 📎 để upload file trước khi gửi.`,
+      }]);
+      return;
+    }
+
     const userMsgId = createId();
     const assistantId = createId();
-    const userMsg: Message = { id: userMsgId, role: "user", text: content };
+    const userMsg: Message = { id: userMsgId, role: "user", text: content + (uploadedFile ? ` [📎 ${uploadedFile.name}]` : "") };
     const assistantMsg: Message = { id: assistantId, role: "assistant", text: "", isStreaming: true };
+    setUploadedFile(null);
 
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
     setIsLoading(true);
@@ -541,6 +554,9 @@ export default function WorkspacePage() {
             {user && (
               <button onClick={createNewProject} className="text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors border border-black/10 rounded-full px-2.5 py-1" id="ws-new-btn">+ Project</button>
             )}
+            {user && (
+              <a href="/account/billing" className="text-xs font-semibold text-white rounded-full px-2.5 py-1 transition-opacity hover:opacity-90" style={{ backgroundColor: "#C4634E" }}>Upgrade</a>
+            )}
             {/* Language */}
             <div className="inline-flex rounded-full border border-black/10 bg-stone-100 p-0.5 text-[11px] font-medium">
               {(["VI", "EN"] as const).map((lang) => (
@@ -632,6 +648,14 @@ export default function WorkspacePage() {
               )}
             </div>
 
+            {/* File upload button — shown when translate_doc tool detected */}
+            <input ref={fileInputRef} type="file" accept=".pdf,.docx,.doc,.txt" className="hidden"
+              onChange={(e) => setUploadedFile(e.target.files?.[0] ?? null)} />
+            <button onClick={() => fileInputRef.current?.click()}
+              className={`flex-shrink-0 rounded-lg px-2.5 py-2 transition-colors ${uploadedFile ? "text-[#C4634E] bg-red-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
+              title={uploadedFile ? `File: ${uploadedFile.name}` : "Upload file"}>
+              {uploadedFile ? "📎" : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>}
+            </button>
             <textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown}
               placeholder={t.placeholder} rows={1}
               className="flex-1 resize-none rounded-xl border border-black/10 bg-stone-50 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
