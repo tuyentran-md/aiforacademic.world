@@ -2,6 +2,8 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import type { Metadata } from "next";
 import { Icons } from "@/components/Icons";
+import { getCurrentLang } from "@/lib/server-lang";
+import { TOOLS } from "@/lib/i18n/strings";
 
 export const metadata: Metadata = {
   title: "Tools — AI for Academic",
@@ -75,27 +77,29 @@ const tools = [
   },
 ];
 
-export default function ToolsPage() {
+export default async function ToolsPage() {
+  const lang = await getCurrentLang();
+  const s = (key: keyof typeof TOOLS) => TOOLS[key][lang];
   return (
     <div>
       <div className="mx-auto max-w-5xl px-6 md:px-8 py-8 md:py-12">
         {/* Header */}
         <div className="mb-8">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.15em] text-stone-400">
-            Tools
+            {s("sectionLabel")}
           </p>
           <h1
             className="mb-3 font-serif font-bold leading-[1.1] text-stone-900"
             style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)" }}
           >
-            Three phases. One toolkit.
+            {s("headline")}
           </h1>
           <p className="max-w-xl text-base leading-relaxed text-stone-600">
-            Each tool works standalone — upload, get result, done. Or use the{" "}
+            {s("subhead")}{" "}
             <Link href="/workspace" className="text-stone-900 underline underline-offset-3 hover:text-stone-700">
-              Workspace
+              {s("workspaceLink")}
             </Link>{" "}
-            for a guided, project-scoped conversation with AI that chains all tools automatically.
+            {s("subheadSuffix")}
           </p>
         </div>
 

@@ -2,6 +2,8 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import EmailCapture from "@/components/EmailCapture";
 import { Icons } from "@/components/Icons";
+import { getCurrentLang } from "@/lib/server-lang";
+import { HOME } from "@/lib/i18n/strings";
 
 export const metadata = {
   title: "AI for Academic — Three phases. Literature to publication.",
@@ -9,11 +11,8 @@ export const metadata = {
     "AI tools for Vietnamese clinical researchers. Search literature, draft manuscripts, check integrity — from idea to publication.",
 };
 
-const stats = [
-  { value: "2,400+", label: "papers checked" },
-  { value: "340+", label: "fabricated refs found" },
-  { value: "50+", label: "doctors onboard" },
-];
+const STAT_KEYS = ["statPapers", "statRefs", "statDoctors"] as const;
+const STAT_VALUES = ["2,400+", "340+", "50+"];
 
 const phases = [
   {
@@ -45,7 +44,14 @@ const phases = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const lang = await getCurrentLang();
+  const s = (key: keyof typeof HOME) => HOME[key][lang];
+  const steps = [
+    { n: "1", t: s("step1t"), d: s("step1d") },
+    { n: "2", t: s("step2t"), d: s("step2d") },
+    { n: "3", t: s("step3t"), d: s("step3d") },
+  ];
   return (
     <div className="relative">
       <div className="relative z-10">
@@ -56,24 +62,24 @@ export default function Home() {
 
             {/* One-line headline */}
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-stone-400">
-              AI · Research · Academic
+              {s("tagline")}
             </p>
             <h1
               className="mb-3 font-serif font-bold text-stone-900 whitespace-nowrap"
               style={{ fontSize: "clamp(1.6rem, 3.5vw, 2.6rem)" }}
             >
-              AI tools for academic works.
+              {s("headline")}
             </h1>
             <p className="mb-6 text-base leading-relaxed text-stone-500">
-              Three phases. From literature to publication.
+              {s("subhead")}
             </p>
 
             {/* Stats */}
             <div className="mb-7 flex flex-wrap gap-5">
-              {stats.map((s) => (
-                <div key={s.label} className="flex items-baseline gap-1.5">
-                  <span className="text-lg font-bold text-stone-900">{s.value}</span>
-                  <span className="text-sm text-stone-500">{s.label}</span>
+              {STAT_KEYS.map((key, i) => (
+                <div key={key} className="flex items-baseline gap-1.5">
+                  <span className="text-lg font-bold text-stone-900">{STAT_VALUES[i]}</span>
+                  <span className="text-sm text-stone-500">{HOME[key][lang]}</span>
                 </div>
               ))}
             </div>
@@ -85,27 +91,23 @@ export default function Home() {
                 className="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                 style={{ backgroundColor: "#C4634E" }}
               >
-                Try Workspace free →
+                {s("ctaTry")}
               </Link>
               <Link
                 href="/tools"
                 className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-6 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-50"
               >
-                Browse tools
+                {s("ctaBrowse")}
               </Link>
             </div>
 
             {/* How it works — inline below hero */}
             <div className="no-grid rounded-2xl border border-black/[0.06] bg-white px-6 py-5">
               <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-stone-400">
-                How it works
+                {s("howTitle")}
               </p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                {[
-                  { n: "1", t: "Gather literature", d: "Search, fetch full-text, translate abstracts and PDFs into Vietnamese." },
-                  { n: "2", t: "Draft with AI mentor", d: "Validate your idea, generate a PICO protocol, stream a manuscript draft." },
-                  { n: "3", t: "Check before submit", d: "Citation audit, AI detection, plagiarism scan, editor-style peer review." },
-                ].map((step) => (
+                {steps.map((step) => (
                   <div key={step.n} className="flex gap-3">
                     <span
                       className="flex-shrink-0 h-6 w-6 rounded-full text-xs font-bold flex items-center justify-center text-white"

@@ -31,6 +31,13 @@ if (serviceAccount && process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
       "admin",
     );
   adminDb = getFirestore(adminApp);
+} else {
+  if (!serviceAccount) {
+    console.error(
+      "[firebase/admin] FIREBASE_SERVICE_ACCOUNT_KEY is missing or invalid — admin SDK disabled. " +
+      "All server-side auth (payment, quota, chat) will fail. Set this env var in Vercel."
+    );
+  }
 }
 
 export { adminApp, adminDb };

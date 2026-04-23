@@ -20,11 +20,16 @@ export function LangProvider({
   children: React.ReactNode;
   initialLang: Lang;
 }) {
-  const [lang, setLang] = useState<Lang>(initialLang);
+  const [lang, setLangState] = useState<Lang>(initialLang);
 
   useEffect(() => {
-    setLang(initialLang);
+    setLangState(initialLang);
   }, [initialLang]);
+
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    document.cookie = `site-lang=${l}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+  };
 
   return (
     <LangContext.Provider value={{ lang, setLang }}>

@@ -20,9 +20,13 @@ async function getAuthUid(request: NextRequest): Promise<string | null> {
 export async function POST(request: NextRequest) {
   try {
     // ── Auth: uid MUST come from verified token, never from body ──
+    if (!adminApp) {
+      console.error("[api/payment/create] Firebase admin SDK not initialized — check FIREBASE_SERVICE_ACCOUNT_KEY env var");
+      return NextResponse.json({ error: "Server configuration error — payment unavailable" }, { status: 503 });
+    }
     const uid = await getAuthUid(request);
     if (!uid) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Authentication required — please sign in and try again" }, { status: 401 });
     }
 
     const body = await request.json();

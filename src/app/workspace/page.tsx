@@ -6,6 +6,7 @@ import { createParser } from "eventsource-parser";
 import { Icons } from "@/components/Icons";
 import { useAuth } from "@/lib/firebase/auth";
 import { apiFetch } from "@/lib/api-client";
+import { useLang } from "@/context/LangContext";
 import {
   createProject,
   getUserProjects,
@@ -294,8 +295,8 @@ export default function WorkspacePage() {
   // User plan (free / pro) — loaded from Firestore after sign-in
   const [userPlan, setUserPlan] = useState<"free" | "pro" | null>(null);
 
-  // Language toggle — must be declared before language-aware strings below
-  const [outputLanguage, setOutputLanguage] = useState<"VI" | "EN">("VI");
+  // Language — use global context so toggle persists via cookie
+  const { lang: outputLanguage, setLang: setOutputLanguage } = useLang();
 
   // Language-aware strings
   const t = {
@@ -573,10 +574,10 @@ export default function WorkspacePage() {
             )}
             {/* Language */}
             <div className="inline-flex rounded-full border border-black/10 bg-stone-100 p-0.5 text-[11px] font-medium">
-              {(["VI", "EN"] as const).map((lang) => (
-                <button key={lang} onClick={() => setOutputLanguage(lang)}
-                  className={`rounded-full px-2.5 py-1 transition-all ${outputLanguage === lang ? "bg-stone-900 text-white shadow-sm" : "text-stone-500"}`}>
-                  {lang}
+              {(["VI", "EN"] as const).map((l) => (
+                <button key={l} onClick={() => setOutputLanguage(l)}
+                  className={`rounded-full px-2.5 py-1 transition-all ${outputLanguage === l ? "bg-stone-900 text-white shadow-sm" : "text-stone-500"}`}>
+                  {l}
                 </button>
               ))}
             </div>
@@ -633,7 +634,7 @@ export default function WorkspacePage() {
           <div className="relative flex items-end gap-2">
             <div className="relative">
               <button onClick={() => setShowToolMenu(!showToolMenu)}
-                className="flex-shrink-0 rounded-lg px-2.5 py-2 text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+                className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-xl text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors"
                 id="workspace-tools-btn" title="Browse tools">⚙</button>
               {showToolMenu && (
                 <div className="absolute bottom-full left-0 mb-2 w-72 rounded-xl border border-black/[0.08] bg-white shadow-xl z-50 overflow-hidden">
@@ -666,7 +667,7 @@ export default function WorkspacePage() {
             <input ref={fileInputRef} type="file" accept=".pdf,.docx,.doc,.txt" className="hidden"
               onChange={(e) => setUploadedFile(e.target.files?.[0] ?? null)} />
             <button onClick={() => fileInputRef.current?.click()}
-              className={`flex-shrink-0 rounded-lg px-2.5 py-2 transition-all ${
+              className={`flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-xl transition-all ${
                 uploadedFile
                   ? "text-[#C4634E] bg-red-50"
                   : inputHasFileRequiredTool
@@ -674,7 +675,7 @@ export default function WorkspacePage() {
                   : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"
               }`}
               title={uploadedFile ? `📎 ${uploadedFile.name}` : inputHasFileRequiredTool ? "Tool này cần file — nhấn để upload" : "Upload file"}>
-              {uploadedFile ? "📎" : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
             </button>
             <textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown}
               placeholder={t.placeholder} rows={1}
@@ -682,7 +683,7 @@ export default function WorkspacePage() {
               style={{ maxHeight: "120px" }} id="workspace-input" />
 
             <button onClick={() => void sendMessage()} disabled={isLoading || !input.trim()}
-              className="flex-shrink-0 rounded-xl px-3.5 py-2.5 text-white disabled:opacity-50 transition-opacity hover:opacity-90"
+              className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-xl text-white disabled:opacity-50 transition-opacity hover:opacity-90"
               style={{ backgroundColor: "#C4634E" }} id="workspace-send-btn">
               {isLoading ? (
                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import LangToggle from "@/components/LangToggle";
 
 const navLinks = [
   { href: "/workspace", label: "Workspace" },
@@ -53,6 +54,7 @@ export default function Nav() {
               </Link>
             );
           })}
+          <LangToggle />
         </nav>
 
         {/* Mobile hamburger */}
@@ -93,6 +95,9 @@ export default function Nav() {
               {link.label}
             </Link>
           ))}
+          <div className="pt-3 border-t border-black/[0.06] mt-2">
+            <LangToggle />
+          </div>
         </div>
       )}
     </header>

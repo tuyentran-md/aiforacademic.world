@@ -2,25 +2,28 @@ import type { Metadata } from "next";
 
 import Footer from "@/components/Footer";
 import BillingGrid from "./BillingGrid";
+import { getCurrentLang } from "@/lib/server-lang";
+import { BILLING } from "@/lib/i18n/strings";
 
 export const metadata: Metadata = {
   title: "Billing — AI for Academic",
   description: "Upgrade to Pro for unlimited research tools access.",
 };
 
+export default async function BillingPage() {
+  const lang = await getCurrentLang();
+  const s = (key: keyof typeof BILLING) => BILLING[key][lang];
 
-
-export default function BillingPage() {
   return (
     <div>
       <div className="max-w-5xl mx-auto px-6 md:px-8 py-14 md:py-20">
         <div className="mb-10">
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-stone-400">Pricing</p>
           <h1 className="font-serif font-bold text-stone-900 mb-3" style={{ fontSize: "clamp(2rem, 5vw, 3rem)" }}>
-            Simple, transparent pricing
+            {s("headline")}
           </h1>
           <p className="text-stone-600 text-[17px] leading-relaxed max-w-xl">
-            Start free. Upgrade when your research workflow needs it.
+            {s("subhead")}
           </p>
         </div>
 
