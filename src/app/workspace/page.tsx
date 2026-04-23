@@ -417,10 +417,10 @@ export default function WorkspacePage() {
     // Check if a file-required tool is mentioned but no file attached
     const mentionedTool = WORKSPACE_FUNCTIONS.find(f => f.requiresFile && content.includes("@" + f.name));
     if (mentionedTool && !uploadedFile) {
-      setMessages(prev => [...prev, {
-        id: createId(), role: "assistant",
-        text: `Tool **@${mentionedTool.name}** cần file đính kèm. Vui lòng bấm 📎 để upload file trước khi gửi.`,
-      }]);
+      const filePrompt = outputLanguage === "EN"
+        ? `Sure! To use **@${mentionedTool.name}**, I'll need the file 😊 — tap 📎 to attach your PDF or DOCX and I'll get right on it.`
+        : `Được rồi! Để dịch bài, bạn bấm 📎 đính kèm file PDF hoặc DOCX vào nhé — mình làm ngay 🙌`;
+      setMessages(prev => [...prev, { id: createId(), role: "assistant", text: filePrompt }]);
       return;
     }
 
