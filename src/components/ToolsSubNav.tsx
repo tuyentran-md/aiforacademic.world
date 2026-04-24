@@ -16,7 +16,7 @@ export default function ToolsSubNav() {
 
   return (
     <div
-      className="no-grid sticky top-14 z-40 border-b border-black/[0.06]"
+      className="no-grid sticky top-14 z-40"
       style={{ backgroundColor: "rgba(250,249,246,0.97)", backdropFilter: "blur(8px)" }}
     >
       <div className="max-w-5xl mx-auto px-4 md:px-8 relative">

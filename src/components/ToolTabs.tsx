@@ -17,7 +17,10 @@ export default function ToolTabs<T extends string>({
   idPrefix?: string;
 }) {
   return (
-    <div className="border-b border-black/[0.06] bg-white px-4 md:px-8 py-3">
+    <div
+      className="border-b border-black/[0.06] px-4 md:px-8 py-3"
+      style={{ backgroundColor: "rgba(250,249,246,0.97)", backdropFilter: "blur(8px)" }}
+    >
       <div
         className="max-w-5xl mx-auto flex justify-center gap-1.5 overflow-x-auto"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}

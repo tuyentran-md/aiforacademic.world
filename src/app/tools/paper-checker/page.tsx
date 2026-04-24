@@ -116,7 +116,9 @@ function CitationTab() {
         Paste or upload your manuscript. We extract all references and verify each one against <strong>CrossRef + OpenAlex</strong>.
       </p>
       <form onSubmit={handleCheck} className="mb-6 space-y-4">
-        <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-citations-ms" />
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6">
+          <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-citations-ms" />
+        </div>
         <div className="flex gap-3">
           <button type="submit" disabled={loading || !manuscript.trim()}
             className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
@@ -199,7 +201,9 @@ function AIDetectTab() {
         Paste your text. We score how likely it was written by an AI (0 = fully human, 100 = fully AI).
       </p>
       <form onSubmit={handleDetect} className="mb-6 space-y-4">
-        <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-ai-ms" />
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6">
+          <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-ai-ms" />
+        </div>
         <button type="submit" disabled={loading || !manuscript.trim()}
           className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
           style={{ backgroundColor: "#C4634E" }} id="pc-ai-btn">
@@ -259,7 +263,9 @@ function PlagiarismTab() {
         Paste your manuscript. We scan for similarity against published literature.
       </p>
       <form onSubmit={handleScan} className="mb-6 space-y-4">
-        <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-plagiarism-ms" />
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6">
+          <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-plagiarism-ms" />
+        </div>
         <button type="submit" disabled={loading || !manuscript.trim()}
           className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
           style={{ backgroundColor: "#C4634E" }} id="pc-plagiarism-btn">
@@ -330,7 +336,9 @@ function PeerReviewTab() {
         Paste your manuscript. We simulate an editor-style peer review with section-level comments.
       </p>
       <form onSubmit={handleReview} className="mb-6 space-y-4">
-        <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-peer-ms" />
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6">
+          <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-peer-ms" />
+        </div>
         <button type="submit" disabled={loading || !manuscript.trim()}
           className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
           style={{ backgroundColor: "#C4634E" }} id="pc-peer-btn">
@@ -396,7 +404,9 @@ function ExtractRefsTab() {
         Paste your reference list or full manuscript. We extract every citation, verify each DOI against CrossRef, and generate a clean <strong>.ris</strong> file ready to import into <strong>Zotero</strong> or <strong>Mendeley</strong>.
       </p>
       <form onSubmit={handleExtract} className="mb-6 space-y-4">
-        <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-extract-ms" />
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6">
+          <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-extract-ms" />
+        </div>
         <button type="submit" disabled={loading || !manuscript.trim()}
           className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
           style={{ backgroundColor: "#C4634E" }} id="pc-extract-btn">

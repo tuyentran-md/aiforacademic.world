@@ -83,80 +83,82 @@ export default function PolishPage() {
             Paste your manuscript. We <strong>polish the prose</strong> for a target journal style, optionally applying peer review suggestions, and return a clean Word file.
           </p>
           <form onSubmit={handlePolish} className="mb-6 space-y-4">
-            {/* Manuscript input */}
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-                Manuscript *
-              </label>
+            <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6 space-y-4">
+              {/* Manuscript input */}
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+                  Manuscript *
+                </label>
+                {Boolean(peerReviewData) && (
+                  <div className="mb-2 rounded-lg border border-purple-100 bg-purple-50 px-3 py-2 text-xs text-purple-700 font-medium">
+                    ✓ Arrived from Paper Checker — peer review suggestions loaded
+                  </div>
+                )}
+                <textarea
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Paste your manuscript here, or upload a DOCX below…"
+                  rows={10}
+                  required
+                  className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+                  id="polish-manuscript"
+                />
+              </div>
+
+              {/* Journal style */}
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Journal style</label>
+                <div className="flex flex-wrap gap-2">
+                  {journalStyles.map((s) => (
+                    <button
+                      key={s.value}
+                      type="button"
+                      onClick={() => setJournalStyle(s.value)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                        journalStyle === s.value
+                          ? "border-[#C4634E] bg-[#C4634E] text-white"
+                          : "border-black/10 text-stone-600 hover:border-stone-300"
+                      }`}
+                      id={`polish-style-${s.value}`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Context textarea */}
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+                  Context (optional) — ground-truth to prevent hallucination
+                </label>
+                <textarea
+                  value={context}
+                  onChange={(e) => setContext(e.target.value)}
+                  placeholder="Paste your PICO, key stats, study design notes… AI will lock to these facts."
+                  rows={3}
+                  className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+                  id="polish-context"
+                />
+              </div>
+
+              {/* Apply peer review toggle */}
               {Boolean(peerReviewData) && (
-                <div className="mb-2 rounded-lg border border-purple-100 bg-purple-50 px-3 py-2 text-xs text-purple-700 font-medium">
-                  ✓ Arrived from Paper Checker — peer review suggestions loaded
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setApplyPeerReview(!applyPeerReview)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      applyPeerReview ? "bg-[#C4634E]" : "bg-stone-200"
+                    }`}
+                    id="polish-apply-pr"
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${applyPeerReview ? "translate-x-6" : "translate-x-1"}`} />
+                  </button>
+                  <label className="text-sm text-stone-700">Apply peer review suggestions</label>
                 </div>
               )}
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Paste your manuscript here, or upload a DOCX below…"
-                rows={10}
-                required
-                className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-                id="polish-manuscript"
-              />
             </div>
-
-            {/* Journal style */}
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Journal style</label>
-              <div className="flex flex-wrap gap-2">
-                {journalStyles.map((s) => (
-                  <button
-                    key={s.value}
-                    type="button"
-                    onClick={() => setJournalStyle(s.value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                      journalStyle === s.value
-                        ? "border-[#C4634E] bg-[#C4634E] text-white"
-                        : "border-black/10 text-stone-600 hover:border-stone-300"
-                    }`}
-                    id={`polish-style-${s.value}`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Context textarea */}
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-                Context (optional) — ground-truth to prevent hallucination
-              </label>
-              <textarea
-                value={context}
-                onChange={(e) => setContext(e.target.value)}
-                placeholder="Paste your PICO, key stats, study design notes… AI will lock to these facts."
-                rows={3}
-                className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-                id="polish-context"
-              />
-            </div>
-
-            {/* Apply peer review toggle */}
-            {Boolean(peerReviewData) && (
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setApplyPeerReview(!applyPeerReview)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    applyPeerReview ? "bg-[#C4634E]" : "bg-stone-200"
-                  }`}
-                  id="polish-apply-pr"
-                >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${applyPeerReview ? "translate-x-6" : "translate-x-1"}`} />
-                </button>
-                <label className="text-sm text-stone-700">Apply peer review suggestions</label>
-              </div>
-            )}
 
             <button
               type="submit"

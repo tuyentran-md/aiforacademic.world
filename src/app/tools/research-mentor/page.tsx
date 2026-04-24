@@ -62,44 +62,46 @@ function ValidateTab({ onChainToOutline }: { onChainToOutline: (topic: string, s
         Describe your research idea. We score <strong>novelty, feasibility, and publishability</strong> against your target field and journal, then suggest a study type.
       </p>
       <form onSubmit={handleValidate} className="mb-6 space-y-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-            Research idea *
-          </label>
-          <textarea
-            value={idea}
-            onChange={(e) => setIdea(e.target.value)}
-            placeholder="Describe your research idea in 200–2000 characters. Include the problem, proposed method, and population."
-            rows={5}
-            maxLength={2000}
-            required
-            className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-            id="rm-idea-input"
-          />
-          <p className="mt-1 text-xs text-stone-400 text-right">{idea.length}/2000</p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6 space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Field (optional)</label>
-            <input
-              type="text"
-              value={field}
-              onChange={(e) => setField(e.target.value)}
-              placeholder="e.g. Pediatric surgery"
-              className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-              id="rm-field-input"
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+              Research idea *
+            </label>
+            <textarea
+              value={idea}
+              onChange={(e) => setIdea(e.target.value)}
+              placeholder="Describe your research idea in 200–2000 characters. Include the problem, proposed method, and population."
+              rows={5}
+              maxLength={2000}
+              required
+              className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+              id="rm-idea-input"
             />
+            <p className="mt-1 text-xs text-stone-400 text-right">{idea.length}/2000</p>
           </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Target journal (optional)</label>
-            <input
-              type="text"
-              value={journal}
-              onChange={(e) => setJournal(e.target.value)}
-              placeholder="e.g. JAMA Pediatrics"
-              className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-              id="rm-journal-input"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Field (optional)</label>
+              <input
+                type="text"
+                value={field}
+                onChange={(e) => setField(e.target.value)}
+                placeholder="e.g. Pediatric surgery"
+                className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+                id="rm-field-input"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Target journal (optional)</label>
+              <input
+                type="text"
+                value={journal}
+                onChange={(e) => setJournal(e.target.value)}
+                placeholder="e.g. JAMA Pediatrics"
+                className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+                id="rm-journal-input"
+              />
+            </div>
           </div>
         </div>
         <button
@@ -216,36 +218,38 @@ function OutlineTab({
         Pick a topic and study type. We generate a <strong>structured outline</strong> with PICO, inclusion/exclusion criteria, methods, and analysis plan.
       </p>
       <form onSubmit={handleOutline} className="mb-6 space-y-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Topic *</label>
-          <input
-            type="text"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g. Laparoscopic vs open appendectomy in children under 5"
-            className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-            id="rm-outline-topic"
-            required
-          />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Study type</label>
-          <div className="flex flex-wrap gap-2">
-            {studyTypes.map((st) => (
-              <button
-                key={st.value}
-                type="button"
-                onClick={() => setStudyType(st.value)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                  studyType === st.value
-                    ? "border-[#C4634E] bg-[#C4634E] text-white"
-                    : "border-black/10 text-stone-600 hover:border-stone-300"
-                }`}
-                id={`rm-study-type-${st.value}`}
-              >
-                {st.label}
-              </button>
-            ))}
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6 space-y-4">
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Topic *</label>
+            <input
+              type="text"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g. Laparoscopic vs open appendectomy in children under 5"
+              className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+              id="rm-outline-topic"
+              required
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Study type</label>
+            <div className="flex flex-wrap gap-2">
+              {studyTypes.map((st) => (
+                <button
+                  key={st.value}
+                  type="button"
+                  onClick={() => setStudyType(st.value)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                    studyType === st.value
+                      ? "border-[#C4634E] bg-[#C4634E] text-white"
+                      : "border-black/10 text-stone-600 hover:border-stone-300"
+                  }`}
+                  id={`rm-study-type-${st.value}`}
+                >
+                  {st.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <button
@@ -367,47 +371,49 @@ function DraftTab({ prefillOutline }: { prefillOutline?: string }) {
         Paste references and an optional outline. We <strong>draft a full manuscript</strong> with proper citations, streamed section by section.
       </p>
       <form onSubmit={handleDraft} className="mb-6 space-y-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-            References * (paste titles + abstracts, separate with blank line)
-          </label>
-          <textarea
-            value={refs}
-            onChange={(e) => setRefs(e.target.value)}
-            placeholder={"Smith et al. 2023 – Laparoscopic outcomes in pediatric appendicitis...\n\nJones et al. 2022 – Open vs laparoscopic: a meta-analysis..."}
-            rows={5}
-            required
-            className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-mono text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-            id="rm-draft-refs"
-          />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-            Outline (optional — from Outline tab or manual)
-          </label>
-          <textarea
-            value={outline}
-            onChange={(e) => setOutline(e.target.value)}
-            placeholder="PICO, I/E criteria, analysis plan…"
-            rows={3}
-            className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-            id="rm-draft-outline"
-          />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Article type</label>
-          <select
-            value={articleType}
-            onChange={(e) => setArticleType(e.target.value)}
-            className="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm text-stone-700 focus:outline-none"
-            id="rm-draft-type"
-          >
-            <option value="narrative_review">Narrative Review</option>
-            <option value="systematic_review">Systematic Review</option>
-            <option value="original_research">Original Research</option>
-            <option value="case_report">Case Report</option>
-            <option value="letter_to_editor">Letter to Editor</option>
-          </select>
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6 space-y-4">
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+              References * (paste titles + abstracts, separate with blank line)
+            </label>
+            <textarea
+              value={refs}
+              onChange={(e) => setRefs(e.target.value)}
+              placeholder={"Smith et al. 2023 – Laparoscopic outcomes in pediatric appendicitis...\n\nJones et al. 2022 – Open vs laparoscopic: a meta-analysis..."}
+              rows={5}
+              required
+              className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-mono text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+              id="rm-draft-refs"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+              Outline (optional — from Outline tab or manual)
+            </label>
+            <textarea
+              value={outline}
+              onChange={(e) => setOutline(e.target.value)}
+              placeholder="PICO, I/E criteria, analysis plan…"
+              rows={3}
+              className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+              id="rm-draft-outline"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Article type</label>
+            <select
+              value={articleType}
+              onChange={(e) => setArticleType(e.target.value)}
+              className="w-full md:w-auto rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm text-stone-700 focus:outline-none"
+              id="rm-draft-type"
+            >
+              <option value="narrative_review">Narrative Review</option>
+              <option value="systematic_review">Systematic Review</option>
+              <option value="original_research">Original Research</option>
+              <option value="case_report">Case Report</option>
+              <option value="letter_to_editor">Letter to Editor</option>
+            </select>
+          </div>
         </div>
         <button
           type="submit"

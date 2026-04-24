@@ -126,32 +126,34 @@ function SearchTab() {
         Search <strong>PubMed + OpenAlex</strong> for peer-reviewed papers. Get titles, abstracts, citation counts, and DOIs.
       </p>
       <form onSubmit={handleSearch} className="mb-6 space-y-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-            Search query *
-          </label>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g. laparoscopic appendectomy outcomes in children"
-            className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-            id="lr-search-input"
-          />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-            Abstract language
-          </label>
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value as "EN" | "VI")}
-            className="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm text-stone-700 focus:outline-none"
-            id="lr-lang-select"
-          >
-            <option value="EN">English</option>
-            <option value="VI">Vietnamese</option>
-          </select>
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6 space-y-4">
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+              Search query *
+            </label>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="e.g. laparoscopic appendectomy outcomes in children"
+              className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+              id="lr-search-input"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+              Abstract language
+            </label>
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as "EN" | "VI")}
+              className="w-full md:w-auto rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm text-stone-700 focus:outline-none"
+              id="lr-lang-select"
+            >
+              <option value="EN">English</option>
+              <option value="VI">Vietnamese</option>
+            </select>
+          </div>
         </div>
         <button
           type="submit"
@@ -283,18 +285,20 @@ function FetchTab() {
         No Sci-Hub.
       </p>
       <form onSubmit={handleFetch} className="mb-6 space-y-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-            DOIs *
-          </label>
-          <textarea
-            value={dois}
-            onChange={(e) => setDois(e.target.value)}
-            placeholder={"10.1234/example\n10.5678/another"}
-            rows={4}
-            className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-mono text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-            id="lr-fetch-dois"
-          />
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6 space-y-4">
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+              DOIs *
+            </label>
+            <textarea
+              value={dois}
+              onChange={(e) => setDois(e.target.value)}
+              placeholder={"10.1234/example\n10.5678/another"}
+              rows={4}
+              className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-mono text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+              id="lr-fetch-dois"
+            />
+          </div>
         </div>
         <button
           type="submit"
@@ -397,32 +401,34 @@ function TranslateTab() {
         Upload a <strong>PDF or DOCX</strong> (max 50 MB). Text is chunked, translated with medical-grade accuracy preserving all citations, headings, and figures, then returned as a translated <strong>.docx</strong> file.
       </p>
       <form onSubmit={handleTranslate} className="mb-6 space-y-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-            Document (PDF / DOCX) *
-          </label>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".pdf,.docx"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="block w-full text-sm text-stone-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-stone-900 file:text-white hover:file:bg-stone-700 transition-colors"
-            id="lr-translate-file"
-          />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-            Target language
-          </label>
-          <select
-            value={targetLang}
-            onChange={(e) => setTargetLang(e.target.value)}
-            className="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm text-stone-700 focus:outline-none"
-            id="lr-translate-lang"
-          >
-            <option value="VI">Vietnamese</option>
-            <option value="EN">English</option>
-          </select>
+        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6 space-y-4">
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+              Document (PDF / DOCX) *
+            </label>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".pdf,.docx"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              className="block w-full text-sm text-stone-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-stone-900 file:text-white hover:file:bg-stone-700 transition-colors"
+              id="lr-translate-file"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+              Target language
+            </label>
+            <select
+              value={targetLang}
+              onChange={(e) => setTargetLang(e.target.value)}
+              className="w-full md:w-auto rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm text-stone-700 focus:outline-none"
+              id="lr-translate-lang"
+            >
+              <option value="VI">Vietnamese</option>
+              <option value="EN">English</option>
+            </select>
+          </div>
         </div>
         <button
           type="submit"
