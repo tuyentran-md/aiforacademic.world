@@ -48,7 +48,7 @@ Be constructive but honest. Identify real risks.`;
         ],
         responseFormat: "json",
         temperature: 0.2,
-        maxTokens: 1024,
+        maxTokens: 2048,
       });
 
       const parsed = parseJsonResponse<{
@@ -61,7 +61,8 @@ Be constructive but honest. Identify real risks.`;
       }>(raw);
 
       if (!parsed) {
-        return NextResponse.json({ error: "Failed to parse LLM response" }, { status: 500 });
+        console.error("[api/pipeline/validate] parse failed. Raw:", raw?.slice(0, 500));
+        return NextResponse.json({ error: "Failed to parse LLM response", raw: raw?.slice(0, 500) }, { status: 500 });
       }
 
       return NextResponse.json(parsed);
