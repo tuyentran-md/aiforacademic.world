@@ -3,6 +3,7 @@ import { Inter, Lora } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import QuotaModal from "@/components/QuotaModal";
 import { LangProvider } from "@/context/LangContext";
 import { getCurrentLang } from "@/lib/server-lang";
 
@@ -74,6 +75,7 @@ export default async function RootLayout({
         <LangProvider initialLang={lang}>
           <Nav />
           <main className="flex-1">{children}</main>
+          <QuotaModal />
         </LangProvider>
         <Analytics />
       </body>

@@ -5,6 +5,7 @@ import { apiFetch } from "@/lib/api-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/Icons";
+import ToolTabs from "@/components/ToolTabs";
 
 type PCTab = "citations" | "ai_detect" | "plagiarism" | "peer_review" | "extract_refs";
 
@@ -434,19 +435,7 @@ export default function PaperCheckerPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* Tab bar */}
-      <div className="border-b border-black/[0.06] bg-white px-6 md:px-10">
-        <div className="max-w-5xl mx-auto flex flex-wrap gap-1">
-          {tabs.map((t) => (
-            <button key={t.key} onClick={() => setTab(t.key)} id={`pc-tab-${t.key}`}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                tab === t.key ? "border-[#C4634E] text-stone-900" : "border-transparent text-stone-400 hover:text-stone-700"
-              }`}>
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ToolTabs tabs={tabs} active={tab} onChange={setTab} idPrefix="pc-tab" />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">

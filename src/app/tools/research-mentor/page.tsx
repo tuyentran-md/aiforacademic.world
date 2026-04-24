@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/Icons";
 import { apiFetch } from "@/lib/api-client";
+import ToolTabs from "@/components/ToolTabs";
 
 type Tab = "validate" | "outline" | "draft";
 type StudyType = "RCT" | "cohort" | "MA" | "SR" | "case_report" | "narrative" | "letter";
@@ -471,25 +472,7 @@ export default function ResearchMentorPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* Tab bar */}
-      <div className="border-b border-black/[0.06] bg-white px-6 md:px-10">
-        <div className="max-w-5xl mx-auto flex gap-1">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              id={`rm-tab-${t.key}`}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                tab === t.key
-                  ? "border-[#C4634E] text-stone-900"
-                  : "border-transparent text-stone-400 hover:text-stone-700"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ToolTabs tabs={tabs} active={tab} onChange={setTab} idPrefix="rm-tab" />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
