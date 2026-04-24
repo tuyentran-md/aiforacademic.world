@@ -42,11 +42,12 @@ interface Message {
   isStreaming?: boolean;
 }
 
-// ── 11 workspace functions ─────────────────────────────────────────────────
+// ── 12 workspace functions ─────────────────────────────────────────────────
 const WORKSPACE_FUNCTIONS: { name: string; desc: string; phase: number; icon: React.ReactNode; requiresFile?: boolean }[] = [
   { name: "search_papers",   desc: "Search PubMed + OpenAlex",                   phase: 1, icon: <Icons.Search className="w-3.5 h-3.5" /> },
   { name: "fetch_fulltext",  desc: "Fetch open-access full-text PDFs for DOIs",  phase: 1, icon: <Icons.FileText className="w-3.5 h-3.5" /> },
   { name: "translate_doc",   desc: "Translate a PDF/DOCX to Vietnamese",          phase: 1, icon: <Icons.Globe className="w-3.5 h-3.5" />, requiresFile: true },
+  { name: "extract_refs",    desc: "Extract bibliography → .ris (Zotero/Mendeley)", phase: 1, icon: <Icons.BookOpen className="w-3.5 h-3.5" /> },
   { name: "validate_idea",   desc: "Critique idea (novelty, feasibility)",        phase: 2, icon: <Icons.Lightbulb className="w-3.5 h-3.5" /> },
   { name: "generate_outline",desc: "Generate PICO + protocol outline",            phase: 2, icon: <Icons.ClipboardList className="w-3.5 h-3.5" /> },
   { name: "draft_manuscript",desc: "Draft manuscript from refs + outline",        phase: 2, icon: <Icons.Edit className="w-3.5 h-3.5" /> },
@@ -453,7 +454,84 @@ async function executeToolCall(name: string, args: Record<string, unknown>): Pro
       return { artifact: { id, type: "translation", title: `Translation → ${targetLanguage}`, payload: { translated: data.abstractTranslated ?? data.error ?? "", targetLanguage }, createdAt: Date.now() }, summary: "Translation complete." };
     }
     case "draft_manuscript": {
-      return { artifact: { id, type: "manuscript", title: "Draft Manuscript", payload: { text: "Draft generation needs reference list + outline + target journal. Please run @search_papers and @generate_outline first, then I'll synthesize." }, createdAt: Date.now() }, summary: "Need refs + outline first." };
+      // AVR is SSE-streaming — buffer the chunks into a single manuscript payload.
+      // For workspace we don't render incrementally yet; we wait for the full draft.
+      const refsArg = (args.references as Array<Record<string, unknown>>) ?? [];
+      const refsParsed = refsArg.length > 0
+        ? refsArg
+        : ((args.refs as string)?.split("\n").filter((r: string) => r.trim().length > 30) ?? []).map((r: string) => ({
+            id: `wk-${Math.random().toString(36).slice(2, 8)}`,
+            title: r,
+            authors: [],
+            journal: "",
+            year: new Date().getFullYear(),
+            abstract: r,
+            url: "",
+          }));
+      const query = (args.query as string) ?? (args.topic as string) ?? "Research topic";
+      const articleType = (args.articleType as string) ?? "narrative_review";
+      const outline = (args.outline as string) ?? undefined;
+      const language = (args.language as string) ?? "EN";
+
+      try {
+        const response = await apiFetch("/api/pipeline/avr", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, references: refsParsed, language, articleType, outline }),
+        });
+        if (!response.ok || !response.body) {
+          const errBody = await response.text().catch(() => "");
+          throw new Error(`Draft failed (${response.status}): ${errBody.slice(0, 120)}`);
+        }
+        const { createParser } = await import("eventsource-parser");
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let acc = "";
+        const parser = createParser({
+          onEvent(ev) {
+            if (!ev.data) return;
+            try {
+              const event = JSON.parse(ev.data);
+              if (event.type === "manuscript_chunk") acc += event.data.content;
+            } catch {/* ignore non-json keepalives */}
+          },
+        });
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          parser.feed(decoder.decode(value, { stream: true }));
+        }
+        parser.feed(decoder.decode());
+        if (!acc.trim()) throw new Error("Draft returned empty — try with a clearer query or more references.");
+        return {
+          artifact: { id, type: "manuscript", title: "Draft Manuscript", payload: { text: acc }, createdAt: Date.now() },
+          summary: `Drafted ~${acc.split(/\s+/).length} words.`,
+        };
+      } catch (err) {
+        return {
+          artifact: { id, type: "manuscript", title: "Draft Manuscript (failed)", payload: { text: err instanceof Error ? err.message : "Draft failed." }, createdAt: Date.now() },
+          summary: "Draft failed.",
+        };
+      }
+    }
+    case "extract_refs": {
+      const text = (args.manuscript as string) ?? (args.text as string) ?? "";
+      const res = await apiFetch("/api/pipeline/extract-refs", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ manuscript: text }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return {
+          artifact: { id, type: "manuscript", title: "Extract refs (failed)", payload: { text: data.error ?? "Extraction failed" }, createdAt: Date.now() },
+          summary: "No refs extracted.",
+        };
+      }
+      const count = Array.isArray(data.json) ? data.json.length : 0;
+      return {
+        artifact: { id, type: "manuscript", title: `Extracted ${count} references (.ris)`, payload: { text: data.ris ?? "", ris: data.ris, refs: data.json }, createdAt: Date.now() },
+        summary: `Extracted ${count} references — ready to download as .ris.`,
+      };
     }
     default:
       return { artifact: { id, type: "manuscript", title: `${name} result`, payload: { text: `Tool ${name} not yet wired in workspace.` }, createdAt: Date.now() }, summary: `${name} completed.` };

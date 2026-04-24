@@ -14,6 +14,12 @@ export async function POST(request: NextRequest) {
       const { manuscript } = body as { manuscript: string };
       if (!manuscript) return NextResponse.json({ error: "No manuscript" }, { status: 400 });
 
+      // Plagiarism patterns sit in body prose (intro / methods / discussion). Send
+      // up to 60 KB — covers any normal-length paper whole. Old slice(0, 6000) only
+      // analysed the abstract.
+      const MAX_INPUT = 60_000;
+      const trimmed = manuscript.length > MAX_INPUT ? manuscript.slice(0, MAX_INPUT) : manuscript;
+
       const raw = await callLLM({
         messages: [
           {
@@ -24,7 +30,7 @@ Analyze the text for:
 2. Passages that are appropriately cited (citation-aware — these are NOT plagiarism)
 3. Uncited passages closely resembling existing literature
 
-Return JSON:
+Return JSON ONLY:
 {
   "similarity": <0-100 percent overall similarity>,
   "sources": [
@@ -34,11 +40,11 @@ Return JSON:
 }
 Note: cited passages reduce, not increase, the plagiarism score.`,
           },
-          { role: "user", content: manuscript.slice(0, 6000) },
+          { role: "user", content: trimmed },
         ],
         responseFormat: "json",
         temperature: 0.1,
-        maxTokens: 2048,
+        maxTokens: 4096,
       });
 
       const parsed = parseJsonResponse<{
@@ -47,9 +53,17 @@ Note: cited passages reduce, not increase, the plagiarism score.`,
         summary: string;
       }>(raw);
 
-      return NextResponse.json(
-        parsed ?? { similarity: 0, sources: [], summary: "Analysis inconclusive." }
-      );
+      if (!parsed) {
+        return NextResponse.json(
+          {
+            error:
+              "Plagiarism scan failed to produce a result. Try pasting more manuscript body text (intro / methods / discussion).",
+          },
+          { status: 422 }
+        );
+      }
+
+      return NextResponse.json(parsed);
     } catch (error) {
       console.error("[api/pipeline/ric/plagiarism]", error);
       return NextResponse.json({ error: "Plagiarism scan failed" }, { status: 500 });
