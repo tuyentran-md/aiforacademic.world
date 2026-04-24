@@ -19,15 +19,8 @@ export default function ToolsSubNav() {
       className="no-grid sticky top-14 z-40 border-b border-black/[0.06]"
       style={{ backgroundColor: "rgba(250,249,246,0.97)", backdropFilter: "blur(8px)" }}
     >
-      <div className="max-w-5xl mx-auto px-4 md:px-8">
-        <div className="flex items-center gap-1 h-11 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-          <Link
-            href="/tools"
-            className="flex-shrink-0 mr-2 px-2 py-1 text-stone-400 hover:text-stone-700 transition-colors text-base leading-none"
-            aria-label="Back to Tools"
-          >
-            ←
-          </Link>
+      <div className="max-w-5xl mx-auto px-4 md:px-8 relative">
+        <div className="flex justify-center items-center gap-1.5 h-11 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
           {toolNav.map((t) => {
             const active = pathname?.startsWith(t.href);
             return (
@@ -36,9 +29,10 @@ export default function ToolsSubNav() {
                 href={t.href}
                 className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
                   active
-                    ? "bg-stone-900 text-white"
+                    ? "text-white shadow-sm"
                     : "text-stone-500 hover:text-stone-900 hover:bg-stone-100"
                 }`}
+                style={active ? { backgroundColor: "#C4634E" } : {}}
               >
                 {t.icon}
                 <span className="hidden sm:inline">{t.label}</span>
@@ -46,15 +40,20 @@ export default function ToolsSubNav() {
               </Link>
             );
           })}
-          <div className="flex-1" />
-          <Link
-            href="/workspace"
-            className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full text-white transition-opacity hover:opacity-90 ml-2"
-            style={{ backgroundColor: "#C4634E" }}
-          >
-            Workspace →
-          </Link>
         </div>
+        <Link
+          href="/tools"
+          className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 px-2 py-1 text-stone-400 hover:text-stone-700 transition-colors text-base leading-none"
+          aria-label="Back to Tools"
+        >
+          ←
+        </Link>
+        <Link
+          href="/workspace"
+          className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 items-center text-xs font-semibold px-3 py-1.5 rounded-full text-stone-700 hover:text-stone-900 hover:bg-stone-100 transition-colors"
+        >
+          Workspace →
+        </Link>
       </div>
     </div>
   );

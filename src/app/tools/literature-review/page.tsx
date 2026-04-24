@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { apiFetch } from "@/lib/api-client";
 import ToolTabs from "@/components/ToolTabs";
@@ -123,24 +122,37 @@ function SearchTab() {
 
   return (
     <div>
-      <form onSubmit={handleSearch} className="flex gap-3 mb-6">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="e.g. laparoscopic appendectomy outcomes in children"
-          className="flex-1 rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
-          id="lr-search-input"
-        />
-        <select
-          value={lang}
-          onChange={(e) => setLang(e.target.value as "EN" | "VI")}
-          className="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm text-stone-700 focus:outline-none"
-          id="lr-lang-select"
-        >
-          <option value="EN">EN</option>
-          <option value="VI">VI</option>
-        </select>
+      <p className="mb-4 text-sm text-stone-500">
+        Search <strong>PubMed + OpenAlex</strong> for peer-reviewed papers. Get titles, abstracts, citation counts, and DOIs.
+      </p>
+      <form onSubmit={handleSearch} className="mb-6 space-y-4">
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+            Search query *
+          </label>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="e.g. laparoscopic appendectomy outcomes in children"
+            className="w-full rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+            id="lr-search-input"
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+            Abstract language
+          </label>
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as "EN" | "VI")}
+            className="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm text-stone-700 focus:outline-none"
+            id="lr-lang-select"
+          >
+            <option value="EN">English</option>
+            <option value="VI">Vietnamese</option>
+          </select>
+        </div>
         <button
           type="submit"
           disabled={loading || !query.trim()}
@@ -265,20 +277,25 @@ function FetchTab() {
 
   return (
     <div>
-      <p className="mb-4 text-sm text-stone-600">
+      <p className="mb-4 text-sm text-stone-500">
         Paste DOIs (one per line or comma-separated). We cascade through{" "}
-        <span className="font-medium">Unpaywall → OpenAlex → Europe PMC → Semantic Scholar</span>.
+        <strong>Unpaywall → OpenAlex → Europe PMC → Semantic Scholar</strong>.
         No Sci-Hub.
       </p>
-      <form onSubmit={handleFetch} className="mb-6">
-        <textarea
-          value={dois}
-          onChange={(e) => setDois(e.target.value)}
-          placeholder={"10.1234/example\n10.5678/another"}
-          rows={4}
-          className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-mono text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors mb-3"
-          id="lr-fetch-dois"
-        />
+      <form onSubmit={handleFetch} className="mb-6 space-y-4">
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+            DOIs *
+          </label>
+          <textarea
+            value={dois}
+            onChange={(e) => setDois(e.target.value)}
+            placeholder={"10.1234/example\n10.5678/another"}
+            rows={4}
+            className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-mono text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors"
+            id="lr-fetch-dois"
+          />
+        </div>
         <button
           type="submit"
           disabled={loading || !dois.trim()}
@@ -376,13 +393,13 @@ function TranslateTab() {
 
   return (
     <div>
-      <p className="mb-4 text-sm text-stone-600">
-        Upload a <strong>PDF or DOCX</strong> (max 50 MB). Text is chunked, translated with medical-grade accuracy preserving all citations, headings, and figures, then returned as a translated <strong>.txt</strong> file.
+      <p className="mb-4 text-sm text-stone-500">
+        Upload a <strong>PDF or DOCX</strong> (max 50 MB). Text is chunked, translated with medical-grade accuracy preserving all citations, headings, and figures, then returned as a translated <strong>.docx</strong> file.
       </p>
-      <form onSubmit={handleTranslate}>
-        <div className="mb-4">
+      <form onSubmit={handleTranslate} className="mb-6 space-y-4">
+        <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
-            Document (PDF / DOCX)
+            Document (PDF / DOCX) *
           </label>
           <input
             ref={fileRef}
@@ -393,7 +410,7 @@ function TranslateTab() {
             id="lr-translate-file"
           />
         </div>
-        <div className="mb-5">
+        <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
             Target language
           </label>

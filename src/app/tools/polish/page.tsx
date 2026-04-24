@@ -79,7 +79,10 @@ export default function PolishPage() {
     <div className="flex-1 flex flex-col min-h-0">
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto px-6 md:px-10 py-8">
-          <form onSubmit={handlePolish} className="space-y-5 mb-8">
+          <p className="mb-4 text-sm text-stone-500">
+            Paste your manuscript. We <strong>polish the prose</strong> for a target journal style, optionally applying peer review suggestions, and return a clean Word file.
+          </p>
+          <form onSubmit={handlePolish} className="mb-6 space-y-4">
             {/* Manuscript input */}
             <div>
               <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">

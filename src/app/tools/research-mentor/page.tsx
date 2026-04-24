@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/Icons";
 import { apiFetch } from "@/lib/api-client";
@@ -59,6 +58,9 @@ function ValidateTab({ onChainToOutline }: { onChainToOutline: (topic: string, s
 
   return (
     <div>
+      <p className="mb-4 text-sm text-stone-500">
+        Describe your research idea. We score <strong>novelty, feasibility, and publishability</strong> against your target field and journal, then suggest a study type.
+      </p>
       <form onSubmit={handleValidate} className="mb-6 space-y-4">
         <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
@@ -210,6 +212,9 @@ function OutlineTab({
 
   return (
     <div>
+      <p className="mb-4 text-sm text-stone-500">
+        Pick a topic and study type. We generate a <strong>structured outline</strong> with PICO, inclusion/exclusion criteria, methods, and analysis plan.
+      </p>
       <form onSubmit={handleOutline} className="mb-6 space-y-4">
         <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">Topic *</label>
@@ -358,6 +363,9 @@ function DraftTab({ prefillOutline }: { prefillOutline?: string }) {
 
   return (
     <div>
+      <p className="mb-4 text-sm text-stone-500">
+        Paste references and an optional outline. We <strong>draft a full manuscript</strong> with proper citations, streamed section by section.
+      </p>
       <form onSubmit={handleDraft} className="mb-6 space-y-4">
         <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500">
