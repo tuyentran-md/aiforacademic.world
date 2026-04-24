@@ -2,23 +2,30 @@
 
 import { useState, useEffect, useRef } from "react";
 import { apiFetch } from "@/lib/api-client";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/Icons";
-import ToolTabs from "@/components/ToolTabs";
+import {
+  ToolShell,
+  ToolEmptyState,
+  ToolLoadingState,
+  type SubTab,
+} from "@/components/ToolShell";
+import { ArtifactRenderer, type Artifact } from "@/components/ArtifactRenderer";
 
-type PCTab = "citations" | "ai_detect" | "plagiarism" | "peer_review" | "extract_refs";
+type PCTab = "citations" | "ai_detect" | "plagiarism" | "peer_review";
 
 // ── Shared file+text input ──────────────────────────────────────────────────
 function ManuscriptInput({
   value,
   onChange,
   id,
+  rows = 14,
   accept = ".txt,.docx,.pdf",
 }: {
   value: string;
   onChange: (v: string) => void;
   id: string;
+  rows?: number;
   accept?: string;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -46,10 +53,13 @@ function ManuscriptInput({
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-3">
-        <button type="button" onClick={() => fileRef.current?.click()}
-          className="flex items-center gap-2 rounded-lg border border-black/10 px-3 py-2 text-xs font-semibold text-stone-600 hover:border-stone-300 hover:bg-stone-50 transition-colors">
+    <div className="space-y-2 h-full flex flex-col">
+      <div className="flex items-center gap-3 flex-wrap">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="flex items-center gap-2 rounded-lg border border-black/10 px-3 py-2 text-xs font-semibold text-stone-600 hover:border-stone-300 hover:bg-stone-50 transition-colors"
+        >
           <Icons.FileText className="w-3.5 h-3.5" />
           {uploading ? "Reading…" : "Upload file (PDF / DOCX / TXT)"}
         </button>
@@ -57,378 +67,304 @@ function ManuscriptInput({
         <input ref={fileRef} type="file" accept={accept} onChange={handleFile} className="hidden" />
       </div>
       {fileError && <p className="text-xs text-red-600">{fileError}</p>}
-      <textarea value={value} onChange={(e) => onChange(e.target.value)}
-        placeholder="Paste your manuscript or reference list here…" rows={10}
-        className="w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors font-mono"
-        id={id} />
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Paste your manuscript or reference list here…"
+        rows={rows}
+        className="flex-1 w-full rounded-lg border border-black/10 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 transition-colors font-mono"
+        id={id}
+      />
     </div>
   );
 }
 
-// ── Tab: Citation Check ────────────────────────────────────────────────────
-function CitationTab() {
+// ── Tab: Citations ────────────────────────────────────────────────────────
+function CitationTab({ subTabs, activeTab, onTabChange }: { subTabs: SubTab[]; activeTab: PCTab; onTabChange: (t: PCTab) => void }) {
   const [manuscript, setManuscript] = useState("");
-  const [result, setResult] = useState<null | {
-    total: number;
-    verified: number;
-    unverified: number;
-    refs: Array<{ ref: string; status: "verified" | "unverified" | "error"; sources: string[]; doi?: string }>;
-  }>(null);
+  const [artifact, setArtifact] = useState<Artifact | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("afa_manuscript_for_check");
-    if (saved) { setManuscript(saved); sessionStorage.removeItem("afa_manuscript_for_check"); }
+    if (saved) {
+      setManuscript(saved);
+      sessionStorage.removeItem("afa_manuscript_for_check");
+    }
   }, []);
 
-  async function handleCheck(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleCheck() {
     if (!manuscript.trim()) return;
-    setLoading(true); setError(null); setResult(null);
+    setLoading(true);
+    setError(null);
+    setArtifact(null);
     try {
       const res = await apiFetch("/api/pipeline/ric/citations", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ manuscript: manuscript.trim() }),
-      });
-      if (!res.ok) throw new Error("Citation check failed");
-      setResult(await res.json());
-    } catch (err) { setError(err instanceof Error ? err.message : "Failed"); }
-    finally { setLoading(false); }
-  }
-
-  async function exportRis() {
-    setError(null);
-    try {
-      const res = await apiFetch("/api/pipeline/extract-refs", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ manuscript: manuscript.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Export failed");
-      if (!data.ris) throw new Error("No references found in manuscript");
-      const blob = new Blob([data.ris], { type: "application/x-research-info-systems" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a"); a.href = url; a.download = "refs_clean.ris"; a.click();
-      URL.revokeObjectURL(url);
+      if (!res.ok) throw new Error(data.error || "Citation check failed");
+      setArtifact({
+        id: `cite-${Date.now()}`,
+        type: "citation_report",
+        title: "Citation report",
+        payload: data,
+        createdAt: Date.now(),
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Export failed");
+      setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div>
-      <p className="mb-4 text-sm text-stone-500">
-        Paste or upload your manuscript. We extract all references and verify each one against <strong>CrossRef + OpenAlex</strong>.
-      </p>
-      <form onSubmit={handleCheck} className="mb-6 space-y-4">
-        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6">
-          <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-citations-ms" />
-        </div>
-        <div className="flex gap-3">
-          <button type="submit" disabled={loading || !manuscript.trim()}
-            className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
-            style={{ backgroundColor: "#C4634E" }} id="pc-citations-btn">
-            {loading ? "Checking…" : "Check citations"}
-          </button>
-        </div>
-      </form>
-
-      {error && <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">{error}</div>}
-
-      {result && (
-        <div className="space-y-4">
-          {result.total === 0 && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              {(result as { warning?: string }).warning ||
-                "No bibliography entries detected. Make sure your text includes a REFERENCES section with full citations (author · year · title · journal · DOI)."}
-            </div>
-          )}
-          <div className="rounded-xl border border-black/[0.07] bg-white p-4 flex gap-6">
-            <div className="text-center"><p className="text-2xl font-bold text-stone-900">{result.total}</p><p className="text-xs text-stone-500">Total refs</p></div>
-            <div className="text-center"><p className="text-2xl font-bold text-green-600">{result.verified}</p><p className="text-xs text-stone-500">Verified</p></div>
-            <div className="text-center"><p className="text-2xl font-bold text-red-600">{result.unverified}</p><p className="text-xs text-stone-500">Unverified</p></div>
-          </div>
-          <div className="space-y-2">
-            {result.refs.map((ref, i) => (
-              <div key={i} className="rounded-lg border border-black/[0.07] bg-white px-4 py-3">
-                <div className="flex items-start gap-3">
-                  <span className={`mt-0.5 flex-shrink-0 text-sm ${ref.status === "verified" ? "text-green-500" : "text-red-500"}`}>
-                    {ref.status === "verified" ? "✓" : "✗"}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-stone-700 leading-relaxed">{ref.ref}</p>
-                    {ref.sources.length > 0 && <p className="text-xs text-stone-400 mt-0.5">via {ref.sources.join(", ")}</p>}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <button onClick={exportRis}
-            className="rounded-lg px-5 py-2.5 text-sm font-semibold border border-black/10 text-stone-700 hover:border-stone-300 transition-colors"
-            id="pc-export-ris-btn">
-            Export verified refs to Zotero (.ris) ↓
-          </button>
-        </div>
-      )}
-    </div>
+    <ToolShell
+      title="Paper Checker"
+      subtitle="Paste your manuscript. We extract every citation and verify each one against CrossRef + OpenAlex."
+      tabs={subTabs}
+      activeTab={activeTab}
+      onTabChange={(id) => onTabChange(id as PCTab)}
+      input={<ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-citations-ms" />}
+      output={
+        loading ? (
+          <ToolLoadingState label="Verifying citations against CrossRef + OpenAlex…" />
+        ) : artifact ? (
+          <ArtifactRenderer artifact={artifact} />
+        ) : (
+          <ToolEmptyState
+            title="No result yet"
+            description="Paste your manuscript on the left, then click Check citations. Make sure the text includes a REFERENCES section."
+          />
+        )
+      }
+      primaryAction={{
+        label: "Check citations",
+        loadingLabel: "Checking…",
+        onClick: handleCheck,
+        loading,
+        disabled: !manuscript.trim(),
+      }}
+      error={error}
+    />
   );
 }
 
 // ── Tab: AI Detect ─────────────────────────────────────────────────────────
-function AIDetectTab() {
+function AIDetectTab({ subTabs, activeTab, onTabChange }: { subTabs: SubTab[]; activeTab: PCTab; onTabChange: (t: PCTab) => void }) {
   const [manuscript, setManuscript] = useState("");
-  const [result, setResult] = useState<null | {
-    score: number; verdict: "Human" | "AI" | "Mixed"; patterns: string[]; summary: string;
-  }>(null);
+  const [artifact, setArtifact] = useState<Artifact | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleDetect(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleDetect() {
     if (!manuscript.trim()) return;
-    setLoading(true); setError(null); setResult(null);
+    setLoading(true);
+    setError(null);
+    setArtifact(null);
     try {
       const res = await apiFetch("/api/pipeline/ric/ai-detect", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ manuscript: manuscript.trim() }),
       });
-      if (!res.ok) throw new Error("AI detection failed");
-      setResult(await res.json());
-    } catch (err) { setError(err instanceof Error ? err.message : "Failed"); }
-    finally { setLoading(false); }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "AI detection failed");
+      setArtifact({
+        id: `ai-${Date.now()}`,
+        type: "ai_detect_score",
+        title: "AI writing score",
+        payload: data,
+        createdAt: Date.now(),
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const verdictColor = result?.verdict === "Human" ? "text-green-600" : result?.verdict === "AI" ? "text-red-600" : "text-amber-600";
-
   return (
-    <div>
-      <p className="mb-4 text-sm text-stone-500">
-        Paste your text. We score how likely it was written by an AI (0 = fully human, 100 = fully AI).
-      </p>
-      <form onSubmit={handleDetect} className="mb-6 space-y-4">
-        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6">
-          <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-ai-ms" />
-        </div>
-        <button type="submit" disabled={loading || !manuscript.trim()}
-          className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
-          style={{ backgroundColor: "#C4634E" }} id="pc-ai-btn">
-          {loading ? "Analyzing…" : "Detect AI writing"}
-        </button>
-      </form>
-      {error && <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">{error}</div>}
-      {result && (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-black/[0.07] bg-white p-6 text-center">
-            <p className="text-5xl font-bold text-stone-900 mb-1">{result.score}</p>
-            <p className="text-sm text-stone-500 mb-2">AI probability (0 = human, 100 = AI)</p>
-            <p className={`text-xl font-bold ${verdictColor}`}>{result.verdict}</p>
-          </div>
-          <div className="rounded-xl border border-black/[0.07] bg-white p-4">
-            <p className="text-sm text-stone-700 leading-relaxed">{result.summary}</p>
-          </div>
-          {result.patterns.length > 0 && (
-            <div className="rounded-xl border border-black/[0.07] bg-white p-4">
-              <p className="text-xs font-semibold text-stone-500 mb-2">Detected patterns</p>
-              <ul className="space-y-1">{result.patterns.map((p, i) => <li key={i} className="text-sm text-stone-600">• {p}</li>)}</ul>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+    <ToolShell
+      title="Paper Checker"
+      subtitle="Paste body text. We score how likely it was AI-generated (0 = fully human, 100 = fully AI)."
+      tabs={subTabs}
+      activeTab={activeTab}
+      onTabChange={(id) => onTabChange(id as PCTab)}
+      input={<ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-ai-ms" />}
+      output={
+        loading ? (
+          <ToolLoadingState label="Analysing writing patterns…" />
+        ) : artifact ? (
+          <ArtifactRenderer artifact={artifact} />
+        ) : (
+          <ToolEmptyState
+            title="No result yet"
+            description="Paste 1–2 paragraphs of body text (intro, methods, or discussion). Abstracts alone are too short."
+          />
+        )
+      }
+      primaryAction={{
+        label: "Detect AI writing",
+        loadingLabel: "Analysing…",
+        onClick: handleDetect,
+        loading,
+        disabled: !manuscript.trim(),
+      }}
+      error={error}
+    />
   );
 }
 
 // ── Tab: Plagiarism ────────────────────────────────────────────────────────
-function PlagiarismTab() {
+function PlagiarismTab({ subTabs, activeTab, onTabChange }: { subTabs: SubTab[]; activeTab: PCTab; onTabChange: (t: PCTab) => void }) {
   const [manuscript, setManuscript] = useState("");
-  const [result, setResult] = useState<null | {
-    similarity: number; sources: Array<{ url: string; title: string; similarity: number }>; summary: string;
-  }>(null);
+  const [artifact, setArtifact] = useState<Artifact | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleScan(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleScan() {
     if (!manuscript.trim()) return;
-    setLoading(true); setError(null); setResult(null);
+    setLoading(true);
+    setError(null);
+    setArtifact(null);
     try {
       const res = await apiFetch("/api/pipeline/ric/plagiarism", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ manuscript: manuscript.trim() }),
       });
-      if (!res.ok) throw new Error("Plagiarism scan failed");
-      setResult(await res.json());
-    } catch (err) { setError(err instanceof Error ? err.message : "Failed"); }
-    finally { setLoading(false); }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Plagiarism scan failed");
+      setArtifact({
+        id: `plag-${Date.now()}`,
+        type: "plagiarism_scan",
+        title: "Plagiarism scan",
+        payload: data,
+        createdAt: Date.now(),
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <div>
-      <p className="mb-4 text-sm text-stone-500">
-        Paste your manuscript. We scan for similarity against published literature.
-      </p>
-      <form onSubmit={handleScan} className="mb-6 space-y-4">
-        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6">
-          <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-plagiarism-ms" />
-        </div>
-        <button type="submit" disabled={loading || !manuscript.trim()}
-          className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
-          style={{ backgroundColor: "#C4634E" }} id="pc-plagiarism-btn">
-          {loading ? "Scanning…" : "Scan for plagiarism"}
-        </button>
-      </form>
-      {error && <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">{error}</div>}
-      {result && (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-black/[0.07] bg-white p-6 text-center">
-            <p className="text-5xl font-bold text-stone-900 mb-1">{result.similarity}%</p>
-            <p className="text-sm text-stone-500">Similarity detected</p>
-          </div>
-          <div className="rounded-xl border border-black/[0.07] bg-white p-4">
-            <p className="text-sm text-stone-700 leading-relaxed">{result.summary}</p>
-          </div>
-          {result.sources.length > 0 && (
-            <div className="space-y-2">
-              {result.sources.map((s, i) => (
-                <div key={i} className="rounded-lg border border-black/[0.07] bg-white px-4 py-3 flex items-center justify-between gap-3">
-                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-sm text-stone-700 hover:text-[#C4634E] truncate flex-1">{s.title}</a>
-                  <span className="flex-shrink-0 text-sm font-semibold text-stone-500">{s.similarity}%</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+    <ToolShell
+      title="Paper Checker"
+      subtitle="Paste your manuscript. We scan for similarity against published literature, citation-aware."
+      tabs={subTabs}
+      activeTab={activeTab}
+      onTabChange={(id) => onTabChange(id as PCTab)}
+      input={<ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-plagiarism-ms" />}
+      output={
+        loading ? (
+          <ToolLoadingState label="Scanning for matching literature…" />
+        ) : artifact ? (
+          <ArtifactRenderer artifact={artifact} />
+        ) : (
+          <ToolEmptyState
+            title="No result yet"
+            description="Paste body paragraphs (intro / methods / discussion) where unintentional copying is most likely."
+          />
+        )
+      }
+      primaryAction={{
+        label: "Scan for plagiarism",
+        loadingLabel: "Scanning…",
+        onClick: handleScan,
+        loading,
+        disabled: !manuscript.trim(),
+      }}
+      error={error}
+    />
   );
 }
 
 // ── Tab: Peer Review ───────────────────────────────────────────────────────
-function PeerReviewTab() {
+function PeerReviewTab({ subTabs, activeTab, onTabChange }: { subTabs: SubTab[]; activeTab: PCTab; onTabChange: (t: PCTab) => void }) {
   const [manuscript, setManuscript] = useState("");
-  const [result, setResult] = useState<null | {
-    summary: string; sections: Array<{ heading: string; comments: string[] }>; recommendation: string;
-  }>(null);
+  const [artifact, setArtifact] = useState<Artifact | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  async function handleReview(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleReview() {
     if (!manuscript.trim()) return;
-    setLoading(true); setError(null); setResult(null);
+    setLoading(true);
+    setError(null);
+    setArtifact(null);
     try {
       const res = await apiFetch("/api/pipeline/ric/peer-review", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ manuscript: manuscript.trim() }),
       });
-      if (!res.ok) throw new Error("Peer review failed");
-      setResult(await res.json());
-    } catch (err) { setError(err instanceof Error ? err.message : "Failed"); }
-    finally { setLoading(false); }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Peer review failed");
+      setArtifact({
+        id: `peer-${Date.now()}`,
+        type: "peer_review",
+        title: "Peer review",
+        payload: data,
+        createdAt: Date.now(),
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function chainToPolish() {
-    if (!result || !manuscript) return;
+    if (!artifact || !manuscript) return;
     sessionStorage.setItem("afa_polish_manuscript", manuscript);
-    sessionStorage.setItem("afa_polish_peer_review", JSON.stringify(result));
+    sessionStorage.setItem("afa_polish_peer_review", JSON.stringify(artifact.payload));
     router.push("/tools/polish");
   }
 
   return (
-    <div>
-      <p className="mb-4 text-sm text-stone-500">
-        Paste your manuscript. We simulate an editor-style peer review with section-level comments.
-      </p>
-      <form onSubmit={handleReview} className="mb-6 space-y-4">
-        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6">
-          <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-peer-ms" />
-        </div>
-        <button type="submit" disabled={loading || !manuscript.trim()}
-          className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
-          style={{ backgroundColor: "#C4634E" }} id="pc-peer-btn">
-          {loading ? "Reviewing…" : "Run peer review"}
-        </button>
-      </form>
-      {error && <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">{error}</div>}
-      {result && (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-black/[0.07] bg-white p-4">
-            <p className="text-xs font-semibold text-stone-500 mb-1">Summary</p>
-            <p className="text-sm text-stone-700 leading-relaxed">{result.summary}</p>
+    <ToolShell
+      title="Paper Checker"
+      subtitle="Paste your manuscript. We simulate an editor-style peer review with section-level comments."
+      tabs={subTabs}
+      activeTab={activeTab}
+      onTabChange={(id) => onTabChange(id as PCTab)}
+      input={<ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-peer-ms" />}
+      output={
+        loading ? (
+          <ToolLoadingState label="Drafting structured editorial feedback…" />
+        ) : artifact ? (
+          <div className="space-y-3">
+            <ArtifactRenderer artifact={artifact} />
+            <button
+              onClick={chainToPolish}
+              className="rounded-lg px-4 py-2 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: "#8B5CF6" }}
+            >
+              Polish this paper →
+            </button>
           </div>
-          {result.sections.map((s, i) => (
-            <div key={i} className="rounded-xl border border-black/[0.07] bg-white p-4">
-              <p className="text-xs font-semibold text-stone-500 mb-2">{s.heading}</p>
-              <ul className="space-y-1">{s.comments.map((c, j) => <li key={j} className="text-sm text-stone-700">• {c}</li>)}</ul>
-            </div>
-          ))}
-          <div className="rounded-xl border border-black/[0.07] bg-white p-4">
-            <p className="text-xs font-semibold text-stone-500 mb-1">Editor recommendation</p>
-            <p className="text-sm font-medium text-stone-900">{result.recommendation}</p>
-          </div>
-          <button onClick={chainToPolish}
-            className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: "#8B5CF6" }} id="pc-chain-polish-btn">
-            Polish this paper →
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Tab: Extract Refs → .ris ───────────────────────────────────────────────
-function ExtractRefsTab() {
-  const [manuscript, setManuscript] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleExtract(e: React.FormEvent) {
-    e.preventDefault();
-    if (!manuscript.trim()) return;
-    setLoading(true); setError(null); setDone(false);
-    try {
-      const res = await apiFetch("/api/pipeline/extract-refs", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ manuscript: manuscript.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Extraction failed");
-      if (!data.ris) throw new Error("No references found");
-      const blob = new Blob([data.ris], { type: "application/x-research-info-systems" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a"); a.href = url; a.download = "refs_clean.ris"; a.click();
-      URL.revokeObjectURL(url);
-      setDone(true);
-    } catch (err) { setError(err instanceof Error ? err.message : "Failed"); }
-    finally { setLoading(false); }
-  }
-
-  return (
-    <div>
-      <p className="mb-4 text-sm text-stone-500">
-        Paste your reference list or full manuscript. We extract every citation, verify each DOI against CrossRef, and generate a clean <strong>.ris</strong> file ready to import into <strong>Zotero</strong> or <strong>Mendeley</strong>.
-      </p>
-      <form onSubmit={handleExtract} className="mb-6 space-y-4">
-        <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6">
-          <ManuscriptInput value={manuscript} onChange={setManuscript} id="pc-extract-ms" />
-        </div>
-        <button type="submit" disabled={loading || !manuscript.trim()}
-          className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
-          style={{ backgroundColor: "#C4634E" }} id="pc-extract-btn">
-          {loading ? "Extracting…" : "Extract & download .ris"}
-        </button>
-      </form>
-      {error && <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">{error}</div>}
-      {done && (
-        <div className="rounded-lg border border-green-100 bg-green-50 px-4 py-3 text-sm text-green-800">
-          ✓ Download started — open in Zotero via <strong>File → Import</strong> or drag the .ris file into your library.
-        </div>
-      )}
-    </div>
+        ) : (
+          <ToolEmptyState
+            title="No review yet"
+            description="Paste from Abstract through Discussion. The reviewer needs to see structure to give useful feedback."
+          />
+        )
+      }
+      primaryAction={{
+        label: "Run peer review",
+        loadingLabel: "Reviewing…",
+        onClick: handleReview,
+        loading,
+        disabled: !manuscript.trim(),
+      }}
+      error={error}
+    />
   );
 }
 
@@ -438,34 +374,23 @@ export default function PaperCheckerPage() {
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search).get("tab") as PCTab | null;
-    const validTabs: PCTab[] = ["citations", "ai_detect", "plagiarism", "peer_review", "extract_refs"];
-    if (p && validTabs.includes(p)) {
-      setTab(p);
-    }
+    const validTabs: PCTab[] = ["citations", "ai_detect", "plagiarism", "peer_review"];
+    if (p && validTabs.includes(p)) setTab(p);
   }, []);
 
-  const tabs: { key: PCTab; label: React.ReactNode }[] = [
-    { key: "citations",    label: <span className="flex items-center gap-1.5"><Icons.BookOpen className="w-4 h-4" /> Citations</span> },
-    { key: "ai_detect",   label: <span className="flex items-center gap-1.5"><Icons.Cpu className="w-4 h-4" /> AI Detect</span> },
-    { key: "plagiarism",  label: <span className="flex items-center gap-1.5"><Icons.Scan className="w-4 h-4" /> Plagiarism</span> },
-    { key: "peer_review", label: <span className="flex items-center gap-1.5"><Icons.ClipboardList className="w-4 h-4" /> Peer Review</span> },
-    { key: "extract_refs",label: <span className="flex items-center gap-1.5"><Icons.FileText className="w-4 h-4" /> Extract → .ris</span> },
+  const subTabs: SubTab[] = [
+    { id: "citations", label: "Citations" },
+    { id: "ai_detect", label: "AI detect" },
+    { id: "plagiarism", label: "Plagiarism" },
+    { id: "peer_review", label: "Peer review" },
   ];
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
-      <ToolTabs tabs={tabs} active={tab} onChange={setTab} idPrefix="pc-tab" />
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-6 md:px-10 py-8">
-          {tab === "citations"    && <CitationTab />}
-          {tab === "ai_detect"   && <AIDetectTab />}
-          {tab === "plagiarism"  && <PlagiarismTab />}
-          {tab === "peer_review" && <PeerReviewTab />}
-          {tab === "extract_refs"&& <ExtractRefsTab />}
-        </div>
-      </div>
+    <div className="mx-auto max-w-7xl px-4 md:px-8 py-6 md:py-8">
+      {tab === "citations" && <CitationTab subTabs={subTabs} activeTab={tab} onTabChange={setTab} />}
+      {tab === "ai_detect" && <AIDetectTab subTabs={subTabs} activeTab={tab} onTabChange={setTab} />}
+      {tab === "plagiarism" && <PlagiarismTab subTabs={subTabs} activeTab={tab} onTabChange={setTab} />}
+      {tab === "peer_review" && <PeerReviewTab subTabs={subTabs} activeTab={tab} onTabChange={setTab} />}
     </div>
   );
 }

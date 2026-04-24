@@ -10,17 +10,19 @@ export const metadata: Metadata = {
   description: "Three-phase AI research toolkit: Literature Review, Research Mentor, Paper Checker, and Polish.",
 };
 
+// 12 sub-tools across 4 named groups — match the actual product surface
 const tools = [
   {
-    phase: "Phase 1",
+    group: "Review",
     icon: <Icons.Search className="w-6 h-6 inline-block" />,
     title: "Literature Review",
-    subtitle: "Search · Fetch · Translate",
-    desc: "Find papers on PubMed and OpenAlex, fetch open-access full-text PDFs, translate entire documents to Vietnamese.",
+    subtitle: "Search · Fetch · Translate · Extract refs",
+    desc: "Find papers on PubMed + OpenAlex, fetch open-access PDFs, translate full documents, and extract bibliographies as .ris.",
     features: [
       "LLM-ranked search across PubMed + OpenAlex",
-      "Legal fulltext fetch via Unpaywall cascade",
-      "Full-text PDF/DOCX translation → .docx download",
+      "Legal full-text fetch via Unpaywall cascade",
+      "Full-document EN ↔ VI translation",
+      "Extract bibliography → Zotero/Mendeley .ris",
     ],
     href: "/tools/literature-review",
     quota: "20 searches / day (free login)",
@@ -28,14 +30,14 @@ const tools = [
     textColor: "#1a3d2e",
   },
   {
-    phase: "Phase 2",
+    group: "Research Mentor",
     icon: <Icons.Edit className="w-6 h-6 inline-block" />,
     title: "Research Mentor",
     subtitle: "Validate · Outline · Draft",
     desc: "Critique your research idea for novelty and feasibility, generate a PICO protocol, draft a manuscript section-by-section.",
     features: [
-      "Structured feasibility critique (novelty / red flags)",
-      "PICO + I/E + analysis plan for 6 study types",
+      "Structured feasibility critique (novelty + red flags)",
+      "PICO + I/E + analysis plan for 7 study types",
       "Streaming manuscript draft from your references",
     ],
     href: "/tools/research-mentor",
@@ -44,15 +46,16 @@ const tools = [
     textColor: "#2d1a4d",
   },
   {
-    phase: "Phase 3",
+    group: "Paper Checker",
     icon: <Icons.CheckCircle className="w-6 h-6 inline-block" />,
     title: "Paper Checker",
-    subtitle: "Citations · AI · Plagiarism · Peer Review",
-    desc: "4-in-1 integrity suite before you submit. Check citations, detect AI writing, scan plagiarism, get editor-style feedback.",
+    subtitle: "Citations · AI detect · Plagiarism · Peer review",
+    desc: "4-in-1 integrity suite before you submit. Verify every citation, detect AI writing, scan plagiarism, simulate peer review.",
     features: [
       "Citation verify vs CrossRef + OpenAlex + PubMed",
-      "AI writing detector with score 0–100",
-      "Peer review simulation (structure, methods, narrative)",
+      "AI writing detector — score 0–100 with patterns",
+      "Plagiarism scan with linked source DOIs",
+      "Editor-style peer review with section comments",
     ],
     href: "/tools/paper-checker",
     quota: "5 checks / day (free login)",
@@ -60,14 +63,14 @@ const tools = [
     textColor: "#1a2e3d",
   },
   {
-    phase: "Side tool",
+    group: "Polish",
     icon: <Icons.Sparkles className="w-6 h-6 inline-block" />,
     title: "Polish",
     subtitle: "Prose refinement",
-    desc: "Upload a DOCX, pick a journal style (Nature / BMJ / JAMA), get a tracked-changes diff. Citation markers and statistics preserved verbatim.",
+    desc: "Pick a journal style (Nature / BMJ / JAMA / generic), get a side-by-side diff. Citation markers and statistics are preserved verbatim.",
     features: [
       "Nature / BMJ / JAMA style guides",
-      "Before/after side-by-side diff view",
+      "Before / after side-by-side diff view",
       "Anti-hallucination: locks to your stats + citations",
     ],
     href: "/tools/polish",
@@ -118,7 +121,7 @@ export default async function ToolsPage() {
                     className="mb-1 text-xs font-semibold uppercase tracking-widest opacity-60"
                     style={{ color: tool.textColor }}
                   >
-                    {tool.phase}
+                    {tool.group}
                   </p>
                   <p
                     className="font-serif font-bold text-2xl flex items-center gap-2.5"
