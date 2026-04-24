@@ -96,6 +96,16 @@ export async function withQuota(
     return response;
   } catch (error) {
     console.error("[quota] Wrapper error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const msg = error instanceof Error ? error.message : "Internal Server Error";
+    const adminMissing = !adminDb;
+    return NextResponse.json(
+      {
+        error: msg,
+        ...(adminMissing && {
+          hint: "FIREBASE_SERVICE_ACCOUNT_KEY env var is missing — quota cannot be tracked. Set it in .env.local (dev) and Vercel (prod).",
+        }),
+      },
+      { status: 500 }
+    );
   }
 }
