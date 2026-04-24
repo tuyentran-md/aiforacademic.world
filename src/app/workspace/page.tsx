@@ -92,9 +92,12 @@ async function executeToolCall(name: string, args: Record<string, unknown>): Pro
       return { artifact: { id, type: "ai_detect_score", title: "AI Writing Score", payload: data, createdAt: Date.now() }, summary: `Score: ${data.score}/100 (${data.verdict})` };
     }
     case "peer_review": {
-      const res = await apiFetch("/api/pipeline/ric/peer-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manuscript: args.ms ?? args.manuscript }) });
+      const ms = (args.ms ?? args.manuscript) as string;
+      const res = await apiFetch("/api/pipeline/ric/peer-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manuscript: ms }) });
       const data = await res.json();
-      return { artifact: { id, type: "peer_review", title: "Peer Review", payload: data, createdAt: Date.now() }, summary: `Recommendation: ${data.recommendation}` };
+      // Stash the source manuscript on the artifact payload so the "Polish →" chain
+      // can hand it off to /tools/polish via sessionStorage.
+      return { artifact: { id, type: "peer_review", title: "Peer Review", payload: { ...data, _sourceManuscript: ms }, createdAt: Date.now() }, summary: `Recommendation: ${data.recommendation}` };
     }
     case "scan_plagiarism": {
       const res = await apiFetch("/api/pipeline/ric/plagiarism", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manuscript: args.ms ?? args.manuscript }) });
@@ -326,8 +329,8 @@ export default function WorkspacePage() {
 
   // Language-aware strings
   const t = {
-    welcomeVI: "Chào mừng đến AFA Workspace.\n\nTôi có thể giúp bạn:\n**Phase 1** · Tìm tài liệu, dịch bài\n**Phase 2** · Validate idea, tạo outline, viết bản thảo\n**Phase 3** · Check citations, AI detect, peer review",
-    welcomeEN: "Welcome to AFA Workspace.\n\nI can help you with:\n**Phase 1** · Find literature, translate documents\n**Phase 2** · Validate ideas, generate outlines, draft manuscripts\n**Phase 3** · Check citations, detect AI writing, peer review",
+    welcomeVI: "Chào mừng đến AFA Workspace.\n\nTôi có thể giúp bạn:\n**Review** · Tìm tài liệu, dịch bài, trích xuất .ris\n**Research Mentor** · Validate idea, tạo outline, viết bản thảo\n**Paper Checker** · Check citations, AI detect, plagiarism, peer review\n**Polish** · Trau chuốt văn phong",
+    welcomeEN: "Welcome to AFA Workspace.\n\nI can help you with:\n**Review** · Find literature, translate, extract refs\n**Research Mentor** · Validate ideas, generate outlines, draft manuscripts\n**Paper Checker** · Citations, AI detect, plagiarism, peer review\n**Polish** · Refine prose for journal style",
     suggestions: outputLanguage === "EN"
       ? ["Find papers on laparoscopic appendectomy", "Check my paper for AI writing", "Validate my research idea"]
       : ["Tìm tài liệu về viêm ruột thừa ở trẻ em", "Check bài của tôi", "Validate ý tưởng nghiên cứu"],
@@ -605,7 +608,7 @@ export default function WorkspacePage() {
             <div className="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style={{ backgroundColor: "#C4634E" }}>A</div>
             <div className="min-w-0">
               <p className="font-semibold text-stone-900 text-sm truncate">AFA Workspace</p>
-              <p className="text-[10px] text-stone-400">11 tools active</p>
+              <p className="text-[10px] text-stone-400">{WORKSPACE_FUNCTIONS.length} tools active</p>
             </div>
           </div>
 
@@ -792,7 +795,14 @@ export default function WorkspacePage() {
                   <button onClick={() => navigator.clipboard.writeText(JSON.stringify(activeArtifact.payload, null, 2)).catch(() => {})}
                     className="text-xs text-stone-400 hover:text-stone-600 px-2 py-1 rounded border border-black/10 transition-colors">Copy</button>
                   {activeArtifact.type === "peer_review" && (
-                    <button onClick={() => { sessionStorage.setItem("afa_polish_peer_review", JSON.stringify(activeArtifact.payload)); window.location.href = "/tools/polish"; }}
+                    <button onClick={() => {
+                      const payload = activeArtifact.payload as { _sourceManuscript?: string } & Record<string, unknown>;
+                      // Strip _sourceManuscript before passing the peer-review JSON downstream.
+                      const { _sourceManuscript, ...peerReviewClean } = payload;
+                      if (_sourceManuscript) sessionStorage.setItem("afa_polish_manuscript", _sourceManuscript);
+                      sessionStorage.setItem("afa_polish_peer_review", JSON.stringify(peerReviewClean));
+                      window.location.href = "/tools/polish";
+                    }}
                       className="text-xs font-semibold text-white px-3 py-1 rounded-full transition-opacity hover:opacity-90" style={{ backgroundColor: "#8B5CF6" }}>
                       Polish →
                     </button>
@@ -836,7 +846,7 @@ export default function WorkspacePage() {
                   className="mt-8 w-full max-w-sm flex items-center justify-between gap-3 rounded-xl border border-[#C4634E]/30 bg-[#C4634E]/5 px-4 py-3 hover:bg-[#C4634E]/10 transition-colors group">
                   <div className="text-left">
                     <p className="text-xs font-semibold text-[#C4634E]">Đang dùng gói Free</p>
-                    <p className="text-[11px] text-stone-500 leading-tight mt-0.5">Nâng cấp Pro để dùng không giới hạn tất cả 11 tools</p>
+                    <p className="text-[11px] text-stone-500 leading-tight mt-0.5">Nâng cấp Pro để dùng không giới hạn cả {WORKSPACE_FUNCTIONS.length} tools</p>
                   </div>
                   <span className="flex-shrink-0 text-xs font-bold text-white bg-[#C4634E] rounded-full px-3 py-1.5 group-hover:opacity-90 transition-opacity">Upgrade →</span>
                 </a>
