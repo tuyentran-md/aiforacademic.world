@@ -4,18 +4,21 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LangToggle from "@/components/LangToggle";
-
-const navLinks = [
-  { href: "/workspace", label: "Workspace" },
-  { href: "/tools", label: "Tools" },
-  { href: "/resources", label: "Resources" },
-  { href: "/blog", label: "Blog" },
-  { href: "/about", label: "About" },
-];
+import { useLang } from "@/context/LangContext";
+import { NAV } from "@/lib/i18n/strings";
 
 export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { lang } = useLang();
+
+  const navLinks = [
+    { href: "/workspace", label: NAV.workspace[lang] },
+    { href: "/tools", label: NAV.tools[lang] },
+    { href: "/resources", label: NAV.resources[lang] },
+    { href: "/blog", label: NAV.blog[lang] },
+    { href: "/about", label: NAV.about[lang] },
+  ];
 
   const isWorkspace = pathname?.startsWith("/workspace");
 

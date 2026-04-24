@@ -72,4 +72,84 @@ export const BILLING = {
   month:       { EN: "month", VI: "tháng" },
   year:        { EN: "year", VI: "năm" },
   recommended: { EN: "Recommended", VI: "Khuyên dùng" },
+  pendingReview: { EN: "Payment gateway pending approval", VI: "Cổng thanh toán đang chờ xét duyệt" },
+  paymentFailed: { EN: "Failed to initiate payment", VI: "Không khởi tạo được thanh toán" },
+};
+
+// Footer
+export const FOOTER = {
+  toolsHeading: { EN: "Tools", VI: "Công cụ" },
+  siteHeading: { EN: "Site", VI: "Trang" },
+  connectHeading: { EN: "Connect", VI: "Liên hệ" },
+  litReview: { EN: "Literature Review (Phase 1)", VI: "Tìm tài liệu (Phase 1)" },
+  mentor: { EN: "Research Mentor (Phase 2)", VI: "AI Mentor (Phase 2)" },
+  paperChecker: { EN: "Paper Checker (Phase 3)", VI: "Kiểm tra bài (Phase 3)" },
+  polish: { EN: "Polish", VI: "Trau chuốt" },
+  workspace: { EN: "Workspace", VI: "Workspace" },
+  blog: { EN: "Blog", VI: "Blog" },
+  about: { EN: "About", VI: "Giới thiệu" },
+  authorBlog: { EN: "Tuyến Trần, MD — Courses & Blog", VI: "Tuyến Trần, MD — Khoá học & Blog" },
+  tagline: { EN: "AI for Academic · Three phases. From literature to publication.", VI: "AI for Academic · Ba giai đoạn. Từ tài liệu đến bài báo." },
+  builtBy: { EN: "Built by Tuyến Trần, MD", VI: "Phát triển bởi Tuyến Trần, MD" },
+};
+
+// Payment success page
+export const PAYMENT = {
+  pollingTitle: { EN: "Verifying payment…", VI: "Đang xác nhận thanh toán…" },
+  pollingDesc: { EN: "We're confirming your transfer with the bank. This usually takes a few seconds.", VI: "Chúng tôi đang xác nhận chuyển khoản với ngân hàng. Thường mất vài giây." },
+  successTitle: { EN: "Payment successful!", VI: "Thanh toán thành công!" },
+  successDesc: { EN: "Your Pro plan is now active. Welcome aboard.", VI: "Gói Pro đã được kích hoạt. Chào mừng bạn." },
+  goToWorkspace: { EN: "Go to Workspace →", VI: "Vào Workspace →" },
+  pendingTitle: { EN: "Still waiting for confirmation", VI: "Vẫn đang chờ xác nhận" },
+  pendingDesc: { EN: "Verification is taking longer than expected. Your payment is safe — refresh in a minute or contact support.", VI: "Việc xác nhận đang lâu hơn dự kiến. Khoản thanh toán của bạn vẫn an toàn — vui lòng làm mới sau ít phút hoặc liên hệ hỗ trợ." },
+  failedTitle: { EN: "Payment not received", VI: "Chưa nhận được thanh toán" },
+  failedDesc: { EN: "We couldn't confirm a transfer. If you already paid, contact support with your transaction reference.", VI: "Chúng tôi chưa thể xác nhận chuyển khoản. Nếu bạn đã chuyển, vui lòng liên hệ hỗ trợ kèm mã giao dịch." },
+  backToBilling: { EN: "Back to billing", VI: "Về trang thanh toán" },
+  contactSupport: { EN: "Contact support", VI: "Liên hệ hỗ trợ" },
+};
+
+// Workspace UI
+export const WORKSPACE = {
+  signin: { EN: "Sign in", VI: "Đăng nhập" },
+  newProject: { EN: "+ Project", VI: "+ Dự án" },
+  pro: { EN: "⬆ Pro", VI: "⬆ Pro" },
+  toolsActive: { EN: "11 tools active", VI: "11 công cụ" },
+  errPrefix: { EN: "Error", VI: "Lỗi" },
+  fileNeeded: { EN: "This tool needs a file. Click 📎 to attach.", VI: "Tool này cần file. Bấm 📎 để đính kèm." },
+  attachFile: { EN: "Attach file (PDF/DOCX, max 10MB)", VI: "Đính kèm file (PDF/DOCX, tối đa 10MB)" },
+  send: { EN: "Send", VI: "Gửi" },
+  artifactsTab: { EN: "🗂 Artifacts", VI: "🗂 Tài liệu" },
+  chatTab: { EN: "💬 Chat", VI: "💬 Trò chuyện" },
+  noArtifacts: { EN: "No artifacts yet — start a tool to see results here.", VI: "Chưa có kết quả — chạy một tool để xem kết quả ở đây." },
+  fullReport: { EN: "Open full report →", VI: "Mở báo cáo đầy đủ →" },
+  copyLink: { EN: "Copy link", VI: "Sao chép link" },
+  download: { EN: "Download", VI: "Tải xuống" },
+  openPdf: { EN: "Open PDF →", VI: "Mở PDF →" },
+  copyDoi: { EN: "Copy DOI", VI: "Sao chép DOI" },
+  copied: { EN: "Copied!", VI: "Đã sao chép!" },
+  showFull: { EN: "Show full text", VI: "Xem toàn văn" },
+  showLess: { EN: "Show less", VI: "Thu gọn" },
+  recommendation: { EN: "Recommendation", VI: "Đề xuất" },
+  similarity: { EN: "Similarity", VI: "Mức trùng lặp" },
+  sources: { EN: "Sources", VI: "Nguồn" },
+  noSources: { EN: "No matching sources detected.", VI: "Không phát hiện nguồn nào trùng khớp." },
+  totalRefs: { EN: "Total", VI: "Tổng" },
+  verifiedRefs: { EN: "Verified", VI: "Đã xác minh" },
+  unverifiedRefs: { EN: "Unverified", VI: "Chưa xác minh" },
+  aiScore: { EN: "AI score (0=human · 100=AI)", VI: "Điểm AI (0=người · 100=AI)" },
+  patterns: { EN: "Detected patterns", VI: "Mẫu phát hiện" },
+  redFlags: { EN: "⚠ Red flags", VI: "⚠ Cảnh báo" },
+};
+
+// About page
+export const ABOUT = {
+  pageTitle: { EN: "About AI for Academic", VI: "Giới thiệu AI for Academic" },
+  pageSubtitle: { EN: "Built by a clinician for clinicians. Built in public.", VI: "Được xây dựng bởi bác sĩ, cho bác sĩ. Phát triển công khai." },
+};
+
+// Common
+export const COMMON = {
+  exportFailed: { EN: "Export failed", VI: "Xuất file thất bại" },
+  tryAgain: { EN: "Try again", VI: "Thử lại" },
+  loading: { EN: "Loading…", VI: "Đang tải…" },
 };

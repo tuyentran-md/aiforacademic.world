@@ -99,7 +99,7 @@ export function AboutTabs() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10">
-      <aside className="rounded-[28px] border border-black/8 bg-white/82 p-3 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
+      <aside className="rounded-[28px] border border-black/[0.08] bg-white/82 p-3 shadow-[0_18px_40px_rgba(17,17,16,0.05)]">
         <div className="mb-3 px-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
             Questions
@@ -123,11 +123,11 @@ export function AboutTabs() {
         </div>
       </aside>
 
-      <section className="rounded-[32px] border border-black/8 bg-white/88 p-6 shadow-[0_20px_44px_rgba(17,17,16,0.05)]">
+      <section className="rounded-[32px] border border-black/[0.08] bg-white/88 p-6 shadow-[0_20px_44px_rgba(17,17,16,0.05)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
           {activeSection.eyebrow}
         </p>
-        <h2 className="mt-3 font-serif text-[2.3rem] font-bold leading-tight text-stone-900">
+        <h2 className="mt-3 font-serif text-[clamp(1.6rem,4vw,2.3rem)] font-bold leading-tight text-stone-900">
           {activeSection.title}
         </h2>
 
@@ -142,7 +142,7 @@ export function AboutTabs() {
             {activeSection.bullets.map((bullet) => (
               <div
                 key={bullet}
-                className="rounded-2xl border border-black/8 bg-stone-50 px-4 py-3 text-sm text-stone-600"
+                className="rounded-2xl border border-black/[0.08] bg-stone-50 px-4 py-3 text-sm text-stone-600"
               >
                 {bullet}
               </div>

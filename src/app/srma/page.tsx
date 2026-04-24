@@ -64,19 +64,19 @@ export default function SRMAPage() {
           {/* Tool switcher */}
           <nav className="flex items-center gap-1 text-sm">
             <Link
-              href="/ric"
+              href="/tools/paper-checker"
               className="px-3 py-1 rounded-full transition-colors hover:opacity-80"
               style={{ color: PEACH.text, opacity: 0.6 }}
             >
-              RIC
+              Paper Checker
             </Link>
             <span style={{ color: PEACH.text, opacity: 0.3 }}>&middot;</span>
             <Link
-              href="/trans"
+              href="/tools/literature-review"
               className="px-3 py-1 rounded-full transition-colors hover:opacity-80"
               style={{ color: PEACH.text, opacity: 0.6 }}
             >
-              Trans
+              Lit Review
             </Link>
             <span style={{ color: PEACH.text, opacity: 0.3 }}>&middot;</span>
             <span
@@ -216,18 +216,18 @@ export default function SRMAPage() {
             aiforacademic.world
           </a>
           <Link
-            href="/ric"
+            href="/tools/paper-checker"
             className="text-sm transition-opacity hover:opacity-70"
             style={{ color: PEACH.text, opacity: 0.65 }}
           >
-            RIC
+            Paper Checker
           </Link>
           <Link
-            href="/trans"
+            href="/tools/literature-review"
             className="text-sm transition-opacity hover:opacity-70"
             style={{ color: PEACH.text, opacity: 0.65 }}
           >
-            Translator
+            Lit Review
           </Link>
         </div>
       </footer>

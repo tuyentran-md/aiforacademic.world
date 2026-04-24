@@ -30,7 +30,9 @@ export type ArtifactType =
   | "peer_review"
   | "feasibility"
   | "outline"
-  | "translation";
+  | "translation"
+  | "fetch_result"
+  | "polish_diff";
 
 export interface ProjectData {
   id?: string;

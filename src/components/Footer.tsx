@@ -1,37 +1,42 @@
 "use client";
 
 import Link from "next/link";
-
-const footerLinks = [
-  {
-    section: "Tools",
-    links: [
-      { label: "Literature Review (Phase 1)", href: "/tools/literature-review" },
-      { label: "Research Mentor (Phase 2)", href: "/tools/research-mentor" },
-      { label: "Paper Checker (Phase 3)", href: "/tools/paper-checker" },
-      { label: "Polish", href: "/tools/polish" },
-    ],
-  },
-  {
-    section: "Site",
-    links: [
-      { label: "Workspace", href: "/workspace" },
-      { label: "Blog", href: "/blog" },
-      { label: "About", href: "/about" },
-      { label: "Tuyến Trần, MD — Courses & Blog", href: "https://tuyentranmd.com", external: true },
-    ],
-  },
-  {
-    section: "Connect",
-    links: [
-      { label: "GitHub", href: "https://github.com/tuyentran-md", external: true },
-      { label: "LinkedIn", href: "https://linkedin.com/in/tuyentran-md", external: true },
-      { label: "ORCID", href: "https://orcid.org/0009-0003-0535-6225", external: true },
-    ],
-  },
-];
+import { useLang } from "@/context/LangContext";
+import { FOOTER } from "@/lib/i18n/strings";
 
 export default function Footer() {
+  const { lang } = useLang();
+  const f = (key: keyof typeof FOOTER) => FOOTER[key][lang];
+
+  const footerLinks = [
+    {
+      section: f("toolsHeading"),
+      links: [
+        { label: f("litReview"), href: "/tools/literature-review" },
+        { label: f("mentor"), href: "/tools/research-mentor" },
+        { label: f("paperChecker"), href: "/tools/paper-checker" },
+        { label: f("polish"), href: "/tools/polish" },
+      ],
+    },
+    {
+      section: f("siteHeading"),
+      links: [
+        { label: f("workspace"), href: "/workspace" },
+        { label: f("blog"), href: "/blog" },
+        { label: f("about"), href: "/about" },
+        { label: f("authorBlog"), href: "https://tuyentranmd.com", external: true },
+      ],
+    },
+    {
+      section: f("connectHeading"),
+      links: [
+        { label: "GitHub", href: "https://github.com/tuyentran-md", external: true },
+        { label: "LinkedIn", href: "https://linkedin.com/in/tuyentran-md", external: true },
+        { label: "ORCID", href: "https://orcid.org/0009-0003-0535-6225", external: true },
+      ],
+    },
+  ];
+
   return (
     <footer className="no-grid" style={{ backgroundColor: "#111111" }}>
       <div className="max-w-5xl mx-auto px-6 md:px-8 py-14">
@@ -52,18 +57,14 @@ export default function Footer() {
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[13px] transition-colors"
-                        style={{ color: "#e0e0e0" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = "#e0e0e0")}
+                        className="text-[13px] text-[#e0e0e0] hover:text-white transition-colors"
                       >
                         {link.label}&thinsp;↗
                       </a>
                     ) : (
                       <Link
                         href={link.href}
-                        className="text-[13px] transition-colors"
-                        style={{ color: "#e0e0e0" }}
+                        className="text-[13px] text-[#e0e0e0] hover:text-white transition-colors"
                       >
                         {link.label}
                       </Link>
@@ -80,10 +81,10 @@ export default function Footer() {
           style={{ borderColor: "#222" }}
         >
           <p className="text-[12px]" style={{ color: "#aaa" }}>
-            AI for Academic · Three phases. From literature to publication.
+            {f("tagline")}
           </p>
           <p className="text-[12px]" style={{ color: "#888" }}>
-            Built by Tuyến Trần, MD · © {new Date().getFullYear()}
+            {f("builtBy")} · © {new Date().getFullYear()}
           </p>
         </div>
       </div>

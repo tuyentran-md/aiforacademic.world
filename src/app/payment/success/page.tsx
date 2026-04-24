@@ -3,11 +3,15 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api-client";
+import { useLang } from "@/context/LangContext";
+import { PAYMENT } from "@/lib/i18n/strings";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get("order");
+  const { lang } = useLang();
+  const s = (key: keyof typeof PAYMENT) => PAYMENT[key][lang];
 
   const [status, setStatus] = useState<"polling" | "success" | "timeout" | "error">("polling");
   const [dots, setDots] = useState("");
@@ -20,7 +24,7 @@ function SuccessContent() {
 
     let intervalId: NodeJS.Timeout | null = null;
     const startTime = Date.now();
-    const timeoutMs = 60000; // 60 seconds
+    const timeoutMs = 60000;
 
     const checkStatus = async () => {
       try {
@@ -32,7 +36,7 @@ function SuccessContent() {
           if (intervalId) clearInterval(intervalId);
           setTimeout(() => {
             router.push("/workspace");
-          }, 2000); // give it a moment to show success UI before redirect
+          }, 2000);
         } else if (Date.now() - startTime > timeoutMs) {
           setStatus("timeout");
           if (intervalId) clearInterval(intervalId);
@@ -42,10 +46,7 @@ function SuccessContent() {
       }
     };
 
-    // Initial check
     checkStatus();
-
-    // Poll every 3s
     intervalId = setInterval(checkStatus, 3000);
 
     return () => {
@@ -72,10 +73,10 @@ function SuccessContent() {
             </svg>
           </div>
           <h2 className="text-2xl font-semibold text-stone-800">
-            Thanh toán thành công!
+            {s("pollingTitle")}
           </h2>
           <p className="mt-2 text-stone-500">
-            Hệ thống đang kích hoạt AFA Pro cho bạn{dots}
+            {s("pollingDesc")}{dots}
           </p>
         </>
       )}
@@ -98,10 +99,10 @@ function SuccessContent() {
             </svg>
           </div>
           <h2 className="text-2xl font-semibold text-stone-800">
-            Đã kích hoạt AFA Pro!
+            {s("successTitle")}
           </h2>
           <p className="mt-2 text-stone-500">
-            Cảm ơn sếp. Tự động chuyển hướng về Workspace...
+            {s("successDesc")}
           </p>
         </>
       )}
@@ -124,16 +125,16 @@ function SuccessContent() {
             </svg>
           </div>
           <h2 className="text-2xl font-semibold text-stone-800">
-            Đang chờ xác nhận từ ngân hàng
+            {s("pendingTitle")}
           </h2>
-          <p className="mt-2 text-stone-500">
-            Nếu giao dịch đã trừ tiền nhưng tài khoản chưa active, xin vui lòng liên hệ support (hotline hoặc email góc dưới) để được hỗ trợ ngay lập tức.
+          <p className="mt-2 max-w-md text-stone-500">
+            {s("pendingDesc")}
           </p>
           <button
             onClick={() => router.push("/workspace")}
             className="mt-6 rounded-lg bg-stone-900 px-6 py-2 text-white hover:bg-stone-800 transition-colors"
           >
-            Quay lại Workspace
+            {s("goToWorkspace")}
           </button>
         </>
       )}
@@ -141,16 +142,16 @@ function SuccessContent() {
       {status === "error" && (
         <>
           <h2 className="text-2xl font-semibold text-stone-800">
-            Lỗi đường dẫn
+            {s("failedTitle")}
           </h2>
           <p className="mt-2 text-stone-500">
-            Không tìm thấy thông tin đơn hàng hợp lệ.
+            {s("failedDesc")}
           </p>
           <button
             onClick={() => router.push("/account/billing")}
             className="mt-6 rounded-lg bg-stone-900 px-6 py-2 text-white hover:bg-stone-800 transition-colors"
           >
-            Về trang thanh toán
+            {s("backToBilling")}
           </button>
         </>
       )}

@@ -22,7 +22,8 @@ import { getOrCreateProfile } from "@/lib/firebase/profile";
 
 type ArtifactType =
   | "paper_cards" | "manuscript" | "citation_report" | "ai_detect_score"
-  | "plagiarism_scan" | "peer_review" | "feasibility" | "outline" | "translation";
+  | "plagiarism_scan" | "peer_review" | "feasibility" | "outline" | "translation"
+  | "fetch_result" | "polish_diff";
 
 interface Artifact {
   id: string;
@@ -56,24 +57,62 @@ const WORKSPACE_FUNCTIONS: { name: string; desc: string; phase: number; icon: Re
   { name: "polish_prose",    desc: "Polish prose (preserve citations + stats)",   phase: 3, icon: <Icons.Sparkles className="w-3.5 h-3.5 text-amber-500" /> },
 ];
 
+// ── Helpers ────────────────────────────────────────────────────────────────
+function renderInlineMarkdown(text: string) {
+  // Render **bold**, then `code`, preserving order.
+  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  return parts.map((part, j) => {
+    if (part.startsWith("**") && part.endsWith("**"))
+      return <strong key={j}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith("`") && part.endsWith("`"))
+      return <code key={j} className="rounded bg-stone-100 px-1 py-0.5 text-[0.85em] font-mono">{part.slice(1, -1)}</code>;
+    return <span key={j}>{part}</span>;
+  });
+}
+
+function MarkdownBlock({ text }: { text: string }) {
+  if (!text) return null;
+  const lines = text.split("\n");
+  return (
+    <div className="text-sm text-stone-700 leading-relaxed space-y-1.5">
+      {lines.map((line, i) => {
+        if (/^###\s/.test(line)) return <h4 key={i} className="text-sm font-semibold text-stone-900 mt-3">{line.replace(/^###\s/, "")}</h4>;
+        if (/^##\s/.test(line))  return <h3 key={i} className="text-base font-bold text-stone-900 mt-3">{line.replace(/^##\s/, "")}</h3>;
+        if (/^#\s/.test(line))   return <h2 key={i} className="text-lg font-bold text-stone-900 mt-3">{line.replace(/^#\s/, "")}</h2>;
+        if (/^[\-\*]\s/.test(line)) return <p key={i} className="ml-4">• {renderInlineMarkdown(line.replace(/^[\-\*]\s/, ""))}</p>;
+        if (/^\d+\.\s/.test(line)) return <p key={i} className="ml-4">{renderInlineMarkdown(line)}</p>;
+        if (line.trim() === "") return <div key={i} className="h-2" />;
+        return <p key={i}>{renderInlineMarkdown(line)}</p>;
+      })}
+    </div>
+  );
+}
+
 // ── Artifact Renderer ──────────────────────────────────────────────────────
 function ArtifactRenderer({ artifact }: { artifact: Artifact }) {
   const p = artifact.payload as Record<string, unknown>;
   switch (artifact.type) {
     case "paper_cards": {
       const refs = (p.refs as unknown[]) ?? [];
+      if (refs.length === 0) return <p className="text-sm text-stone-500 italic">No matching papers.</p>;
       return (
         <div className="space-y-3">
           {refs.map((ref: unknown, i) => {
             const r = ref as Record<string, unknown>;
             return (
-              <div key={i} className="rounded-lg border border-black/[0.07] bg-white/60 p-4">
+              <div key={(r.id as string) ?? i} className="rounded-lg border border-black/[0.07] bg-white/60 p-4">
                 <a href={r.url as string} target="_blank" rel="noopener noreferrer"
-                  className="text-sm font-semibold text-stone-900 hover:text-[#C4634E] line-clamp-2">{r.title as string}</a>
+                  className="text-sm font-semibold text-stone-900 hover:text-[#C4634E]">{r.title as string}</a>
                 <p className="text-xs text-stone-400 mt-1">
-                  {(r.authors as string[])?.slice(0, 2).join(", ")} · {r.journal as string} · {r.year as number}
+                  {(r.authors as string[])?.slice(0, 3).join(", ")}{(r.authors as string[])?.length > 3 ? " et al." : ""} · {r.journal as string} · {r.year as number}
                 </p>
-                <p className="text-xs text-stone-500 mt-1.5 line-clamp-2">{r.abstract as string}</p>
+                {r.abstract ? <p className="text-xs text-stone-600 mt-2 leading-relaxed">{r.abstract as string}</p> : null}
+                {r.doi ? (
+                  <div className="mt-2 flex items-center gap-3 text-[11px]">
+                    <a href={`https://doi.org/${r.doi}`} target="_blank" rel="noopener noreferrer"
+                      className="text-stone-500 hover:text-[#C4634E]">doi:{r.doi as string}</a>
+                  </div>
+                ) : null}
               </div>
             );
           })}
@@ -82,7 +121,7 @@ function ArtifactRenderer({ artifact }: { artifact: Artifact }) {
     }
     case "manuscript":
     case "outline":
-      return <pre className="whitespace-pre-wrap text-sm text-stone-700 leading-relaxed font-sans">{(p.text ?? p.outline) as string ?? ""}</pre>;
+      return <MarkdownBlock text={((p.text ?? p.outline) as string) ?? ""} />;
     case "feasibility": {
       const scores = [
         { label: "Novelty", d: p.novelty as Record<string, unknown> },
@@ -92,60 +131,245 @@ function ArtifactRenderer({ artifact }: { artifact: Artifact }) {
       return (
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-2">
-            {scores.map((s) => (
-              <div key={s.label} className="rounded-lg border border-black/[0.07] bg-white/60 p-3 text-center">
-                <p className="text-xl font-bold text-stone-900">{s.d?.score as number}/10</p>
-                <p className="text-xs font-semibold text-stone-500">{s.label}</p>
-                <p className="text-xs text-stone-500 mt-1 leading-relaxed">{s.d?.comment as string}</p>
-              </div>
-            ))}
+            {scores.map((s) => {
+              const score = (s.d?.score as number) ?? 0;
+              const tone = score >= 7 ? "text-green-600" : score >= 5 ? "text-amber-600" : "text-red-600";
+              return (
+                <div key={s.label} className="rounded-lg border border-black/[0.07] bg-white/60 p-3 text-center">
+                  <p className={`text-2xl font-bold ${tone}`}>{score}<span className="text-sm text-stone-400">/10</span></p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">{s.label}</p>
+                  <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">{s.d?.comment as string}</p>
+                </div>
+              );
+            })}
           </div>
+          {p.suggestedStudyType ? (
+            <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-800">
+              <span className="font-semibold">Suggested study type:</span> {p.suggestedStudyType as string}
+            </div>
+          ) : null}
           {Array.isArray(p.redFlags) && (p.redFlags as string[]).length > 0 && (
             <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
               <p className="text-xs font-semibold text-amber-700 mb-1">⚠ Red flags</p>
               {(p.redFlags as string[]).map((f, i) => <p key={i} className="text-sm text-amber-700">• {f}</p>)}
             </div>
           )}
-          <div className="rounded-lg border border-black/[0.07] bg-white/60 p-3">
+          <div className="rounded-lg border border-emerald-100 bg-emerald-50/60 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 mb-1">Recommendation</p>
             <p className="text-sm text-stone-700">{p.recommendation as string}</p>
           </div>
         </div>
       );
     }
-    case "citation_report":
-      return (
-        <div className="flex gap-6 text-center">
-          <div><p className="text-2xl font-bold text-stone-900">{p.total as number}</p><p className="text-xs text-stone-500">Total</p></div>
-          <div><p className="text-2xl font-bold text-green-600">{p.verified as number}</p><p className="text-xs text-stone-500">Verified</p></div>
-          <div><p className="text-2xl font-bold text-red-600">{p.unverified as number}</p><p className="text-xs text-stone-500">Unverified</p></div>
-        </div>
-      );
-    case "ai_detect_score":
-      return (
-        <div className="text-center">
-          <p className="text-5xl font-bold text-stone-900">{p.score as number}</p>
-          <p className="text-sm text-stone-400 mb-2">AI score (0=human · 100=AI)</p>
-          <p className={`text-xl font-bold ${p.verdict === "Human" ? "text-green-600" : p.verdict === "AI" ? "text-red-600" : "text-amber-600"}`}>{p.verdict as string}</p>
-          <p className="text-sm text-stone-600 mt-2">{p.summary as string}</p>
-        </div>
-      );
-    case "peer_review": {
-      const sections = (p.sections as Array<{ heading: string; comments: string[] }>) ?? [];
+    case "citation_report": {
+      const refs = (p.refs as Array<{ ref: string; status: "verified" | "unverified" | "error"; sources?: string[]; doi?: string }>) ?? [];
       return (
         <div className="space-y-3">
-          <p className="text-sm text-stone-700">{p.summary as string}</p>
+          <div className="flex gap-6 text-center">
+            <div><p className="text-2xl font-bold text-stone-900">{(p.total as number) ?? 0}</p><p className="text-xs text-stone-500">Total</p></div>
+            <div><p className="text-2xl font-bold text-green-600">{(p.verified as number) ?? 0}</p><p className="text-xs text-stone-500">Verified</p></div>
+            <div><p className="text-2xl font-bold text-red-600">{(p.unverified as number) ?? 0}</p><p className="text-xs text-stone-500">Unverified</p></div>
+          </div>
+          {refs.length > 0 ? (
+            <div className="space-y-2">
+              {refs.map((r, i) => (
+                <div key={r.doi ?? i} className="rounded-lg border border-black/[0.07] bg-white/60 px-3 py-2 flex items-start gap-2">
+                  <span className={`mt-0.5 flex-shrink-0 text-sm ${r.status === "verified" ? "text-green-500" : "text-red-500"}`}>
+                    {r.status === "verified" ? "✓" : "✗"}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-xs text-stone-700 leading-relaxed break-words">{r.ref}</p>
+                    {r.sources && r.sources.length > 0 && (
+                      <p className="text-[10px] text-stone-400 mt-0.5">via {r.sources.join(", ")}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-stone-500 italic">No references parsed. Make sure the manuscript includes a bibliography section.</p>
+          )}
+        </div>
+      );
+    }
+    case "ai_detect_score": {
+      const score = (p.score as number) ?? 0;
+      const verdict = (p.verdict as string) ?? "Mixed";
+      const tone = verdict === "Human" ? "text-green-600 bg-green-50 border-green-100" : verdict === "AI" ? "text-red-600 bg-red-50 border-red-100" : "text-amber-600 bg-amber-50 border-amber-100";
+      const patterns = (p.patterns as string[]) ?? [];
+      return (
+        <div className="space-y-3">
+          <div className="rounded-lg border border-black/[0.07] bg-white/60 p-4 text-center">
+            <p className="text-5xl font-bold text-stone-900">{score}<span className="text-base font-normal text-stone-400">/100</span></p>
+            <p className="text-xs text-stone-400 mt-1">AI score (0 = human · 100 = AI)</p>
+            <span className={`inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full border ${tone}`}>{verdict}</span>
+          </div>
+          {p.summary ? (
+            <div className="rounded-lg border border-black/[0.07] bg-white/60 p-3">
+              <p className="text-sm text-stone-700">{p.summary as string}</p>
+            </div>
+          ) : null}
+          {patterns.length > 0 && (
+            <div className="rounded-lg border border-black/[0.07] bg-white/60 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500 mb-2">Detected patterns</p>
+              <ul className="space-y-1">
+                {patterns.map((pat, i) => <li key={i} className="text-sm text-stone-700">• {pat}</li>)}
+              </ul>
+            </div>
+          )}
+        </div>
+      );
+    }
+    case "plagiarism_scan": {
+      const sim = (p.similarity as number) ?? 0;
+      const tone = sim < 15 ? "bg-green-500" : sim < 35 ? "bg-amber-500" : "bg-red-500";
+      const sources = (p.sources as Array<{ url?: string; title?: string; similarity?: number }>) ?? [];
+      return (
+        <div className="space-y-3">
+          <div className="rounded-lg border border-black/[0.07] bg-white/60 p-4">
+            <div className="flex items-baseline justify-between mb-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">Overall similarity</p>
+              <p className="text-2xl font-bold text-stone-900">{sim}%</p>
+            </div>
+            <div className="h-2 w-full rounded-full bg-stone-100 overflow-hidden">
+              <div className={`h-full ${tone} transition-all`} style={{ width: `${Math.min(100, sim)}%` }} />
+            </div>
+          </div>
+          {p.summary ? (
+            <div className="rounded-lg border border-black/[0.07] bg-white/60 p-3">
+              <p className="text-sm text-stone-700">{p.summary as string}</p>
+            </div>
+          ) : null}
+          {sources.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">Sources</p>
+              {sources.map((s, i) => (
+                <div key={i} className="rounded-lg border border-black/[0.07] bg-white/60 px-3 py-2">
+                  {s.url ? (
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-stone-800 hover:text-[#C4634E] break-all">
+                      {s.title || s.url}
+                    </a>
+                  ) : (
+                    <p className="text-xs font-medium text-stone-800">{s.title}</p>
+                  )}
+                  {typeof s.similarity === "number" && (
+                    <p className="text-[10px] text-stone-400 mt-0.5">{s.similarity}% match</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-stone-500 italic">No matching sources detected.</p>
+          )}
+        </div>
+      );
+    }
+    case "peer_review": {
+      const sections = (p.sections as Array<{ heading: string; comments: string[] }>) ?? [];
+      const rec = (p.recommendation as string) ?? "";
+      const recTone = /accept/i.test(rec) ? "bg-green-50 text-green-700 border-green-200" :
+                      /reject/i.test(rec) ? "bg-red-50 text-red-700 border-red-200" :
+                      "bg-amber-50 text-amber-700 border-amber-200";
+      return (
+        <div className="space-y-3">
+          {p.summary ? <p className="text-sm text-stone-700 leading-relaxed">{p.summary as string}</p> : null}
           {sections.map((s, i) => (
             <div key={i} className="rounded-lg border border-black/[0.07] bg-white/60 p-3">
-              <p className="text-xs font-semibold text-stone-500 mb-1">{s.heading}</p>
-              {s.comments.map((c, j) => <p key={j} className="text-sm text-stone-700">• {c}</p>)}
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500 mb-1.5">{s.heading}</p>
+              <ul className="space-y-1">
+                {s.comments.map((c, j) => <li key={j} className="text-sm text-stone-700">• {c}</li>)}
+              </ul>
             </div>
           ))}
-          <p className="text-sm font-semibold text-stone-900">Recommendation: {p.recommendation as string}</p>
+          {rec ? (
+            <div className={`rounded-lg border px-3 py-2 ${recTone}`}>
+              <span className="text-[11px] font-semibold uppercase tracking-wide">Recommendation</span>
+              <p className="text-sm font-semibold mt-0.5">{rec}</p>
+            </div>
+          ) : null}
+        </div>
+      );
+    }
+    case "fetch_result": {
+      const results = (p.results as Array<{ doi: string; status: string; source?: string; downloadUrl?: string }>) ?? [];
+      return (
+        <div className="space-y-2">
+          {results.length === 0 ? (
+            <p className="text-sm text-stone-500 italic">No results.</p>
+          ) : results.map((r, i) => (
+            <div key={i} className="rounded-lg border border-black/[0.07] bg-white/60 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-mono text-stone-500 break-all">doi:{r.doi}</p>
+                  {r.source ? <p className="text-[11px] text-stone-400 mt-0.5">via {r.source}</p> : null}
+                </div>
+                <span className={`flex-shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                  r.status === "ok" ? "bg-green-100 text-green-700" : r.status === "no_oa" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"
+                }`}>{r.status === "ok" ? "OA" : r.status === "no_oa" ? "no OA" : "failed"}</span>
+              </div>
+              {r.downloadUrl ? (
+                <a href={r.downloadUrl} target="_blank" rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#C4634E] hover:underline">
+                  Open PDF →
+                </a>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    case "translation": {
+      const translated = (p.translated as string) ?? "";
+      const lang = (p.targetLanguage as string) ?? "VI";
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-stone-500">
+              <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-700">→ {lang}</span>
+            </span>
+            <button
+              onClick={() => navigator.clipboard?.writeText(translated)}
+              className="text-[11px] font-medium text-stone-500 hover:text-stone-800"
+            >
+              Copy
+            </button>
+          </div>
+          <div className="rounded-lg border border-black/[0.07] bg-white/60 p-4">
+            <MarkdownBlock text={translated} />
+          </div>
+        </div>
+      );
+    }
+    case "polish_diff": {
+      const original = (p.original as string) ?? "";
+      const polished = (p.polished as string) ?? "";
+      return (
+        <div className="space-y-3">
+          <div className="grid md:grid-cols-2 gap-3">
+            <div className="rounded-lg border border-black/[0.07] bg-stone-50 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500 mb-1.5">Original</p>
+              <p className="text-xs text-stone-600 leading-relaxed whitespace-pre-wrap">{original}</p>
+            </div>
+            <div className="rounded-lg border border-emerald-100 bg-emerald-50/40 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 mb-1.5">Polished</p>
+              <p className="text-xs text-stone-800 leading-relaxed whitespace-pre-wrap">{polished}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigator.clipboard?.writeText(polished)}
+            className="text-xs font-semibold text-[#C4634E] hover:underline"
+          >
+            Copy polished text
+          </button>
         </div>
       );
     }
     default:
-      return <pre className="text-xs text-stone-500 overflow-auto">{JSON.stringify(p, null, 2)}</pre>;
+      return (
+        <div className="rounded-lg border border-amber-100 bg-amber-50 p-3 text-xs text-amber-700">
+          Unsupported artifact type. Open the relevant tool page for full output.
+        </div>
+      );
   }
 }
 
@@ -204,19 +428,19 @@ async function executeToolCall(name: string, args: Record<string, unknown>): Pro
     case "scan_plagiarism": {
       const res = await apiFetch("/api/pipeline/ric/plagiarism", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manuscript: args.ms ?? args.manuscript }) });
       const data = await res.json();
-      return { artifact: { id, type: "manuscript", title: "Plagiarism Scan", payload: { text: `Similarity: ${data.similarity ?? 0}%\n\n${data.summary ?? ""}\n\nSources:\n${(data.sources ?? []).map((s: { url?: string; snippet?: string }) => `- ${s.url ?? ""}\n  "${s.snippet ?? ""}"`).join("\n")}` }, createdAt: Date.now() }, summary: `Similarity ${data.similarity ?? 0}% · ${data.sources?.length ?? 0} sources` };
+      return { artifact: { id, type: "plagiarism_scan", title: "Plagiarism Scan", payload: data, createdAt: Date.now() }, summary: `Similarity ${data.similarity ?? 0}% · ${data.sources?.length ?? 0} sources` };
     }
     case "polish_prose": {
       const res = await apiFetch("/api/pipeline/polish", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manuscript: args.ms ?? args.manuscript ?? args.text, journalStyle: args.journalStyle ?? args.style ?? "generic" }) });
       const data = await res.json();
-      return { artifact: { id, type: "manuscript", title: "Polished Prose", payload: { text: data.polished ?? data.error ?? "" }, createdAt: Date.now() }, summary: "Prose polished — see artifact." };
+      return { artifact: { id, type: "polish_diff", title: "Polished Prose", payload: { original: data.original ?? "", polished: data.polished ?? data.error ?? "" }, createdAt: Date.now() }, summary: "Prose polished — see artifact." };
     }
     case "fetch_fulltext": {
       const dois = (args.dois as string[]) ?? (args.doi ? [args.doi as string] : []);
       const res = await apiFetch("/api/pipeline/fetch", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dois }) });
       const data = await res.json();
-      const lines = (data.results ?? []).map((r: { doi: string; status: string; downloadUrl?: string }) => `${r.doi} → ${r.status}${r.downloadUrl ? ` (${r.downloadUrl})` : ""}`).join("\n");
-      return { artifact: { id, type: "manuscript", title: "Fulltext Fetch", payload: { text: lines || "No results" }, createdAt: Date.now() }, summary: `${data.results?.filter((r: { status: string }) => r.status === "ok").length ?? 0}/${dois.length} fetched` };
+      const okCount = data.results?.filter((r: { status: string }) => r.status === "ok").length ?? 0;
+      return { artifact: { id, type: "fetch_result", title: "Fulltext Fetch", payload: { results: data.results ?? [] }, createdAt: Date.now() }, summary: `${okCount}/${dois.length} open-access PDFs found` };
     }
     case "translate_doc": {
       const text = (args.text ?? args.ms ?? args.manuscript ?? "") as string;
@@ -226,13 +450,13 @@ async function executeToolCall(name: string, args: Record<string, unknown>): Pro
       const targetLanguage = (args.targetLanguage ?? args.lang ?? "VI") as string;
       const res = await apiFetch("/api/pipeline/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: "wk-" + Date.now(), abstract: text, targetLanguage }) });
       const data = await res.json();
-      return { artifact: { id, type: "manuscript", title: `Translation → ${targetLanguage}`, payload: { text: data.abstractTranslated ?? data.error ?? "" }, createdAt: Date.now() }, summary: "Translation complete." };
+      return { artifact: { id, type: "translation", title: `Translation → ${targetLanguage}`, payload: { translated: data.abstractTranslated ?? data.error ?? "", targetLanguage }, createdAt: Date.now() }, summary: "Translation complete." };
     }
     case "draft_manuscript": {
       return { artifact: { id, type: "manuscript", title: "Draft Manuscript", payload: { text: "Draft generation needs reference list + outline + target journal. Please run @search_papers and @generate_outline first, then I'll synthesize." }, createdAt: Date.now() }, summary: "Need refs + outline first." };
     }
     default:
-      return { artifact: { id, type: "manuscript", title: `${name} result`, payload: { text: `Tool ${name}: ${JSON.stringify(args)}` }, createdAt: Date.now() }, summary: `${name} completed.` };
+      return { artifact: { id, type: "manuscript", title: `${name} result`, payload: { text: `Tool ${name} not yet wired in workspace.` }, createdAt: Date.now() }, summary: `${name} completed.` };
   }
 }
 
@@ -565,7 +789,8 @@ export default function WorkspacePage() {
         }
       }
     } catch (error) {
-      const errText = `Lỗi: ${error instanceof Error ? error.message : "Unknown error"}`;
+      const errPrefix = outputLanguage === "EN" ? "Error" : "Lỗi";
+      const errText = `${errPrefix}: ${error instanceof Error ? error.message : "Unknown error"}`;
       setMessages((prev) => prev.map((m) => m.id === assistantId ? { ...m, text: errText, isStreaming: false } : m));
     } finally {
       setIsLoading(false);
@@ -645,7 +870,7 @@ export default function WorkspacePage() {
               <button onClick={createNewProject} className="text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors border border-black/10 rounded-full px-2.5 py-1" id="ws-new-btn">+ Project</button>
             )}
             {user && userPlan === "free" && (
-              <a href="/account/billing" className="text-xs font-semibold text-white rounded-full px-2.5 py-1 transition-opacity hover:opacity-90 animate-pulse" style={{ backgroundColor: "#C4634E" }}>⬆ Pro</a>
+              <a href="/account/billing" className="text-xs font-semibold text-white rounded-full px-2.5 py-1 transition-opacity hover:opacity-90" style={{ backgroundColor: "#C4634E" }}>⬆ Pro</a>
             )}
             {/* Language */}
             <div className="inline-flex rounded-full border border-black/10 bg-stone-100 p-0.5 text-[11px] font-medium">
@@ -749,7 +974,7 @@ export default function WorkspacePage() {
                   ? "text-white bg-[#C4634E] animate-pulse shadow-md"
                   : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"
               }`}
-              title={uploadedFile ? `📎 ${uploadedFile.name}` : inputHasFileRequiredTool ? "Tool này cần file — nhấn để upload" : "Upload file"}>
+              title={uploadedFile ? `📎 ${uploadedFile.name}` : inputHasFileRequiredTool ? (outputLanguage === "EN" ? "This tool needs a file — click to upload" : "Tool này cần file — nhấn để upload") : (outputLanguage === "EN" ? "Upload file" : "Tải file lên")}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
             </button>
             <textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown}
@@ -774,7 +999,9 @@ export default function WorkspacePage() {
           </div>
           {showFileRequiredWarning ? (
             <p className="mt-1.5 text-[11px] text-[#C4634E] text-center font-medium">
-              📎 Tool này cần file đính kèm — nhấn nút upload bên trái để chọn PDF / DOCX
+              {outputLanguage === "EN"
+                ? "📎 This tool needs a file — click the upload button to attach a PDF / DOCX"
+                : "📎 Tool này cần file đính kèm — nhấn nút upload bên trái để chọn PDF / DOCX"}
             </p>
           ) : (
             <p className="mt-1.5 text-[10px] text-stone-400 text-center">{t.footerHint}</p>
@@ -837,9 +1064,13 @@ export default function WorkspacePage() {
               <div className="w-16 h-16 rounded-2xl bg-stone-100 flex items-center justify-center mb-4 text-stone-300">
                 <Icons.FileText className="w-8 h-8" />
               </div>
-              <p className="text-sm font-medium text-stone-900 mb-1">No artifacts yet</p>
+              <p className="text-sm font-medium text-stone-900 mb-1">
+                {outputLanguage === "EN" ? "No artifacts yet" : "Chưa có kết quả"}
+              </p>
               <p className="text-xs text-stone-400 max-w-xs leading-relaxed">
-                Ask AFA to search papers, validate your idea, or check citations — results appear here.
+                {outputLanguage === "EN"
+                  ? "Ask AFA to search papers, validate your idea, or check citations — results appear here."
+                  : "Hỏi AFA tìm tài liệu, kiểm tra ý tưởng, hay quét trích dẫn — kết quả hiện ở đây."}
               </p>
               <div className="mt-6 grid grid-cols-3 gap-3 w-full max-w-sm">
                 {t.quickCards.map((item) => (

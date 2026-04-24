@@ -39,6 +39,8 @@ function SearchTab() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [translatingIds, setTranslatingIds] = useState<string[]>([]);
+  const [copiedDoi, setCopiedDoi] = useState<string | null>(null);
+  const [translateErrors, setTranslateErrors] = useState<Record<string, string>>({});
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -94,24 +96,33 @@ function SearchTab() {
   async function translateAbstract(ref: SearchResult) {
     if (ref.abstractTranslated || translatingIds.includes(ref.id)) return;
     setTranslatingIds((prev) => [...prev, ref.id]);
+    setTranslateErrors((prev) => { const n = { ...prev }; delete n[ref.id]; return n; });
     try {
       const res = await apiFetch("/api/pipeline/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: ref.id, abstract: ref.abstract, targetLanguage: "VI" }),
       });
-      if (!res.ok) throw new Error();
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Translation failed");
       if (data.abstractTranslated) {
         setResults((prev) =>
           prev.map((r) => (r.id === ref.id ? { ...r, abstractTranslated: data.abstractTranslated } : r))
         );
+      } else {
+        throw new Error("No translation returned");
       }
-    } catch {
-      // silent
+    } catch (err) {
+      setTranslateErrors((prev) => ({ ...prev, [ref.id]: err instanceof Error ? err.message : "Translation failed" }));
     } finally {
       setTranslatingIds((prev) => prev.filter((i) => i !== ref.id));
     }
+  }
+
+  function copyDoi(doi: string) {
+    navigator.clipboard.writeText(doi).catch(() => {});
+    setCopiedDoi(doi);
+    setTimeout(() => setCopiedDoi((v) => (v === doi ? null : v)), 2000);
   }
 
   function copyCitation(ref: SearchResult) {
@@ -227,15 +238,15 @@ function SearchTab() {
                 )}
                 {ref.doi && (
                   <button
-                    onClick={() => {
-                      // Chain to Fetch tab — copy DOI to clipboard hint
-                      navigator.clipboard.writeText(ref.doi!).catch(() => {});
-                      alert(`DOI copied: ${ref.doi}\n\nSwitch to the Fetch tab to download full text.`);
-                    }}
+                    onClick={() => copyDoi(ref.doi!)}
                     className="text-xs font-medium px-3 py-1.5 rounded-full bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors"
+                    title="Copy DOI, then switch to the Fetch tab to download full text"
                   >
-                    ↓ Fetch full text
+                    {copiedDoi === ref.doi ? "✓ DOI copied" : "↓ Copy DOI for fetch"}
                   </button>
+                )}
+                {translateErrors[ref.id] && (
+                  <span className="text-xs text-red-600">{translateErrors[ref.id]}</span>
                 )}
               </div>
             </div>

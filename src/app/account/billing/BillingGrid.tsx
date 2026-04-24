@@ -12,6 +12,7 @@ export default function BillingGrid() {
   const { lang } = useLang();
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState<"monthly" | "yearly">("monthly");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const lsEnabled = process.env.NEXT_PUBLIC_LS_ENABLED === "true";
   const lsMonthlyVariantId = process.env.NEXT_PUBLIC_LS_MONTHLY_VARIANT_ID ?? "";
@@ -25,6 +26,7 @@ export default function BillingGrid() {
       return;
     }
     setLoading(true);
+    setErrorMsg(null);
     try {
       const res = await apiFetch("/api/payment/create", {
         method: "POST",
@@ -35,10 +37,10 @@ export default function BillingGrid() {
       if (data.checkoutURL) {
         window.location.href = data.checkoutURL;
       } else {
-        alert(data.error || "Failed to initiate payment");
+        setErrorMsg(data.error || s("paymentFailed"));
       }
     } catch {
-      alert("Payment initiation failed");
+      setErrorMsg(s("paymentFailed"));
     } finally {
       setLoading(false);
     }
@@ -111,12 +113,17 @@ export default function BillingGrid() {
           >
             {loading ? s("qrLoading") : user ? s("qrCta") : s("qrCtaLogin")}
           </button>
+          {errorMsg && (
+            <p className="mt-3 text-xs text-red-600 text-center" role="alert">
+              {errorMsg}
+            </p>
+          )}
         </div>
 
         {/* LS Card */}
         <div className="no-grid rounded-2xl p-7 flex flex-col border border-stone-200 bg-stone-50/50">
           <div className="mb-4">
-            <span className="text-4xl" style={{ filter: "grayscale(1)" }}>🌐</span>
+            <span className="text-4xl" aria-hidden>💳</span>
           </div>
           <p className="mb-1 text-sm font-bold uppercase tracking-widest text-stone-400">
             {s("cardLabel")}
@@ -150,7 +157,7 @@ export default function BillingGrid() {
           ) : (
             <button
               disabled
-              title="Cổng thanh toán đang chờ xét duyệt"
+              title={s("pendingReview")}
               className="w-full inline-flex items-center justify-center rounded-full py-3 px-5 text-sm font-semibold transition-opacity bg-stone-200 text-stone-400 cursor-not-allowed"
             >
               {s("comingSoon")}

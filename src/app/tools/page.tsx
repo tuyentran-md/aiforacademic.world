@@ -96,7 +96,7 @@ export default async function ToolsPage() {
           </h1>
           <p className="max-w-xl text-base leading-relaxed text-stone-600">
             {s("subhead")}{" "}
-            <Link href="/workspace" className="text-stone-900 underline underline-offset-3 hover:text-stone-700">
+            <Link href="/workspace" className="text-stone-900 underline underline-offset-4 hover:text-stone-700">
               {s("workspaceLink")}
             </Link>{" "}
             {s("subheadSuffix")}

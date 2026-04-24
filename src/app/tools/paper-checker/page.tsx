@@ -98,16 +98,22 @@ function CitationTab() {
   }
 
   async function exportRis() {
+    setError(null);
     try {
       const res = await apiFetch("/api/pipeline/extract-refs", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ manuscript: manuscript.trim() }),
       });
-      if (!res.ok) throw new Error();
-      const blob = await res.blob();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Export failed");
+      if (!data.ris) throw new Error("No references found in manuscript");
+      const blob = new Blob([data.ris], { type: "application/x-research-info-systems" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a"); a.href = url; a.download = "refs_clean.ris"; a.click();
-    } catch { alert("Export failed"); }
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Export failed");
+    }
   }
 
   return (
@@ -125,12 +131,6 @@ function CitationTab() {
             style={{ backgroundColor: "#C4634E" }} id="pc-citations-btn">
             {loading ? "Checking…" : "Check citations"}
           </button>
-          {manuscript.trim() && !loading && (
-            <button type="button" onClick={exportRis}
-              className="rounded-lg px-5 py-2.5 text-sm font-semibold border border-black/10 text-stone-700 hover:border-stone-300 transition-colors">
-              Export .ris (Zotero)
-            </button>
-          )}
         </div>
       </form>
 
