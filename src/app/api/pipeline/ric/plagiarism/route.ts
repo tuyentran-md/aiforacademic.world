@@ -44,7 +44,7 @@ Note: cited passages reduce, not increase, the plagiarism score.`,
         ],
         responseFormat: "json",
         temperature: 0.1,
-        maxTokens: 4096,
+        maxTokens: 8192,
       });
 
       const parsed = parseJsonResponse<{
