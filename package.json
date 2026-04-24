@@ -28,6 +28,7 @@
     "sepay-pg-node": "^1.0.0",
     "server-only": "^0.0.1",
     "tailwindcss": "^4.1.4",
+    "unpdf": "^1.6.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

@@ -27,10 +27,10 @@ async function extractTextFromDocx(buffer: Buffer): Promise<string> {
 }
 
 async function extractTextFromPdf(buffer: Buffer): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const pdfParse = require("pdf-parse") as (buf: Buffer) => Promise<{ text: string }>;
-  const data = await pdfParse(buffer);
-  return data.text;
+  const { extractText, getDocumentProxy } = await import("unpdf");
+  const pdf = await getDocumentProxy(new Uint8Array(buffer));
+  const { text } = await extractText(pdf, { mergePages: true });
+  return Array.isArray(text) ? text.join("\n") : text;
 }
 
 export async function POST(request: NextRequest) {

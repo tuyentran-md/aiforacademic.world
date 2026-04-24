@@ -398,7 +398,7 @@ function TranslateTab() {
   return (
     <div>
       <p className="mb-4 text-sm text-stone-500">
-        Upload a <strong>PDF or DOCX</strong> (max 50 MB). Text is chunked, translated with medical-grade accuracy preserving all citations, headings, and figures, then returned as a translated <strong>.docx</strong> file.
+        Upload a <strong>PDF or DOCX</strong> (max 50 MB). Text is chunked, translated with medical-grade accuracy preserving citations, headings, numbers, and figure references, then returned as a translated <strong>.txt</strong> file. <span className="text-stone-400">(Format-preserving DOCX export coming soon.)</span>
       </p>
       <form onSubmit={handleTranslate} className="mb-6 space-y-4">
         <div className="rounded-xl border border-black/[0.07] bg-white p-5 md:p-6 space-y-4">
@@ -450,11 +450,11 @@ function TranslateTab() {
           <p className="text-sm font-medium text-green-800">✓ Translation complete</p>
           <a
             href={downloadUrl}
-            download={`translated_${file?.name ?? "document"}.docx`}
+            download={`translated_${(file?.name ?? "document").replace(/\.(pdf|docx)$/i, "")}.txt`}
             className="text-sm font-semibold text-white px-4 py-2 rounded-full transition-opacity hover:opacity-90"
             style={{ backgroundColor: "#C4634E" }}
           >
-            Download .docx ↓
+            Download .txt ↓
           </a>
         </div>
       )}

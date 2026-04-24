@@ -26,10 +26,10 @@ export async function POST(request: NextRequest) {
     let text = "";
 
     if (filename.endsWith(".pdf")) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require("pdf-parse") as (buf: Buffer) => Promise<{ text: string }>;
-      const data = await pdfParse(buffer);
-      text = data.text;
+      const { extractText, getDocumentProxy } = await import("unpdf");
+      const pdf = await getDocumentProxy(new Uint8Array(buffer));
+      const { text: pdfText } = await extractText(pdf, { mergePages: true });
+      text = Array.isArray(pdfText) ? pdfText.join("\n") : pdfText;
     } else if (filename.endsWith(".docx")) {
       const mammoth = await import("mammoth");
       const result = await mammoth.extractRawText({ buffer });
