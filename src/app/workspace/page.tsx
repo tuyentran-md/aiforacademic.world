@@ -201,16 +201,69 @@ async function executeToolCall(name: string, args: Record<string, unknown>): Pro
       const data = await res.json();
       return { artifact: { id, type: "peer_review", title: "Peer Review", payload: data, createdAt: Date.now() }, summary: `Recommendation: ${data.recommendation}` };
     }
+    case "scan_plagiarism": {
+      const res = await apiFetch("/api/pipeline/ric/plagiarism", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manuscript: args.ms ?? args.manuscript }) });
+      const data = await res.json();
+      return { artifact: { id, type: "manuscript", title: "Plagiarism Scan", payload: { text: `Similarity: ${data.similarity ?? 0}%\n\n${data.summary ?? ""}\n\nSources:\n${(data.sources ?? []).map((s: { url?: string; snippet?: string }) => `- ${s.url ?? ""}\n  "${s.snippet ?? ""}"`).join("\n")}` }, createdAt: Date.now() }, summary: `Similarity ${data.similarity ?? 0}% · ${data.sources?.length ?? 0} sources` };
+    }
+    case "polish_prose": {
+      const res = await apiFetch("/api/pipeline/polish", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ manuscript: args.ms ?? args.manuscript ?? args.text, journalStyle: args.journalStyle ?? args.style ?? "generic" }) });
+      const data = await res.json();
+      return { artifact: { id, type: "manuscript", title: "Polished Prose", payload: { text: data.polished ?? data.error ?? "" }, createdAt: Date.now() }, summary: "Prose polished — see artifact." };
+    }
+    case "fetch_fulltext": {
+      const dois = (args.dois as string[]) ?? (args.doi ? [args.doi as string] : []);
+      const res = await apiFetch("/api/pipeline/fetch", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dois }) });
+      const data = await res.json();
+      const lines = (data.results ?? []).map((r: { doi: string; status: string; downloadUrl?: string }) => `${r.doi} → ${r.status}${r.downloadUrl ? ` (${r.downloadUrl})` : ""}`).join("\n");
+      return { artifact: { id, type: "manuscript", title: "Fulltext Fetch", payload: { text: lines || "No results" }, createdAt: Date.now() }, summary: `${data.results?.filter((r: { status: string }) => r.status === "ok").length ?? 0}/${dois.length} fetched` };
+    }
+    case "translate_doc": {
+      const text = (args.text ?? args.ms ?? args.manuscript ?? "") as string;
+      if (!text.trim()) {
+        return { artifact: { id, type: "manuscript", title: "Translate", payload: { text: "Please attach a PDF/DOCX or paste the text to translate." }, createdAt: Date.now() }, summary: "Need document text." };
+      }
+      const targetLanguage = (args.targetLanguage ?? args.lang ?? "VI") as string;
+      const res = await apiFetch("/api/pipeline/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: "wk-" + Date.now(), abstract: text, targetLanguage }) });
+      const data = await res.json();
+      return { artifact: { id, type: "manuscript", title: `Translation → ${targetLanguage}`, payload: { text: data.abstractTranslated ?? data.error ?? "" }, createdAt: Date.now() }, summary: "Translation complete." };
+    }
+    case "draft_manuscript": {
+      return { artifact: { id, type: "manuscript", title: "Draft Manuscript", payload: { text: "Draft generation needs reference list + outline + target journal. Please run @search_papers and @generate_outline first, then I'll synthesize." }, createdAt: Date.now() }, summary: "Need refs + outline first." };
+    }
     default:
       return { artifact: { id, type: "manuscript", title: `${name} result`, payload: { text: `Tool ${name}: ${JSON.stringify(args)}` }, createdAt: Date.now() }, summary: `${name} completed.` };
   }
 }
 
 function parseToolCall(text: string): { name: string; args: Record<string, unknown> } | null {
-  const match = text.match(/\[CALL:([a-z_]+):(\{[^}]*\})\]/);
-  if (!match) return null;
-  try { return { name: match[1], args: JSON.parse(match[2]) }; }
-  catch { return { name: match[1], args: {} }; }
+  // Find [CALL:name: then balance braces to support nested objects + long manuscript args
+  const head = text.match(/\[CALL:([a-z_]+):/);
+  if (!head) return null;
+  const start = (head.index ?? 0) + head[0].length;
+  let depth = 0;
+  let end = -1;
+  let inStr = false;
+  let esc = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (esc) { esc = false; continue; }
+    if (inStr) {
+      if (ch === "\\") esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) { end = i + 1; break; }
+    }
+  }
+  if (end === -1 || text[end] !== "]") return null;
+  const argsStr = text.slice(start, end);
+  try { return { name: head[1], args: JSON.parse(argsStr) }; }
+  catch { return { name: head[1], args: {} }; }
 }
 
 // ── System prompt ────────────────────────────────────────────────────────
@@ -226,8 +279,9 @@ Rules:
 2. ASK before translate_doc (language? document name?)
 3. Never chain 2+ heavy tools without confirmation
 4. Reference past artifacts as [📄 name]
-5. Respond in Vietnamese by default unless user writes English
-6. After each tool: summarize results + suggest next step concisely`;
+5. Always respond in the language specified by the system "Output language" instruction — do NOT default to Vietnamese
+6. After each tool: summarize results + suggest next step concisely
+7. When a user attaches a file, the parsed text appears in the message body wrapped in [DOCUMENT BEGIN]…[DOCUMENT END]. Pass that text (not the filename) as the manuscript/text argument when calling tools that need content.`;
 
 // ── Project Sidebar ────────────────────────────────────────────────────────
 interface ProjectSidebarProps {
@@ -433,7 +487,9 @@ export default function WorkspacePage() {
 
     const userMsgId = createId();
     const assistantId = createId();
-    const userMsg: Message = { id: userMsgId, role: "user", text: content + (uploadedFile ? ` [📎 ${uploadedFile.name}]` : "") };
+    const fileToParse = uploadedFile;
+    const visibleText = content + (fileToParse ? ` [📎 ${fileToParse.name}]` : "");
+    const userMsg: Message = { id: userMsgId, role: "user", text: visibleText };
     const assistantMsg: Message = { id: assistantId, role: "assistant", text: "", isStreaming: true };
     setUploadedFile(null);
 
@@ -445,7 +501,26 @@ export default function WorkspacePage() {
       saveMessage({ projectId: activeProjectId, userId: user.uid, role: "user", text: content }).catch(() => {});
     }
 
-    const history = [...messages.slice(-10), userMsg].map((m) => ({
+    // Parse uploaded file (if any) and inline its text so the LLM has actual content
+    let llmContent = content;
+    if (fileToParse) {
+      try {
+        const fd = new FormData();
+        fd.append("file", fileToParse);
+        const parseRes = await apiFetch("/api/pipeline/parse-pdf", { method: "POST", body: fd });
+        const parseData = await parseRes.json();
+        if (parseRes.ok && parseData.text) {
+          llmContent = `${content}\n\n[DOCUMENT BEGIN — ${fileToParse.name}]\n${parseData.text}\n[DOCUMENT END]`;
+        } else {
+          llmContent = `${content}\n\n[Note: failed to parse ${fileToParse.name} — ${parseData.error ?? "unknown error"}]`;
+        }
+      } catch (err) {
+        llmContent = `${content}\n\n[Note: failed to parse ${fileToParse.name} — ${err instanceof Error ? err.message : "network error"}]`;
+      }
+    }
+
+    const llmUserMsg = { ...userMsg, text: llmContent };
+    const history = [...messages.slice(-10), llmUserMsg].map((m) => ({
       role: m.role === "assistant" ? "model" as const : "user" as const,
       parts: [{ text: m.text }],
     }));

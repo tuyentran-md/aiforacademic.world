@@ -389,10 +389,13 @@ function ExtractRefsTab() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ manuscript: manuscript.trim() }),
       });
-      if (!res.ok) throw new Error("Extraction failed");
-      const blob = await res.blob();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Extraction failed");
+      if (!data.ris) throw new Error("No references found");
+      const blob = new Blob([data.ris], { type: "application/x-research-info-systems" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a"); a.href = url; a.download = "refs_clean.ris"; a.click();
+      URL.revokeObjectURL(url);
       setDone(true);
     } catch (err) { setError(err instanceof Error ? err.message : "Failed"); }
     finally { setLoading(false); }
