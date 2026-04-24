@@ -138,6 +138,12 @@ function CitationTab() {
 
       {result && (
         <div className="space-y-4">
+          {result.total === 0 && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              {(result as { warning?: string }).warning ||
+                "No bibliography entries detected. Make sure your text includes a REFERENCES section with full citations (author · year · title · journal · DOI)."}
+            </div>
+          )}
           <div className="rounded-xl border border-black/[0.07] bg-white p-4 flex gap-6">
             <div className="text-center"><p className="text-2xl font-bold text-stone-900">{result.total}</p><p className="text-xs text-stone-500">Total refs</p></div>
             <div className="text-center"><p className="text-2xl font-bold text-green-600">{result.verified}</p><p className="text-xs text-stone-500">Verified</p></div>

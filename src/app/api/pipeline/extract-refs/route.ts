@@ -13,11 +13,17 @@ export async function POST(request: NextRequest) {
       const { manuscript } = body as { manuscript: string };
       if (!manuscript) return NextResponse.json({ error: "No manuscript" }, { status: 400 });
 
+      // Bibliography always sits at the end of a manuscript. If the input is huge,
+      // take the last 30 KB so we don't waste tokens on body content.
+      const MAX_INPUT = 30_000;
+      const trimmed =
+        manuscript.length > MAX_INPUT ? manuscript.slice(-MAX_INPUT) : manuscript;
+
       const raw = await callLLM({
         messages: [
           {
             role: "system",
-            content: `You are a reference extraction tool. Extract ALL references/citations from the provided text and output ONLY valid JSON.
+            content: `You are a reference extraction tool. Extract ALL references/citations from the REFERENCES / Bibliography section of the provided text and output ONLY valid JSON.
 Format the output exactly like this:
 {
   "references": [
@@ -34,13 +40,13 @@ Format the output exactly like this:
     }
   ]
 }
-If a field is missing, omit it or leave it empty. Extract as many structured details as possible. DO NOT output markdown blocks or any text other than the JSON.`,
+If a field is missing, omit it. Extract every entry — do not stop early. DO NOT output markdown blocks or any text other than the JSON.`,
           },
-          { role: "user", content: manuscript },
+          { role: "user", content: trimmed },
         ],
         responseFormat: "json",
         temperature: 0.1,
-        maxTokens: 4096,
+        maxTokens: 8192,
       });
 
       const parsed = parseJsonResponse<{
@@ -57,8 +63,14 @@ If a field is missing, omit it or leave it empty. Extract as many structured det
         }>;
       }>(raw);
 
-      if (!parsed || !parsed.references) {
-        return NextResponse.json({ error: "Could not extract references" }, { status: 500 });
+      if (!parsed || !Array.isArray(parsed.references) || parsed.references.length === 0) {
+        return NextResponse.json(
+          {
+            error:
+              "No references found. Make sure your text includes a REFERENCES section with full citations (author · year · title · journal · DOI).",
+          },
+          { status: 422 }
+        );
       }
 
       // Format as RIS
