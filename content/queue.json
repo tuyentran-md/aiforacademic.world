@@ -3,14 +3,7 @@
   "domain": "aiforacademic.world",
   "owner": "Bi",
   "note": "ID 43 exists as draft imrad-format-mistakes... in content/blog/ — pillar_url mismatch (originally tuyentranmd). Keep here since file lives here.",
-  "drafted_waiting": [
-    {
-      "id": 43,
-      "type": "foundation",
-      "title": "Why Most Papers Have Structural Problems",
-      "file": "content/blog/imrad-format-mistakes-chronological-vs-logical-order.md"
-    }
-  ],
+  "drafted_waiting": [],
   "next_to_write": [
     {
       "id": 49,
